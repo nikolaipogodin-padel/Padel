@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'padel-riga-round-robin-v4';
+const STORAGE_KEY = 'padel-riga-round-robin-v5';
 
 const initialState = {
   tournamentName: 'Riga Padel Cup',
@@ -8,7 +8,8 @@ const initialState = {
   queue: [],
   teams: [],
   rounds: [],
-  matches: []
+  matches: [],
+  meta: null
 };
 
 const clone = (obj) => JSON.parse(JSON.stringify(obj));
@@ -43,13 +44,13 @@ function shuffle(list) {
 }
 
 function timeToMinutes(value) {
-  const [h, m] = value.split(':').map(Number);
+  const [h, m] = String(value || '10:00').split(':').map(Number);
   return h * 60 + m;
 }
 
 function minutesToTime(total) {
   const day = 24 * 60;
-  const normalized = ((total % day) + day) % day;
+  const normalized = ((Math.round(total) % day) + day) % day;
   const h = Math.floor(normalized / 60);
   const m = normalized % 60;
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
@@ -57,8 +58,8 @@ function minutesToTime(total) {
 
 function formatDuration(minutes) {
   if (!Number.isFinite(minutes) || minutes <= 0) return '—';
-  if (Math.abs(minutes - Math.round(minutes)) < 0.001) return `${Math.round(minutes)} мин`;
-  return `${minutes.toFixed(1)} мин`;
+  const rounded = Math.round(minutes * 10) / 10;
+  return Number.isInteger(rounded) ? `${rounded} мин` : `${rounded.toFixed(1)} мин`;
 }
 
 function roundRobinPairs(teams) {
@@ -72,9 +73,7 @@ function roundRobinPairs(teams) {
   for (let roundIndex = 0; roundIndex < roundCount; roundIndex++) {
     const pairings = [];
     for (let i = 0; i < half; i++) {
-      const home = rotating[i];
-      const away = rotating[rotating.length - 1 - i];
-      pairings.push([home, away]);
+      pairings.push([rotating[i], rotating[rotating.length - 1 - i]]);
     }
     rounds.push(pairings);
     const fixed = rotating[0];
@@ -86,44 +85,50 @@ function roundRobinPairs(teams) {
   return rounds;
 }
 
+function syncSettingsFromInputs() {
+  state.tournamentName = byId('tournamentName').value.trim() || 'Riga Padel Cup';
+  state.durationMinutes = Number(byId('durationSelect').value || 120);
+  state.startTime = byId('startTime').value || '10:00';
+}
+
 function buildTournament() {
+  syncSettingsFromInputs();
+
   const queuedCount = state.participants.length % 4;
   const activePlayers = state.participants.slice(0, state.participants.length - queuedCount);
-  const queue = state.participants.slice(state.participants.length - queuedCount);
-
-  state.queue = queue;
+  state.queue = state.participants.slice(state.participants.length - queuedCount);
   state.teams = [];
   state.rounds = [];
   state.matches = [];
+  state.meta = null;
 
   if (activePlayers.length < 4) {
     saveState();
     render();
+    alert('Нужно минимум 4 добавленных игрока.');
     return;
   }
 
   const shuffled = shuffle(activePlayers);
   const teams = [];
   for (let i = 0; i < shuffled.length; i += 2) {
-    const p1 = shuffled[i];
-    const p2 = shuffled[i + 1];
     teams.push({
       id: uid(),
-      name: `${p1.name} / ${p2.name}`,
-      players: [p1, p2]
+      name: `${shuffled[i].name} / ${shuffled[i + 1].name}`,
+      players: [shuffled[i], shuffled[i + 1]]
     });
   }
 
   const roundPairs = roundRobinPairs(teams);
-  const courts = teams.length / 2;
-  const roundCount = roundPairs.length;
-  const transition = 5;
-  const totalTransitions = Math.max(0, roundCount - 1) * transition;
-  const matchMinutes = Math.max(1, (Number(state.durationMinutes) - totalTransitions) / Math.max(1, roundCount));
-  const startMinutes = timeToMinutes(state.startTime || '10:00');
+  const courts = Math.max(1, teams.length / 2);
+  const roundsCount = roundPairs.length;
+  const transitionMinutes = 5;
+  const totalTransitions = Math.max(0, roundsCount - 1) * transitionMinutes;
+  const matchMinutes = roundsCount ? Math.max(1, (state.durationMinutes - totalTransitions) / roundsCount) : 0;
+  const startMinutes = timeToMinutes(state.startTime);
 
-  const rounds = roundPairs.map((round, roundIndex) => {
-    const roundStart = startMinutes + roundIndex * (matchMinutes + transition);
+  state.rounds = roundPairs.map((round, roundIndex) => {
+    const roundStart = startMinutes + roundIndex * (matchMinutes + transitionMinutes);
     const roundEnd = roundStart + matchMinutes;
     const matches = round.map((pair, idx) => ({
       id: uid(),
@@ -148,15 +153,14 @@ function buildTournament() {
   });
 
   state.teams = teams;
-  state.rounds = rounds;
-  state.matches = rounds.flatMap((round) => round.matches);
+  state.matches = state.rounds.flatMap(round => round.matches);
   state.meta = {
     activePlayers: activePlayers.length,
-    queuedPlayers: queue.length,
+    queuedPlayers: state.queue.length,
     teams: teams.length,
     courts,
-    rounds: roundCount,
-    transition,
+    rounds: roundsCount,
+    transitionMinutes,
     matchMinutes
   };
 
@@ -165,42 +169,37 @@ function buildTournament() {
 }
 
 function updateMatch(matchId, gamesA, gamesB, updatedBy) {
-  const match = state.matches.find((item) => item.id === matchId);
+  const match = state.matches.find(item => item.id === matchId);
   if (!match) return;
 
-  const allowed = [...match.teamA.players, ...match.teamB.players].map((p) => p.name.trim().toLowerCase());
   const actor = String(updatedBy || '').trim();
+  const allowed = [...match.teamA.players, ...match.teamB.players].map(p => p.name.trim().toLowerCase());
   if (!actor || !allowed.includes(actor.toLowerCase())) {
     alert('Результат может ввести только один из 4 игроков матча.');
     return;
   }
 
-  const a = String(gamesA).trim();
-  const b = String(gamesB).trim();
-  match.gamesA = a;
-  match.gamesB = b;
+  match.gamesA = String(gamesA).trim();
+  match.gamesB = String(gamesB).trim();
   match.updatedBy = actor;
-  match.status = a !== '' && b !== '' && Number(a) !== Number(b) ? 'Completed' : 'Scheduled';
+  match.status = match.gamesA !== '' && match.gamesB !== '' && Number(match.gamesA) !== Number(match.gamesB)
+    ? 'Completed'
+    : 'Scheduled';
 
-  for (const round of state.rounds) {
-    const roundMatch = round.matches.find((item) => item.id === matchId);
-    if (roundMatch) {
-      roundMatch.gamesA = match.gamesA;
-      roundMatch.gamesB = match.gamesB;
-      roundMatch.updatedBy = match.updatedBy;
-      roundMatch.status = match.status;
-    }
-  }
+  state.rounds.forEach(round => {
+    const roundMatch = round.matches.find(item => item.id === matchId);
+    if (roundMatch) Object.assign(roundMatch, match);
+  });
 
   saveState();
-  renderStandings();
-  renderMatches();
   renderSchedule();
+  renderMatches();
+  renderStandings();
 }
 
 function computeStandings() {
   const standings = {};
-  for (const team of state.teams) {
+  state.teams.forEach(team => {
     standings[team.id] = {
       teamName: team.name,
       played: 0,
@@ -210,10 +209,10 @@ function computeStandings() {
       gamesLost: 0,
       diff: 0
     };
-  }
+  });
 
-  for (const match of state.matches) {
-    if (match.status !== 'Completed') continue;
+  state.matches.forEach(match => {
+    if (match.status !== 'Completed') return;
     const a = standings[match.teamA.id];
     const b = standings[match.teamB.id];
     const ga = Number(match.gamesA);
@@ -233,10 +232,10 @@ function computeStandings() {
       b.wins += 1;
       a.losses += 1;
     }
-  }
+  });
 
   return Object.values(standings)
-    .map((row) => ({ ...row, diff: row.gamesWon - row.gamesLost }))
+    .map(row => ({ ...row, diff: row.gamesWon - row.gamesLost }))
     .sort((x, y) => y.wins - x.wins || y.diff - x.diff || y.gamesWon - x.gamesWon || x.teamName.localeCompare(y.teamName))
     .map((row, index) => ({ ...row, rank: index + 1 }));
 }
@@ -244,6 +243,7 @@ function computeStandings() {
 function renderPlayers() {
   byId('participantsCount').textContent = state.participants.length;
   const playersView = byId('playersView');
+
   if (!state.participants.length) {
     playersView.innerHTML = '<div class="empty">Игроков пока нет.</div>';
     return;
@@ -259,10 +259,9 @@ function renderPlayers() {
     </div>
   `).join('');
 
-  playersView.querySelectorAll('[data-remove-id]').forEach((button) => {
+  playersView.querySelectorAll('[data-remove-id]').forEach(button => {
     button.addEventListener('click', () => {
-      const id = button.dataset.removeId;
-      state.participants = state.participants.filter((player) => player.id !== id);
+      state.participants = state.participants.filter(player => player.id !== button.dataset.removeId);
       saveState();
       render();
     });
@@ -279,47 +278,39 @@ function renderSummary() {
   const matchMinutes = rounds ? Math.max(1, (Number(state.durationMinutes) - (rounds - 1) * transition) / rounds) : 0;
 
   byId('summaryView').innerHTML = `
-    <div class="summary-item">Активных игроков<strong>${activePlayers}</strong></div>
-    <div class="summary-item">В очереди<strong>${queued}</strong></div>
+    <div class="summary-item">Активные игроки<strong>${activePlayers}</strong></div>
+    <div class="summary-item">Очередь<strong>${queued}</strong></div>
     <div class="summary-item">Пары<strong>${teams}</strong></div>
     <div class="summary-item">Корты<strong>${courts}</strong></div>
     <div class="summary-item">Раунды<strong>${rounds}</strong></div>
-    <div class="summary-item">Игра / переход<strong>${formatDuration(matchMinutes)} / 5 мин</strong></div>
+    <div class="summary-item">Игра<strong>${formatDuration(matchMinutes)}</strong></div>
   `;
 }
 
 function renderPairs() {
   byId('pairsCount').textContent = state.teams.length;
   const pairsView = byId('pairsView');
-  if (!state.teams.length) {
-    pairsView.innerHTML = '<div class="empty">Пары появятся после формирования турнира.</div>';
-    return;
-  }
-  pairsView.innerHTML = state.teams.map((team, index) => `
-    <div class="item">${index + 1}. ${team.name}</div>
-  `).join('');
+  pairsView.innerHTML = state.teams.length
+    ? state.teams.map((team, index) => `<div class="item">${index + 1}. ${team.name}</div>`).join('')
+    : '<div class="empty">Пары появятся после формирования турнира.</div>';
 }
 
 function renderQueue() {
   byId('queueCount').textContent = state.queue.length;
   const queueView = byId('queueView');
-  if (!state.queue.length) {
-    queueView.innerHTML = '<div class="empty">Очереди нет.</div>';
-    return;
-  }
-  queueView.innerHTML = state.queue.map((player, index) => `
-    <div class="item">${index + 1}. ${player.name}</div>
-  `).join('');
+  queueView.innerHTML = state.queue.length
+    ? state.queue.map((player, index) => `<div class="item">${index + 1}. ${player.name}</div>`).join('')
+    : '<div class="empty">Очереди нет.</div>';
 }
 
 function renderSchedule() {
   const scheduleView = byId('scheduleView');
   if (!state.rounds.length) {
-    scheduleView.innerHTML = '<div class="empty">Расписание появится после формирования турнира.</div>';
+    scheduleView.innerHTML = '<div class="empty">Сетка появится после формирования турнира.</div>';
     return;
   }
 
-  scheduleView.innerHTML = state.rounds.map((round) => `
+  scheduleView.innerHTML = state.rounds.map(round => `
     <div class="round">
       <div class="round-header">
         <h3>Раунд ${round.roundNumber}</h3>
@@ -335,11 +326,11 @@ function renderSchedule() {
           </tr>
         </thead>
         <tbody>
-          ${round.matches.map((match) => `
+          ${round.matches.map(match => `
             <tr>
               <td>${match.start}–${match.end}</td>
-              <td>Корт ${match.court}</td>
-              <td>${match.teamA.name} vs ${match.teamB.name}</td>
+              <td>${match.court}</td>
+              <td>${match.teamA.name} — ${match.teamB.name}</td>
               <td>${match.status === 'Completed' ? 'Готово' : 'По плану'}</td>
             </tr>
           `).join('')}
@@ -356,26 +347,26 @@ function renderMatches() {
     return;
   }
 
-  matchesView.innerHTML = state.matches.map((match) => `
+  matchesView.innerHTML = state.matches.map(match => `
     <div class="match-card">
       <div class="match-head">
         <div>
-          <strong>${match.teamA.name} vs ${match.teamB.name}</strong>
+          <strong>${match.teamA.name} — ${match.teamB.name}</strong>
           <div class="muted">Раунд ${match.roundNumber} · Корт ${match.court} · ${match.start}–${match.end}</div>
         </div>
         <div class="pill">${match.status === 'Completed' ? 'Готово' : 'Ожидает'}</div>
       </div>
       <form class="result-form" data-match-id="${match.id}">
-        <input type="number" min="0" name="gamesA" value="${match.gamesA}" placeholder="Геймы A" />
-        <input type="number" min="0" name="gamesB" value="${match.gamesB}" placeholder="Геймы B" />
-        <input type="text" name="updatedBy" value="${match.updatedBy}" placeholder="Кто вводит результат" />
+        <input type="number" min="0" name="gamesA" value="${match.gamesA}" placeholder="Пара A" />
+        <input type="number" min="0" name="gamesB" value="${match.gamesB}" placeholder="Пара B" />
+        <input type="text" name="updatedBy" value="${match.updatedBy}" placeholder="Кто вводит" />
         <button class="btn primary" type="submit">Сохранить</button>
       </form>
     </div>
   `).join('');
 
-  matchesView.querySelectorAll('.result-form').forEach((form) => {
-    form.addEventListener('submit', (event) => {
+  matchesView.querySelectorAll('.result-form').forEach(form => {
+    form.addEventListener('submit', event => {
       event.preventDefault();
       const data = new FormData(form);
       updateMatch(form.dataset.matchId, data.get('gamesA'), data.get('gamesB'), data.get('updatedBy'));
@@ -407,7 +398,7 @@ function renderStandings() {
           </tr>
         </thead>
         <tbody>
-          ${rows.map((row) => `
+          ${rows.map(row => `
             <tr>
               <td>${row.rank}</td>
               <td>${row.teamName}</td>
@@ -438,12 +429,12 @@ function render() {
   renderStandings();
 }
 
-byId('playerForm').addEventListener('submit', (event) => {
+byId('playerForm').addEventListener('submit', event => {
   event.preventDefault();
   const nameInput = byId('playerName');
   const name = nameInput.value.trim();
   if (!name) return;
-  if (state.participants.some((player) => player.name.toLowerCase() === name.toLowerCase())) {
+  if (state.participants.some(player => player.name.toLowerCase() === name.toLowerCase())) {
     alert('Игрок с таким именем уже есть.');
     return;
   }
@@ -453,18 +444,18 @@ byId('playerForm').addEventListener('submit', (event) => {
   render();
 });
 
-byId('generateBtn').addEventListener('click', () => {
-  state.tournamentName = byId('tournamentName').value.trim() || 'Riga Padel Cup';
-  state.durationMinutes = Number(byId('durationSelect').value);
-  state.startTime = byId('startTime').value || '10:00';
-  buildTournament();
-});
+byId('generateBtn').addEventListener('click', buildTournament);
 
 byId('demo20Btn').addEventListener('click', () => {
   state.participants = [
     'Roman', 'Julia', 'Ignat', 'Nadya', 'Erik', 'Valera', 'Anya', 'Inga', 'Kate', 'Mark',
     'Simona', 'Olga', 'Lena', 'Alex', 'David', 'Alina', 'Denis', 'Nikolaj', 'Marta', 'Emils'
-  ].map((name) => ({ id: uid(), name }));
+  ].map(name => ({ id: uid(), name }));
+  state.queue = [];
+  state.teams = [];
+  state.rounds = [];
+  state.matches = [];
+  state.meta = null;
   saveState();
   render();
 });
@@ -475,11 +466,9 @@ byId('resetBtn').addEventListener('click', () => {
   render();
 });
 
-['tournamentName', 'durationSelect', 'startTime'].forEach((id) => {
+['tournamentName', 'durationSelect', 'startTime'].forEach(id => {
   byId(id).addEventListener('change', () => {
-    state.tournamentName = byId('tournamentName').value.trim() || 'Riga Padel Cup';
-    state.durationMinutes = Number(byId('durationSelect').value);
-    state.startTime = byId('startTime').value || '10:00';
+    syncSettingsFromInputs();
     saveState();
     renderSummary();
   });
