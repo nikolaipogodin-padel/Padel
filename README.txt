@@ -1,20 +1,21 @@
-Padel Riga
+Padel Riga — multi tournament local version
 
-Файлы:
+Files:
 - index.html
 - styles.css
 - app.js
 
-Как использовать:
-1. Открой index.html в браузере или загрузи файлы в GitHub Pages.
-2. Добавь игроков вручную или нажми "Демо 20".
-3. Выбери длительность турнира и время старта.
-4. Нажми "Сформировать турнир".
+What is new:
+- tournament list on top
+- only 3 tournaments shown by default
+- history toggle
+- create new tournament from + button
+- first row is active by default
+- click any tournament row to open details
+- SaaS-like layout and navigation
 
-Логика:
-- Без групп.
-- Пары формируются случайно.
-- Все пары играют со всеми.
-- Количество кортов = активные игроки / 4.
-- Если число игроков не делится на 4, последние по регистрации попадают в очередь.
-- Между раундами заложено 5 минут.
+How to use:
+1. Open index.html or upload all files to GitHub Pages.
+2. Click + Турнир to create a new tournament.
+3. Add players or use Демо 20.
+4. Click Сформировать.
