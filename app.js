@@ -100,7 +100,7 @@ function syncSettingsFromInputs() {
   state.startTime = byId('startTime').value || '10:00';
 }
 
-function assignCourts(roundPairings, courts, usage) {
+function assignCourts(roundPairings, courts, history, roundIndex) {
   const available = Array.from({ length: courts }, (_, i) => i + 1);
   const matches = shuffle(roundPairings);
   const result = [];
@@ -111,17 +111,25 @@ function assignCourts(roundPairings, courts, usage) {
     let bestScore = Infinity;
 
     for (const court of available) {
-      const aKey = `${teamA.id}:${court}`;
-      const bKey = `${teamB.id}:${court}`;
-      const score = (usage[aKey] || 0) + (usage[bKey] || 0) + Math.random() * 0.01;
+      const aHistory = history[teamA.id] || { counts: {}, lastCourt: null };
+      const bHistory = history[teamB.id] || { counts: {}, lastCourt: null };
+      const aCount = aHistory.counts[court] || 0;
+      const bCount = bHistory.counts[court] || 0;
+      const repeatPenalty = (aHistory.lastCourt === court ? 100 : 0) + (bHistory.lastCourt === court ? 100 : 0);
+      const score = aCount + bCount + repeatPenalty + ((court + roundIndex) % courts) * 0.01 + Math.random() * 0.001;
       if (score < bestScore) {
         bestScore = score;
         bestCourt = court;
       }
     }
 
-    usage[`${teamA.id}:${bestCourt}`] = (usage[`${teamA.id}:${bestCourt}`] || 0) + 1;
-    usage[`${teamB.id}:${bestCourt}`] = (usage[`${teamB.id}:${bestCourt}`] || 0) + 1;
+    history[teamA.id] = history[teamA.id] || { counts: {}, lastCourt: null };
+    history[teamB.id] = history[teamB.id] || { counts: {}, lastCourt: null };
+    history[teamA.id].counts[bestCourt] = (history[teamA.id].counts[bestCourt] || 0) + 1;
+    history[teamB.id].counts[bestCourt] = (history[teamB.id].counts[bestCourt] || 0) + 1;
+    history[teamA.id].lastCourt = bestCourt;
+    history[teamB.id].lastCourt = bestCourt;
+
     available.splice(available.indexOf(bestCourt), 1);
     result.push({ court: bestCourt, teams: pair });
   }
@@ -164,12 +172,12 @@ function buildTournament() {
   const rawMatchMinutes = roundsCount ? (state.durationMinutes - Math.max(0, roundsCount - 1) * transitionMinutes) / roundsCount : 0;
   const matchMinutes = Math.max(5, Math.floor(rawMatchMinutes / 5) * 5);
   const startMinutes = timeToMinutes(state.startTime);
-  const usage = {};
+  const courtHistory = {};
 
   state.rounds = roundPairs.map((round, roundIndex) => {
     const roundStart = startMinutes + roundIndex * (matchMinutes + transitionMinutes);
     const roundEnd = roundStart + matchMinutes;
-    const courtAssignments = assignCourts(round, courts, usage);
+    const courtAssignments = assignCourts(round, courts, courtHistory, roundIndex);
     const matches = courtAssignments.map(item => ({
       id: uid(),
       roundNumber: roundIndex + 1,
@@ -408,7 +416,10 @@ function renderMatches() {
       <form class="result-form" data-match-id="${match.id}">
         <input type="number" min="0" name="gamesA" value="${match.gamesA}" placeholder="Пара A" />
         <input type="number" min="0" name="gamesB" value="${match.gamesB}" placeholder="Пара B" />
-        <input type="text" name="updatedBy" value="${match.updatedBy}" placeholder="Кто вводит" />
+        <select name="updatedBy">
+          <option value="">Кто вводит</option>
+          ${[...match.teamA.players, ...match.teamB.players].map(player => `<option value="${player.name}" ${match.updatedBy === player.name ? 'selected' : ''}>${player.name}</option>`).join('')}
+        </select>
         <button class="btn primary" type="submit">Сохранить</button>
       </form>
     </div>
