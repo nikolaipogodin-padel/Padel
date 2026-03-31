@@ -3,405 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Riga — турниры и регистрация</title>
-  <style>
-    :root {
-      --bg-1: #f5f7ff;
-      --bg-2: #eef7f4;
-      --bg-3: #fff6ea;
-      --surface: rgba(255, 255, 255, 0.78);
-      --surface-strong: rgba(255, 255, 255, 0.92);
-      --text: #1f2a44;
-      --muted: #62708c;
-      --border: rgba(88, 105, 155, 0.14);
-      --shadow: 0 14px 40px rgba(67, 88, 138, 0.14);
-      --radius: 24px;
-      --primary: #5568ff;
-      --primary-2: #7b61ff;
-      --accent: #10b981;
-      --accent-2: #f59e0b;
-      --danger: #ef4444;
-      --info: #06b6d4;
-      --lavender: #efe9ff;
-      --mint: #e8fbf3;
-      --peach: #fff0df;
-      --sky: #e8f6ff;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, #dfe4ff 0%, transparent 32%),
-        radial-gradient(circle at top right, #dff8ef 0%, transparent 26%),
-        radial-gradient(circle at bottom left, #ffe9cf 0%, transparent 25%),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
-      min-height: 100vh;
-    }
-
-    a { color: inherit; }
-
-    .container {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(16px);
-      background: rgba(255, 255, 255, 0.68);
-      border-bottom: 1px solid rgba(120, 138, 188, 0.15);
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 16px 0;
-      flex-wrap: wrap;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      font-weight: 900;
-      color: white;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      box-shadow: 0 12px 28px rgba(85, 104, 255, 0.26);
-    }
-
-    .brand-title {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
-    .brand-subtitle {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .nav-links a,
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 11px 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s ease;
-      color: var(--text);
-      background: rgba(255,255,255,0.72);
-    }
-
-    .nav-links a:hover,
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(85, 104, 255, 0.08);
-    }
-
-    .nav-links a.active {
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: white;
-      border-color: transparent;
-    }
-
-    .btn.primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
-      color: white;
-      border-color: transparent;
-    }
-
-    .btn.secondary {
-      background: linear-gradient(135deg, var(--accent), #34d399);
-      color: white;
-      border-color: transparent;
-    }
-
-    .btn.sun {
-      background: linear-gradient(135deg, #f59e0b, #fb7185);
-      color: white;
-      border-color: transparent;
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .hero {
-      padding: 40px 0 24px;
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 22px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.6);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      backdrop-filter: blur(14px);
-    }
-
-    .card.gradient {
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0.9)),
-        linear-gradient(135deg, #e7ebff, #eefcf7 65%, #fff3e7);
-    }
-
-    .card.lavender { background: linear-gradient(135deg, rgba(255,255,255,0.9), var(--lavender)); }
-    .card.mint { background: linear-gradient(135deg, rgba(255,255,255,0.9), var(--mint)); }
-    .card.peach { background: linear-gradient(135deg, rgba(255,255,255,0.9), var(--peach)); }
-    .card.sky { background: linear-gradient(135deg, rgba(255,255,255,0.9), var(--sky)); }
-
-    h1, h2, h3 { margin: 0 0 12px; }
-    h1 {
-      font-size: clamp(34px, 5vw, 54px);
-      line-height: 1.02;
-      letter-spacing: -0.04em;
-      max-width: 12ch;
-    }
-    h2 { font-size: 26px; letter-spacing: -0.03em; }
-    h3 { font-size: 18px; letter-spacing: -0.02em; }
-
-    .muted { color: var(--muted); }
-    .small { font-size: 13px; }
-
-    .hero-copy {
-      max-width: 700px;
-      font-size: 17px;
-      line-height: 1.55;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 18px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 22px;
-    }
-
-    .stat {
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.76);
-      border: 1px solid rgba(120, 138, 188, 0.12);
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
-
-    .section { padding: 18px 0; }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.01em;
-      border: 1px solid rgba(255,255,255,0.6);
-      background: rgba(255,255,255,0.7);
-    }
-
-    .pill.ok { color: #0f9f6e; background: #ebfff7; }
-    .pill.warn { color: #b46a00; background: #fff5df; }
-    .pill.live { color: #0b89a6; background: #e9fbff; }
-    .pill.off { color: #b42318; background: #fff0ef; }
-
-    .list, .matches, .groups, .ideas { display: grid; gap: 12px; }
-
-    .item {
-      padding: 15px 16px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.76);
-      border: 1px solid rgba(120, 138, 188, 0.12);
-    }
-
-    .item.highlight {
-      background: linear-gradient(135deg, #eef2ff, #ecfffa);
-    }
-
-    label {
-      display: grid;
-      gap: 7px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    form { display: grid; gap: 12px; }
-
-    input, select {
-      width: 100%;
-      padding: 13px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(120, 138, 188, 0.16);
-      background: rgba(255,255,255,0.9);
-      color: var(--text);
-      outline: none;
-      font: inherit;
-    }
-
-    input:focus, select:focus {
-      border-color: rgba(85, 104, 255, 0.45);
-      box-shadow: 0 0 0 4px rgba(85, 104, 255, 0.08);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(120, 138, 188, 0.12);
-    }
-
-    th {
-      color: var(--muted);
-      font-weight: 800;
-    }
-
-    tr:last-child td { border-bottom: none; }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .note {
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #eef7ff, #f3f7ff);
-      border: 1px solid rgba(85, 104, 255, 0.14);
-      color: #35507a;
-    }
-
-    .divider {
-      height: 1px;
-      background: rgba(120, 138, 188, 0.12);
-      margin: 16px 0;
-    }
-
-    .badge-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .badge {
-      padding: 9px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.82);
-      border: 1px solid rgba(120, 138, 188, 0.14);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .empty {
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    footer {
-      padding: 34px 0 56px;
-      color: var(--muted);
-    }
-
-    @media (max-width: 980px) {
-      .hero-grid, .grid-2, .grid-3, .stats { grid-template-columns: 1fr; }
-      h1 { max-width: none; }
-    }
-  </style>
+  <title>Padel Riga — локальная версия</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <div class="container nav">
       <div class="brand">
         <div class="brand-mark">P</div>
         <div>
           <div class="brand-title">Padel Riga</div>
-          <div class="brand-subtitle">Сайт турниров, регистрации и live-таблиц</div>
+          <div class="brand-subtitle">Локальная версия сайта турниров</div>
         </div>
       </div>
       <nav class="nav-links">
-        <a href="#registration" class="tab-link active">Регистрация</a>
-        <a href="#tournament" class="tab-link">Турнир</a>
-        <a href="#logic" class="tab-link">Логика</a>
+        <a href="#registration">Регистрация</a>
+        <a href="#tournament">Турнир</a>
+        <a href="#logic">Логика</a>
       </nav>
     </div>
   </header>
@@ -410,17 +28,20 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="card gradient">
-          <div class="pill live">● Живой прототип сайта</div>
-          <h1>Падл-турниры без хаоса в чатах</h1>
-          <p class="hero-copy muted">Игрок создает профиль один раз, записывается в турнир в один клик, после дедлайна система случайно формирует пары и группы, а таблица пересчитывается автоматически после каждого матча.</p>
+          <div class="pill live">● Local storage</div>
+          <h1>Падл-турниры без внешней базы</h1>
+          <p class="hero-copy muted">
+            Все данные хранятся локально в браузере. Игрок создает профиль один раз,
+            записывается в турнир, после закрытия регистрации формируются случайные пары,
+            группы и матчи.
+          </p>
           <div class="hero-actions">
             <a class="btn primary" href="#registration">Создать профиль</a>
             <a class="btn secondary" href="#tournament">Открыть турнир</a>
-            <a class="btn sun" href="#logic">Посмотреть правила</a>
           </div>
           <div class="stats">
             <div class="stat">
-              <div class="stat-label">Регистрация игрока</div>
+              <div class="stat-label">Регистрация</div>
               <div class="stat-value">1 раз</div>
             </div>
             <div class="stat">
@@ -435,18 +56,13 @@
         </div>
 
         <div class="card peach">
-          <h3>Что уже умеет сайт</h3>
+          <h3>Что уже есть</h3>
           <div class="ideas small">
-            <div class="item highlight">Игрок хранится как отдельный профиль, а не вводится заново каждый раз</div>
-            <div class="item">Запись в турнир идет из профиля, без лишних полей</div>
-            <div class="item">После закрытия регистрации пары и группы создаются автоматически</div>
-            <div class="item">Результат может внести только один из 4 игроков матча</div>
-            <div class="item">Таблица внутри группы обновляется сразу</div>
-          </div>
-          <div class="badge-list">
-            <div class="badge">Round Robin</div>
-            <div class="badge">Live standings</div>
-            <div class="badge">Random pairs</div>
+            <div class="item highlight">Профиль игрока хранится локально в браузере</div>
+            <div class="item">Запись в турнир без повторного ввода данных</div>
+            <div class="item">Случайные пары после закрытия регистрации</div>
+            <div class="item">Группы, матчи и live-таблица</div>
+            <div class="item">Результат может ввести только участник матча</div>
           </div>
         </div>
       </div>
@@ -478,8 +94,6 @@
               <button type="button" class="btn" id="clearProfileBtn">Удалить профиль</button>
             </div>
           </form>
-          <div class="divider"></div>
-          <div class="note small">Сейчас профиль хранится в браузере. Для реального запуска его можно подключить к Airtable, Supabase или другой базе.</div>
         </div>
 
         <div class="card sky">
@@ -501,7 +115,8 @@
               <div class="pill ok" id="tournamentStatus">Registration Open</div>
               <button class="btn primary" id="joinTournamentBtn">Записаться в турнир</button>
               <button class="btn sun" id="closeRegistrationBtn">Закрыть регистрацию и сформировать пары</button>
-              <button class="btn" id="resetDemoBtn">Сбросить демо</button>
+              <button class="btn" id="seed20Btn">Загрузить демо 20 игроков</button>
+              <button class="btn" id="resetDemoBtn">Сбросить данные</button>
             </div>
           </div>
 
@@ -510,12 +125,10 @@
               <h3 id="tournamentName">Riga Padel Sunday Cup</h3>
               <div class="small muted" id="tournamentMeta">2026-04-12 • Riga</div>
               <div class="small muted" id="tournamentDeadline">Дедлайн: 2026-04-10 20:00</div>
-              <div class="divider"></div>
-              <div class="note small">Игрок записывается только из сохраненного профиля. Это убирает дубли и путаницу.</div>
             </div>
 
             <div class="item">
-              <div class="section-head" style="margin-bottom:10px;">
+              <div class="section-head compact">
                 <h3>Участники</h3>
                 <div class="pill warn" id="participantsCount">0 игроков</div>
               </div>
@@ -561,33 +174,30 @@
         <div class="card gradient">
           <div class="section-head">
             <h2>Логика сайта</h2>
-            <div class="pill live">Основа продукта</div>
           </div>
           <div class="ideas small">
-            <div class="item highlight">Игрок создает профиль один раз, а не заносит себя в каждую форму заново.</div>
-            <div class="item">Турнир — это отдельная сущность со своими участниками, группами, матчами и таблицей.</div>
-            <div class="item">До дедлайна есть только список участников. Пар и матчей еще нет.</div>
-            <div class="item">После дедлайна система случайно формирует пары и разбивает их по группам.</div>
-            <div class="item">Каждая группа состоит из 4 пар, внутри идет круговой турнир.</div>
-            <div class="item">Результат может внести только игрок, который реально участвовал в матче.</div>
-            <div class="item">Места считаются по победам, затем по разнице геймов, затем по выигранным геймам.</div>
+            <div class="item highlight">Игрок создаёт профиль один раз.</div>
+            <div class="item">До дедлайна существует только список участников.</div>
+            <div class="item">После дедлайна система случайно формирует пары.</div>
+            <div class="item">Группа = 4 пары.</div>
+            <div class="item">Внутри группы круговой турнир и 6 матчей.</div>
+            <div class="item">Таблица пересчитывается после каждого результата.</div>
           </div>
         </div>
 
         <div class="card mint">
           <div class="section-head">
             <h2>Правила MVP</h2>
-            <div class="pill warn">Первая версия</div>
           </div>
           <table>
             <tbody>
-              <tr><td>Формат турнира</td><td>Round Robin</td></tr>
+              <tr><td>Формат</td><td>Round Robin</td></tr>
               <tr><td>Команда</td><td>2 игрока</td></tr>
               <tr><td>Матч</td><td>2 vs 2</td></tr>
               <tr><td>Группа</td><td>4 пары</td></tr>
               <tr><td>Матчей в группе</td><td>6</td></tr>
               <tr><td>Формирование пар</td><td>Случайно</td></tr>
-              <tr><td>Кто вносит счет</td><td>Любой из 4 игроков матча</td></tr>
+              <tr><td>Ввод результата</td><td>Любой из 4 игроков матча</td></tr>
               <tr><td>Сортировка</td><td>Победы → разница → выигранные геймы</td></tr>
             </tbody>
           </table>
@@ -597,402 +207,9 @@
   </main>
 
   <footer>
-    <div class="container">Сайт уже выглядит как продукт. Следующий уровень — подключить настоящую базу данных и авторизацию.</div>
+    <div class="container">Локальная версия без Airtable и Netlify Functions.</div>
   </footer>
 
-  <script>
-    const STORAGE_KEY = 'padel-riga-site-v3';
-
-    const initialState = {
-      tournament: {
-        id: 1,
-        name: 'Riga Padel Sunday Cup',
-        date: '2026-04-12',
-        location: 'Riga',
-        deadline: '2026-04-10 20:00',
-        status: 'Registration Open'
-      },
-      profile: null,
-      participants: [],
-      groups: []
-    };
-
-    const clone = (obj) => JSON.parse(JSON.stringify(obj));
-
-    function loadState() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : clone(initialState);
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function uid() {
-      return Math.random().toString(36).slice(2, 10);
-    }
-
-    function shuffle(list) {
-      const arr = [...list];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function createMatches(teams) {
-      const matches = [];
-      for (let i = 0; i < teams.length; i++) {
-        for (let j = i + 1; j < teams.length; j++) {
-          matches.push({
-            id: uid(),
-            teamA: teams[i],
-            teamB: teams[j],
-            gamesA: '',
-            gamesB: '',
-            status: 'Scheduled',
-            lastUpdatedBy: ''
-          });
-        }
-      }
-      return matches;
-    }
-
-    function computeStandings(group) {
-      const standings = {};
-      group.teams.forEach(team => {
-        standings[team.id] = {
-          teamName: team.name,
-          played: 0,
-          wins: 0,
-          losses: 0,
-          gamesWon: 0,
-          gamesLost: 0,
-          diff: 0,
-          points: 0
-        };
-      });
-
-      group.matches.forEach(match => {
-        if (match.status !== 'Completed') return;
-        const a = standings[match.teamA.id];
-        const b = standings[match.teamB.id];
-        const ga = Number(match.gamesA);
-        const gb = Number(match.gamesB);
-
-        a.played += 1;
-        b.played += 1;
-        a.gamesWon += ga;
-        a.gamesLost += gb;
-        b.gamesWon += gb;
-        b.gamesLost += ga;
-
-        if (ga > gb) {
-          a.wins += 1;
-          a.points += 1;
-          b.losses += 1;
-        } else if (gb > ga) {
-          b.wins += 1;
-          b.points += 1;
-          a.losses += 1;
-        }
-      });
-
-      return Object.values(standings)
-        .map(row => ({ ...row, diff: row.gamesWon - row.gamesLost }))
-        .sort((x, y) => y.points - x.points || y.diff - x.diff || y.gamesWon - x.gamesWon || x.teamName.localeCompare(y.teamName))
-        .map((row, index) => ({ ...row, rank: index + 1 }));
-    }
-
-    function canPlayerUpdateMatch(playerName, match) {
-      const allowedPlayers = [
-        ...match.teamA.players.map(player => player.name),
-        ...match.teamB.players.map(player => player.name)
-      ];
-      return allowedPlayers.includes(playerName);
-    }
-
-    let state = loadState();
-
-    const profileForm = document.getElementById('profileForm');
-    const profileStatus = document.getElementById('profileStatus');
-    const profileSavedPill = document.getElementById('profileSavedPill');
-    const profilePreview = document.getElementById('profilePreview');
-    const clearProfileBtn = document.getElementById('clearProfileBtn');
-
-    const tournamentStatus = document.getElementById('tournamentStatus');
-    const participantsCount = document.getElementById('participantsCount');
-    const participantsList = document.getElementById('participantsList');
-    const joinTournamentBtn = document.getElementById('joinTournamentBtn');
-    const closeRegistrationBtn = document.getElementById('closeRegistrationBtn');
-    const resetDemoBtn = document.getElementById('resetDemoBtn');
-
-    const groupsView = document.getElementById('groupsView');
-    const standingsView = document.getElementById('standingsView');
-    const matchesView = document.getElementById('matchesView');
-
-    function renderProfile() {
-      if (!state.profile) {
-        profileStatus.textContent = 'Профиль не создан';
-        profileSavedPill.textContent = 'Нет данных';
-        profilePreview.innerHTML = '<div class="item empty">Сначала создай профиль игрока.</div>';
-        document.getElementById('profileName').value = '';
-        document.getElementById('profileContact').value = '';
-        document.getElementById('profileLevel').value = 'Intermediate';
-        return;
-      }
-
-      profileStatus.textContent = 'Профиль создан';
-      profileSavedPill.textContent = state.profile.name;
-      profilePreview.innerHTML = `
-        <div class="item highlight">
-          <strong>${state.profile.name}</strong>
-          <div class="small muted">${state.profile.contact}</div>
-          <div class="small muted">Уровень: ${state.profile.level}</div>
-        </div>
-      `;
-      document.getElementById('profileName').value = state.profile.name;
-      document.getElementById('profileContact').value = state.profile.contact;
-      document.getElementById('profileLevel').value = state.profile.level;
-    }
-
-    function renderTournament() {
-      tournamentStatus.textContent = state.tournament.status;
-      participantsCount.textContent = `${state.participants.length} игроков`;
-
-      participantsList.innerHTML = state.participants.length
-        ? state.participants.map((player, index) => `
-            <div class="item">
-              <strong>${index + 1}. ${player.name}</strong>
-              <div class="small muted">${player.contact} • ${player.level}</div>
-            </div>
-          `).join('')
-        : '<div class="item empty">Пока никто не записан в турнир.</div>';
-
-      joinTournamentBtn.disabled = state.tournament.status !== 'Registration Open';
-      closeRegistrationBtn.disabled = state.tournament.status !== 'Registration Open';
-    }
-
-    function renderGroups() {
-      if (!state.groups.length) {
-        groupsView.innerHTML = '<div class="item empty">Пары и группы появятся после закрытия регистрации.</div>';
-        standingsView.innerHTML = '<div class="item empty">Live таблица появится после генерации турнира.</div>';
-        matchesView.innerHTML = '<div class="item empty">Матчи еще не созданы.</div>';
-        return;
-      }
-
-      groupsView.innerHTML = state.groups.map(group => `
-        <div class="item">
-          <div class="section-head">
-            <h3>${group.name}</h3>
-            <div class="pill live">${group.teams.length} пары</div>
-          </div>
-          ${group.teams.map((team, index) => `<div class="small">${index + 1}. ${team.name}</div>`).join('')}
-        </div>
-      `).join('');
-
-      standingsView.innerHTML = state.groups.map(group => {
-        const rows = computeStandings(group);
-        return `
-          <div class="item" style="margin-bottom:12px;">
-            <h3>${group.name}</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Пара</th>
-                  <th>И</th>
-                  <th>В</th>
-                  <th>П</th>
-                  <th>GW</th>
-                  <th>GL</th>
-                  <th>+/-</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rows.map(row => `
-                  <tr>
-                    <td>${row.rank}</td>
-                    <td>${row.teamName}</td>
-                    <td>${row.played}</td>
-                    <td>${row.wins}</td>
-                    <td>${row.losses}</td>
-                    <td>${row.gamesWon}</td>
-                    <td>${row.gamesLost}</td>
-                    <td>${row.diff}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      }).join('');
-
-      const allMatches = state.groups.flatMap(group => group.matches.map(match => ({ ...match, groupName: group.name })));
-      matchesView.innerHTML = allMatches.map(match => `
-        <div class="item">
-          <div class="section-head">
-            <div>
-              <strong>${match.teamA.name} vs ${match.teamB.name}</strong>
-              <div class="small muted">${match.groupName}</div>
-            </div>
-            <div class="pill ${match.status === 'Completed' ? 'ok' : 'warn'}">${match.status}</div>
-          </div>
-          <form class="match-form" data-id="${match.id}">
-            <div class="grid-3">
-              <label>Games A
-                <input type="number" min="0" name="gamesA" value="${match.gamesA}" />
-              </label>
-              <label>Games B
-                <input type="number" min="0" name="gamesB" value="${match.gamesB}" />
-              </label>
-              <label>Кто вводит результат
-                <input type="text" name="updatedBy" value="${match.lastUpdatedBy}" placeholder="Имя игрока из матча" />
-              </label>
-            </div>
-            <div class="toolbar">
-              <button type="submit" class="btn primary">Сохранить результат</button>
-            </div>
-          </form>
-        </div>
-      `).join('');
-
-      document.querySelectorAll('.match-form').forEach(form => {
-        form.addEventListener('submit', (event) => {
-          event.preventDefault();
-          const formData = new FormData(form);
-          updateMatch(
-            form.dataset.id,
-            formData.get('gamesA'),
-            formData.get('gamesB'),
-            String(formData.get('updatedBy')).trim()
-          );
-        });
-      });
-    }
-
-    function updateMatch(matchId, gamesA, gamesB, updatedBy) {
-      for (const group of state.groups) {
-        const match = group.matches.find(item => item.id === matchId);
-        if (!match) continue;
-
-        if (!updatedBy || !canPlayerUpdateMatch(updatedBy, match)) {
-          alert('Результат может вводить только один из 4 игроков этого матча.');
-          return;
-        }
-
-        match.gamesA = gamesA;
-        match.gamesB = gamesB;
-        match.lastUpdatedBy = updatedBy;
-        match.status = gamesA !== '' && gamesB !== '' && Number(gamesA) !== Number(gamesB)
-          ? 'Completed'
-          : 'Scheduled';
-      }
-      saveState();
-      render();
-    }
-
-    function generateTournamentStructure() {
-      if (state.participants.length === 0 || state.participants.length % 8 !== 0) {
-        alert('Для этой версии количество игроков должно быть кратно 8. 8 игроков = 4 пары = 1 группа.');
-        return;
-      }
-
-      const shuffledPlayers = shuffle(state.participants);
-      const teams = [];
-      for (let i = 0; i < shuffledPlayers.length; i += 2) {
-        const player1 = shuffledPlayers[i];
-        const player2 = shuffledPlayers[i + 1];
-        teams.push({
-          id: uid(),
-          players: [player1, player2],
-          name: `${player1.name} / ${player2.name}`
-        });
-      }
-
-      const groups = [];
-      let groupCode = 65;
-      for (let i = 0; i < teams.length; i += 4) {
-        const groupTeams = teams.slice(i, i + 4);
-        groups.push({
-          id: uid(),
-          name: `Group ${String.fromCharCode(groupCode++)}`,
-          teams: groupTeams,
-          matches: createMatches(groupTeams)
-        });
-      }
-
-      state.groups = groups;
-      state.tournament.status = 'In Progress';
-      saveState();
-      render();
-    }
-
-    function render() {
-      renderProfile();
-      renderTournament();
-      renderGroups();
-    }
-
-    profileForm.addEventListener('submit', (event) => {
-      event.preventDefault();
-      state.profile = {
-        id: state.profile?.id || uid(),
-        name: document.getElementById('profileName').value.trim(),
-        contact: document.getElementById('profileContact').value.trim(),
-        level: document.getElementById('profileLevel').value
-      };
-      saveState();
-      render();
-      alert('Профиль сохранен.');
-    });
-
-    clearProfileBtn.addEventListener('click', () => {
-      state.profile = null;
-      saveState();
-      render();
-    });
-
-    joinTournamentBtn.addEventListener('click', () => {
-      if (!state.profile) {
-        alert('Сначала создай профиль игрока.');
-        return;
-      }
-      if (state.tournament.status !== 'Registration Open') {
-        alert('Регистрация в турнир уже закрыта.');
-        return;
-      }
-      const alreadyJoined = state.participants.some(player => player.id === state.profile.id);
-      if (alreadyJoined) {
-        alert('Ты уже записан в этот турнир.');
-        return;
-      }
-      state.participants.push(clone(state.profile));
-      saveState();
-      render();
-    });
-
-    closeRegistrationBtn.addEventListener('click', () => {
-      state.tournament.status = 'Registration Closed';
-      saveState();
-      generateTournamentStructure();
-    });
-
-    resetDemoBtn.addEventListener('click', () => {
-      localStorage.removeItem(STORAGE_KEY);
-      state = loadState();
-      render();
-    });
-
-    document.querySelectorAll('.tab-link').forEach(link => {
-      link.addEventListener('click', () => {
-        document.querySelectorAll('.tab-link').forEach(item => item.classList.remove('active'));
-        link.classList.add('active');
-      });
-    });
-
-    render();
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
