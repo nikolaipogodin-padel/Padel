@@ -481,6 +481,9 @@ function render() {
   byId('tournamentDate').value = state.tournamentDate;
   byId('durationSelect').value = String(state.durationMinutes);
   byId('startTime').value = state.startTime;
+  byId('heroTournamentName').textContent = state.tournamentName;
+  byId('heroDateLabel').textContent = formatDate(state.tournamentDate);
+  byId('heroStatusLabel').textContent = state.meta ? 'Турнир сформирован' : 'Турнир не сформирован';
   renderPlayers();
   renderSummary();
   renderPairs();
