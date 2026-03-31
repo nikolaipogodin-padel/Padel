@@ -1,7 +1,8 @@
-const STORAGE_KEY = 'padel-riga-round-robin-v5';
+const STORAGE_KEY = 'padel-riga-round-robin-v6';
 
 const initialState = {
   tournamentName: 'Riga Padel Cup',
+  tournamentDate: '2026-04-12',
   durationMinutes: 120,
   startTime: '10:00',
   participants: [],
@@ -50,7 +51,7 @@ function timeToMinutes(value) {
 
 function minutesToTime(total) {
   const day = 24 * 60;
-  const normalized = ((Math.round(total) % day) + day) % day;
+  const normalized = ((total % day) + day) % day;
   const h = Math.floor(normalized / 60);
   const m = normalized % 60;
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
@@ -58,8 +59,15 @@ function minutesToTime(total) {
 
 function formatDuration(minutes) {
   if (!Number.isFinite(minutes) || minutes <= 0) return '—';
-  const rounded = Math.round(minutes * 10) / 10;
-  return Number.isInteger(rounded) ? `${rounded} мин` : `${rounded.toFixed(1)} мин`;
+  if (minutes % 60 === 0) return `${minutes / 60} ч`;
+  if (minutes > 60) return `${Math.floor(minutes / 60)} ч ${minutes % 60} мин`;
+  return `${minutes} мин`;
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  const [y, m, d] = value.split('-');
+  return `${d}.${m}.${y}`;
 }
 
 function roundRobinPairs(teams) {
@@ -75,7 +83,7 @@ function roundRobinPairs(teams) {
     for (let i = 0; i < half; i++) {
       pairings.push([rotating[i], rotating[rotating.length - 1 - i]]);
     }
-    rounds.push(pairings);
+    rounds.push(shuffle(pairings));
     const fixed = rotating[0];
     const moved = rotating.pop();
     rotating.splice(1, 0, moved);
@@ -87,8 +95,38 @@ function roundRobinPairs(teams) {
 
 function syncSettingsFromInputs() {
   state.tournamentName = byId('tournamentName').value.trim() || 'Riga Padel Cup';
+  state.tournamentDate = byId('tournamentDate').value || '2026-04-12';
   state.durationMinutes = Number(byId('durationSelect').value || 120);
   state.startTime = byId('startTime').value || '10:00';
+}
+
+function assignCourts(roundPairings, courts, usage) {
+  const available = Array.from({ length: courts }, (_, i) => i + 1);
+  const matches = shuffle(roundPairings);
+  const result = [];
+
+  for (const pair of matches) {
+    const [teamA, teamB] = pair;
+    let bestCourt = available[0];
+    let bestScore = Infinity;
+
+    for (const court of available) {
+      const aKey = `${teamA.id}:${court}`;
+      const bKey = `${teamB.id}:${court}`;
+      const score = (usage[aKey] || 0) + (usage[bKey] || 0) + Math.random() * 0.01;
+      if (score < bestScore) {
+        bestScore = score;
+        bestCourt = court;
+      }
+    }
+
+    usage[`${teamA.id}:${bestCourt}`] = (usage[`${teamA.id}:${bestCourt}`] || 0) + 1;
+    usage[`${teamB.id}:${bestCourt}`] = (usage[`${teamB.id}:${bestCourt}`] || 0) + 1;
+    available.splice(available.indexOf(bestCourt), 1);
+    result.push({ court: bestCourt, teams: pair });
+  }
+
+  return result.sort((a, b) => a.court - b.court);
 }
 
 function buildTournament() {
@@ -105,39 +143,41 @@ function buildTournament() {
   if (activePlayers.length < 4) {
     saveState();
     render();
-    alert('Нужно минимум 4 добавленных игрока.');
+    alert('Нужно минимум 4 игрока.');
     return;
   }
 
-  const shuffled = shuffle(activePlayers);
+  const shuffledPlayers = shuffle(activePlayers);
   const teams = [];
-  for (let i = 0; i < shuffled.length; i += 2) {
+  for (let i = 0; i < shuffledPlayers.length; i += 2) {
     teams.push({
       id: uid(),
-      name: `${shuffled[i].name} / ${shuffled[i + 1].name}`,
-      players: [shuffled[i], shuffled[i + 1]]
+      name: `${shuffledPlayers[i].name} / ${shuffledPlayers[i + 1].name}`,
+      players: [shuffledPlayers[i], shuffledPlayers[i + 1]]
     });
   }
 
   const roundPairs = roundRobinPairs(teams);
-  const courts = Math.max(1, teams.length / 2);
+  const courts = Math.max(1, Math.floor(activePlayers.length / 4));
   const roundsCount = roundPairs.length;
   const transitionMinutes = 5;
-  const totalTransitions = Math.max(0, roundsCount - 1) * transitionMinutes;
-  const matchMinutes = roundsCount ? Math.max(1, (state.durationMinutes - totalTransitions) / roundsCount) : 0;
+  const rawMatchMinutes = roundsCount ? (state.durationMinutes - Math.max(0, roundsCount - 1) * transitionMinutes) / roundsCount : 0;
+  const matchMinutes = Math.max(5, Math.floor(rawMatchMinutes / 5) * 5);
   const startMinutes = timeToMinutes(state.startTime);
+  const usage = {};
 
   state.rounds = roundPairs.map((round, roundIndex) => {
     const roundStart = startMinutes + roundIndex * (matchMinutes + transitionMinutes);
     const roundEnd = roundStart + matchMinutes;
-    const matches = round.map((pair, idx) => ({
+    const courtAssignments = assignCourts(round, courts, usage);
+    const matches = courtAssignments.map(item => ({
       id: uid(),
       roundNumber: roundIndex + 1,
-      court: idx + 1,
+      court: item.court,
       start: minutesToTime(roundStart),
       end: minutesToTime(roundEnd),
-      teamA: pair[0],
-      teamB: pair[1],
+      teamA: item.teams[0],
+      teamB: item.teams[1],
       gamesA: '',
       gamesB: '',
       updatedBy: '',
@@ -161,7 +201,8 @@ function buildTournament() {
     courts,
     rounds: roundsCount,
     transitionMinutes,
-    matchMinutes
+    matchMinutes,
+    date: state.tournamentDate
   };
 
   saveState();
@@ -250,12 +291,10 @@ function renderPlayers() {
   }
 
   playersView.innerHTML = state.participants.map((player, index) => `
-    <div class="player-row">
-      <div class="player-main">
-        <div class="player-index">${index + 1}</div>
-        <div>${player.name}</div>
-      </div>
-      <button class="remove-btn" data-remove-id="${player.id}">Удалить</button>
+    <div class="player-chip">
+      <span class="player-chip-index">${index + 1}</span>
+      <span>${player.name}</span>
+      <button class="remove-chip" data-remove-id="${player.id}" type="button">×</button>
     </div>
   `).join('');
 
@@ -275,15 +314,18 @@ function renderSummary() {
   const courts = activePlayers / 4;
   const rounds = teams >= 2 ? teams - 1 : 0;
   const transition = 5;
-  const matchMinutes = rounds ? Math.max(1, (Number(state.durationMinutes) - (rounds - 1) * transition) / rounds) : 0;
+  const rawMatchMinutes = rounds ? (Number(state.durationMinutes) - Math.max(0, rounds - 1) * transition) / rounds : 0;
+  const matchMinutes = rounds ? Math.max(5, Math.floor(rawMatchMinutes / 5) * 5) : 0;
 
   byId('summaryView').innerHTML = `
-    <div class="summary-item">Активные игроки<strong>${activePlayers}</strong></div>
-    <div class="summary-item">Очередь<strong>${queued}</strong></div>
-    <div class="summary-item">Пары<strong>${teams}</strong></div>
-    <div class="summary-item">Корты<strong>${courts}</strong></div>
-    <div class="summary-item">Раунды<strong>${rounds}</strong></div>
-    <div class="summary-item">Игра<strong>${formatDuration(matchMinutes)}</strong></div>
+    <div class="summary-item"><span>Дата</span><strong>${formatDate(state.tournamentDate)}</strong></div>
+    <div class="summary-item"><span>Игроки</span><strong>${state.participants.length}</strong></div>
+    <div class="summary-item"><span>Активные</span><strong>${activePlayers}</strong></div>
+    <div class="summary-item"><span>Очередь</span><strong>${queued}</strong></div>
+    <div class="summary-item"><span>Пары</span><strong>${teams}</strong></div>
+    <div class="summary-item"><span>Корты</span><strong>${courts}</strong></div>
+    <div class="summary-item"><span>Раунды</span><strong>${rounds}</strong></div>
+    <div class="summary-item"><span>Игра</span><strong>${formatDuration(matchMinutes)}</strong></div>
   `;
 }
 
@@ -292,7 +334,7 @@ function renderPairs() {
   const pairsView = byId('pairsView');
   pairsView.innerHTML = state.teams.length
     ? state.teams.map((team, index) => `<div class="item">${index + 1}. ${team.name}</div>`).join('')
-    : '<div class="empty">Пары появятся после формирования турнира.</div>';
+    : '<div class="empty">Пары появятся после формирования.</div>';
 }
 
 function renderQueue() {
@@ -305,16 +347,23 @@ function renderQueue() {
 
 function renderSchedule() {
   const scheduleView = byId('scheduleView');
+  byId('scheduleMeta').textContent = state.meta
+    ? `${state.tournamentName} · ${formatDate(state.meta.date)} · ${state.meta.courts} корт${state.meta.courts === 1 ? '' : state.meta.courts < 5 ? 'а' : 'ов'}`
+    : '';
+
   if (!state.rounds.length) {
-    scheduleView.innerHTML = '<div class="empty">Сетка появится после формирования турнира.</div>';
+    scheduleView.innerHTML = '<div class="empty">Сетка появится после формирования.</div>';
     return;
   }
 
   scheduleView.innerHTML = state.rounds.map(round => `
     <div class="round">
       <div class="round-header">
-        <h3>Раунд ${round.roundNumber}</h3>
-        <div class="muted">${round.start}–${round.end}</div>
+        <div>
+          <h3>Раунд ${round.roundNumber}</h3>
+          <div class="muted">${formatDate(state.tournamentDate)} · ${round.start}–${round.end}</div>
+        </div>
+        <div class="pill">${round.matches.length} матч${round.matches.length === 1 ? '' : round.matches.length < 5 ? 'а' : 'ей'}</div>
       </div>
       <table class="schedule-table">
         <thead>
@@ -343,7 +392,7 @@ function renderSchedule() {
 function renderMatches() {
   const matchesView = byId('matchesView');
   if (!state.matches.length) {
-    matchesView.innerHTML = '<div class="empty">Матчи появятся после формирования турнира.</div>';
+    matchesView.innerHTML = '<div class="empty">Матчи появятся после формирования.</div>';
     return;
   }
 
@@ -352,7 +401,7 @@ function renderMatches() {
       <div class="match-head">
         <div>
           <strong>${match.teamA.name} — ${match.teamB.name}</strong>
-          <div class="muted">Раунд ${match.roundNumber} · Корт ${match.court} · ${match.start}–${match.end}</div>
+          <div class="muted">${formatDate(state.tournamentDate)} · Раунд ${match.roundNumber} · Корт ${match.court} · ${match.start}–${match.end}</div>
         </div>
         <div class="pill">${match.status === 'Completed' ? 'Готово' : 'Ожидает'}</div>
       </div>
@@ -377,7 +426,7 @@ function renderMatches() {
 function renderStandings() {
   const standingsView = byId('standingsView');
   if (!state.teams.length) {
-    standingsView.innerHTML = '<div class="empty">Таблица появится после формирования турнира.</div>';
+    standingsView.innerHTML = '<div class="empty">Таблица появится после формирования.</div>';
     return;
   }
 
@@ -418,6 +467,7 @@ function renderStandings() {
 
 function render() {
   byId('tournamentName').value = state.tournamentName;
+  byId('tournamentDate').value = state.tournamentDate;
   byId('durationSelect').value = String(state.durationMinutes);
   byId('startTime').value = state.startTime;
   renderPlayers();
@@ -466,11 +516,13 @@ byId('resetBtn').addEventListener('click', () => {
   render();
 });
 
-['tournamentName', 'durationSelect', 'startTime'].forEach(id => {
+['tournamentName', 'tournamentDate', 'durationSelect', 'startTime'].forEach(id => {
   byId(id).addEventListener('change', () => {
     syncSettingsFromInputs();
     saveState();
     renderSummary();
+    renderSchedule();
+    renderMatches();
   });
 });
 

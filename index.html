@@ -7,21 +7,32 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main class="wrap">
-    <section class="card top-card">
-      <div class="head">
-        <h1>Padel Riga</h1>
+  <main class="app-shell">
+    <section class="hero card">
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">Padel Riga</div>
+          <h1>Турнир</h1>
+        </div>
         <div class="toolbar">
           <button id="demo20Btn" class="btn secondary">Демо 20</button>
-          <button id="generateBtn" class="btn primary">Сформировать турнир</button>
+          <button id="generateBtn" class="btn primary">Сформировать</button>
           <button id="resetBtn" class="btn ghost">Сбросить</button>
         </div>
       </div>
 
       <div class="settings-grid">
         <label>
-          Турнир
+          Название
           <input id="tournamentName" type="text" value="Riga Padel Cup" />
+        </label>
+        <label>
+          Дата
+          <input id="tournamentDate" type="date" value="2026-04-12" />
+        </label>
+        <label>
+          Старт
+          <input id="startTime" type="time" value="10:00" />
         </label>
         <label>
           Длительность
@@ -31,75 +42,69 @@
             <option value="180">3 часа</option>
           </select>
         </label>
-        <label>
-          Старт
-          <input id="startTime" type="time" value="10:00" />
-        </label>
       </div>
+
+      <div id="summaryView" class="summary-grid"></div>
     </section>
 
-    <section class="grid two-col">
-      <div class="card">
-        <div class="section-title-row">
-          <h2>Игроки</h2>
-          <div id="participantsCount" class="pill">0</div>
-        </div>
+    <section class="layout-grid">
+      <div class="main-column">
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2>Сетка</h2>
+              <div id="scheduleMeta" class="muted"></div>
+            </div>
+          </div>
+          <div id="scheduleView" class="schedule"></div>
+        </section>
 
-        <form id="playerForm" class="add-player-row">
-          <input id="playerName" type="text" placeholder="Имя игрока" required />
-          <button type="submit" class="btn primary">Добавить</button>
-        </form>
-
-        <div id="playersView" class="list"></div>
+        <section class="card">
+          <div class="section-head">
+            <h2>Результаты</h2>
+          </div>
+          <div id="matchesView" class="matches"></div>
+        </section>
       </div>
 
-      <div class="card">
-        <div class="section-title-row">
-          <h2>Параметры</h2>
-        </div>
-        <div id="summaryView" class="summary"></div>
-      </div>
-    </section>
+      <aside class="side-column">
+        <section class="card">
+          <div class="section-head">
+            <h2>Игроки</h2>
+            <div id="participantsCount" class="pill">0</div>
+          </div>
 
-    <section class="grid two-col">
-      <div class="card">
-        <div class="section-title-row">
-          <h2>Пары</h2>
-          <div id="pairsCount" class="pill">0</div>
-        </div>
-        <div id="pairsView" class="list"></div>
-      </div>
+          <form id="playerForm" class="add-player-row">
+            <input id="playerName" type="text" placeholder="Имя игрока" required />
+            <button type="submit" class="btn primary">Добавить</button>
+          </form>
 
-      <div class="card">
-        <div class="section-title-row">
-          <h2>Очередь</h2>
-          <div id="queueCount" class="pill">0</div>
-        </div>
-        <div id="queueView" class="list"></div>
-      </div>
-    </section>
+          <div id="playersView" class="players-compact"></div>
+        </section>
 
-    <section class="card">
-      <div class="section-title-row">
-        <h2>Сетка</h2>
-      </div>
-      <div id="scheduleView" class="schedule"></div>
-    </section>
+        <section class="card">
+          <div class="section-head">
+            <h2>Пары</h2>
+            <div id="pairsCount" class="pill">0</div>
+          </div>
+          <div id="pairsView" class="list"></div>
+        </section>
 
-    <section class="grid two-col">
-      <div class="card">
-        <div class="section-title-row">
-          <h2>Результаты</h2>
-        </div>
-        <div id="matchesView" class="matches"></div>
-      </div>
+        <section class="card">
+          <div class="section-head">
+            <h2>Очередь</h2>
+            <div id="queueCount" class="pill">0</div>
+          </div>
+          <div id="queueView" class="list"></div>
+        </section>
 
-      <div class="card">
-        <div class="section-title-row">
-          <h2>Таблица</h2>
-        </div>
-        <div id="standingsView"></div>
-      </div>
+        <section class="card">
+          <div class="section-head">
+            <h2>Таблица</h2>
+          </div>
+          <div id="standingsView"></div>
+        </section>
+      </aside>
     </section>
   </main>
 
