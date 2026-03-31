@@ -4,6 +4,7 @@ const PLAYERS_PER_COURT = 4;
 const PLAYERS_PER_TEAM = 2;
 let historyExpanded = false;
 let toastTimer = null;
+let activeTab = 'playersTab';
 
 const $ = (id) => document.getElementById(id);
 const clone = (obj) => JSON.parse(JSON.stringify(obj));
@@ -314,7 +315,7 @@ function renderMatches(t) {
           <label>Games A<input type="number" name="gamesA" min="0" value="${match.gamesA}" /></label>
           <label>Games B<input type="number" name="gamesB" min="0" value="${match.gamesB}" /></label>
           <label>Кто вводит<select name="updatedBy"><option value="">Выбрать</option>${options}</select></label>
-          <div><span class="status-badge ${match.status === 'Completed' ? 'status-open' : 'status-done'}">${match.status === 'Completed' ? 'Завершен' : 'По плану'}</span></div>
+          <div><span class="status-badge ${match.status === 'Completed' ? 'status-done' : 'status-open'}">${match.status === 'Completed' ? 'Завершен' : 'По плану'}</span></div>
           <button class="btn primary" type="submit">Сохранить</button>
         </div>
       </form>`;
@@ -346,6 +347,11 @@ function renderStandings(t) {
     ${rows.map(r => `<tr><td>${r.rank}</td><td>${r.teamName}</td><td>${r.played}</td><td>${r.wins}</td><td>${r.losses}</td><td>${r.gamesWon}</td><td>${r.gamesLost}</td><td>${r.diff}</td></tr>`).join('')}
     </tbody></table>` : '<div class="list-item list-empty">Нет данных.</div>';
 }
+function setActiveTab(tabId) {
+  activeTab = tabId;
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === tabId));
+}
 function render() {
   if (!state.tournaments.length) state = clone(initialState);
   if (!state.activeTournamentId || !state.tournaments.some(t => t.id === state.activeTournamentId)) state.activeTournamentId = state.tournaments[0].id;
@@ -357,6 +363,7 @@ function render() {
   renderSchedule(t);
   renderMatches(t);
   renderStandings(t);
+  setActiveTab(activeTab);
 }
 
 $('playerForm').addEventListener('submit', (e) => {
@@ -373,7 +380,8 @@ $('playerForm').addEventListener('submit', (e) => {
   $('playerForm').reset();
   showToast('Игрок добавлен.');
 });
-$('playerForm').addEventListener('submit', () => {}, { once: true });
+
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => setActiveTab(btn.dataset.tab)));
 
 const originalUpdateActiveTournament = updateActiveTournament;
 updateActiveTournament = function(mutator) {

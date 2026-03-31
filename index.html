@@ -17,13 +17,6 @@
         </div>
       </div>
 
-      <nav class="anchor-nav" aria-label="Навигация">
-        <a href="#playersSection">Игроки</a>
-        <a href="#paramsSection">Параметры</a>
-        <a href="#scheduleSection">Сетка</a>
-        <a href="#resultsSection">Результаты</a>
-      </nav>
-
       <div class="toolbar">
         <button id="newTournamentBtn" class="btn primary icon-btn">＋ Турнир</button>
         <button id="demo20Btn" class="btn secondary">Демо 20</button>
@@ -43,7 +36,7 @@
       </div>
 
       <div class="tournaments-table-wrap">
-        <div class="tournaments-table header-row">
+        <div class="tournaments-table tournaments-header">
           <div>Дата</div>
           <div>Название</div>
           <div>Место</div>
@@ -68,51 +61,7 @@
         </div>
         <div id="summaryView" class="summary-grid"></div>
       </div>
-    </section>
-
-    <section id="playersSection" class="section-block split-grid split-60-40">
-      <section class="card">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Игроки</div>
-            <h2>Участники</h2>
-          </div>
-          <div class="row-actions">
-            <div id="participantsCount" class="pill">0</div>
-            <button id="resetPlayersBtn" class="btn ghost">Очистить</button>
-          </div>
-        </div>
-
-        <form id="playerForm" class="add-player-row">
-          <input id="playerName" type="text" placeholder="Имя игрока" required />
-          <input id="playerContact" type="text" placeholder="Контакт" />
-          <button type="submit" class="btn primary">Добавить</button>
-        </form>
-
-        <div id="playersView" class="players-compact"></div>
-      </section>
-
-      <section class="card compact-card">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Очередь</div>
-            <h2>Вне сетки</h2>
-          </div>
-          <div id="queueCount" class="pill">0</div>
-        </div>
-        <div id="queueView" class="list"></div>
-      </section>
-    </section>
-
-    <section id="paramsSection" class="section-block card">
-      <div class="section-head">
-        <div>
-          <div class="eyebrow">Параметры</div>
-          <h2>Настройки турнира</h2>
-        </div>
-      </div>
-
-      <div class="settings-grid">
+      <div class="settings-inline">
         <label>Название
           <input id="tournamentName" type="text" />
         </label>
@@ -132,43 +81,96 @@
             <option value="180">3 часа</option>
           </select>
         </label>
-      </div>
-      <div class="toolbar top-gap">
-        <button id="saveSettingsBtn" class="btn ghost" type="button">Сохранить параметры</button>
+        <button id="saveSettingsBtn" class="btn ghost" type="button">Сохранить</button>
       </div>
     </section>
 
-    <section id="scheduleSection" class="section-block card">
-      <div class="section-head">
+    <section class="card details-card">
+      <div class="section-head details-head">
         <div>
-          <div class="eyebrow">Сетка</div>
-          <h2>Расписание</h2>
-          <div id="scheduleMeta" class="muted"></div>
+          <div class="eyebrow">Детали турнира</div>
+          <h2>Рабочая зона</h2>
         </div>
       </div>
-      <div id="scheduleView" class="schedule"></div>
-    </section>
 
-    <section id="resultsSection" class="section-block split-grid split-60-40">
-      <section class="card">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Результаты</div>
-            <h2>Матчи</h2>
-          </div>
-        </div>
-        <div id="matchesView" class="matches"></div>
-      </section>
+      <div class="tab-nav" id="detailTabs">
+        <button class="tab-btn active" data-tab="playersTab">Игроки</button>
+        <button class="tab-btn" data-tab="scheduleTab">Сетка</button>
+        <button class="tab-btn" data-tab="standingsTab">Таблица</button>
+      </div>
 
-      <section class="card compact-card">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Таблица</div>
-            <h2>Standings</h2>
+      <div id="playersTab" class="tab-panel active">
+        <section class="split-grid split-60-40">
+          <section class="card inner-card">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">Игроки</div>
+                <h2>Участники</h2>
+              </div>
+              <div class="row-actions">
+                <div id="participantsCount" class="pill">0</div>
+                <button id="resetPlayersBtn" class="btn ghost">Очистить</button>
+              </div>
+            </div>
+
+            <form id="playerForm" class="add-player-row">
+              <input id="playerName" type="text" placeholder="Имя игрока" required />
+              <input id="playerContact" type="text" placeholder="Контакт" />
+              <button type="submit" class="btn primary">Добавить</button>
+            </form>
+
+            <div id="playersView" class="players-compact"></div>
+          </section>
+
+          <section class="card inner-card compact-card">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">Очередь</div>
+                <h2>Вне сетки</h2>
+              </div>
+              <div id="queueCount" class="pill">0</div>
+            </div>
+            <div id="queueView" class="list"></div>
+          </section>
+        </section>
+      </div>
+
+      <div id="scheduleTab" class="tab-panel">
+        <section class="split-grid split-60-40">
+          <section class="card inner-card">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">Сетка</div>
+                <h2>Расписание</h2>
+                <div id="scheduleMeta" class="muted"></div>
+              </div>
+            </div>
+            <div id="scheduleView" class="schedule"></div>
+          </section>
+
+          <section class="card inner-card compact-card">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">Результаты</div>
+                <h2>Матчи</h2>
+              </div>
+            </div>
+            <div id="matchesView" class="matches"></div>
+          </section>
+        </section>
+      </div>
+
+      <div id="standingsTab" class="tab-panel">
+        <section class="card inner-card compact-card full-width">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Таблица</div>
+              <h2>Standings</h2>
+            </div>
           </div>
-        </div>
-        <div id="standingsView"></div>
-      </section>
+          <div id="standingsView"></div>
+        </section>
+      </div>
     </section>
   </main>
 
