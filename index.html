@@ -7,79 +7,99 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main class="container">
-    <section class="card topbar">
-      <div>
-        <h1>Padel Riga</h1>
-        <div class="muted" id="tournamentMeta">Турнир не сформирован</div>
+  <main class="wrap">
+    <section class="card top-card">
+      <div class="head">
+        <h1>Турнир</h1>
+        <div class="toolbar">
+          <button id="demo20Btn" class="btn secondary">Демо 20</button>
+          <button id="generateBtn" class="btn primary">Сформировать турнир</button>
+          <button id="resetBtn" class="btn ghost">Сбросить</button>
+        </div>
       </div>
-      <div class="status" id="tournamentStatus">Регистрация открыта</div>
-    </section>
 
-    <section class="layout">
-      <aside class="card sidebar">
-        <div class="section-head">
-          <h2>Игроки</h2>
-          <div class="count" id="participantsCount">0</div>
-        </div>
-
-        <form id="playerForm" class="form compact-form">
-          <input type="text" id="playerName" placeholder="Имя игрока" required />
-          <input type="text" id="playerContact" placeholder="Контакт" />
-          <button type="submit" class="btn primary">Добавить</button>
-        </form>
-
-        <div class="actions tight">
-          <button type="button" class="btn" id="demoPlayersBtn">Демо 20</button>
-          <button type="button" class="btn" id="resetBtn">Сбросить</button>
-        </div>
-
-        <div id="participantsList" class="stack"></div>
-
-        <div class="divider"></div>
-
-        <div class="section-head compact-head">
-          <h2>Параметры</h2>
-        </div>
-        <form id="tournamentForm" class="form compact-form">
-          <input type="text" id="tournamentName" placeholder="Название турнира" value="Padel Riga" />
-          <input type="date" id="tournamentDate" value="2026-04-12" />
-          <input type="time" id="tournamentStartTime" value="10:00" />
-          <select id="tournamentDuration">
+      <div class="settings-grid">
+        <label>
+          Название турнира
+          <input id="tournamentName" type="text" value="Riga Padel Cup" />
+        </label>
+        <label>
+          Длительность
+          <select id="durationSelect">
             <option value="90">1.5 часа</option>
             <option value="120" selected>2 часа</option>
             <option value="180">3 часа</option>
           </select>
-          <button type="button" class="btn primary" id="generateBtn">Сформировать турнир</button>
+        </label>
+        <label>
+          Начало
+          <input id="startTime" type="time" value="10:00" />
+        </label>
+      </div>
+    </section>
+
+    <section class="grid two-col">
+      <div class="card">
+        <div class="section-title-row">
+          <h2>Игроки</h2>
+          <div id="participantsCount" class="pill">0</div>
+        </div>
+
+        <form id="playerForm" class="add-player-row">
+          <input id="playerName" type="text" placeholder="Имя" required />
+          <button type="submit" class="btn primary">Добавить</button>
         </form>
-      </aside>
 
-      <section class="main-column">
-        <section class="card section-card">
-          <div class="section-head">
-            <h2>Турнир</h2>
-            <div class="inline-badges">
-              <div class="badge" id="courtsBadge">Корты: 0</div>
-              <div class="badge" id="matchTimeBadge">Матч: —</div>
-            </div>
-          </div>
-          <div id="summaryView" class="summary-grid empty">Пока турнир не сформирован.</div>
-        </section>
+        <div id="playersView" class="list"></div>
+      </div>
 
-        <section class="card section-card">
-          <div class="section-head">
-            <h2>Таблица</h2>
-          </div>
-          <div id="standingsView" class="stack empty">Нет данных.</div>
-        </section>
+      <div class="card">
+        <div class="section-title-row">
+          <h2>Параметры</h2>
+        </div>
+        <div id="summaryView" class="summary"></div>
+      </div>
+    </section>
 
-        <section class="card section-card">
-          <div class="section-head">
-            <h2>Сетка</h2>
-          </div>
-          <div id="scheduleView" class="stack empty">Нет матчей.</div>
-        </section>
-      </section>
+    <section class="grid two-col">
+      <div class="card">
+        <div class="section-title-row">
+          <h2>Пары</h2>
+          <div id="pairsCount" class="pill">0</div>
+        </div>
+        <div id="pairsView" class="list"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title-row">
+          <h2>Очередь</h2>
+          <div id="queueCount" class="pill">0</div>
+        </div>
+        <div id="queueView" class="list"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title-row">
+        <h2>Расписание</h2>
+      </div>
+      <div id="scheduleView" class="schedule"></div>
+    </section>
+
+    <section class="grid two-col">
+      <div class="card">
+        <div class="section-title-row">
+          <h2>Результаты</h2>
+        </div>
+        <div id="matchesView" class="matches"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title-row">
+          <h2>Таблица</h2>
+        </div>
+        <div id="standingsView"></div>
+      </div>
     </section>
   </main>
 
