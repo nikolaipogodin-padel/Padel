@@ -3,212 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Riga — локальная версия</title>
+  <title>Padel Riga</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <div class="container nav">
-      <div class="brand">
-        <div class="brand-mark">P</div>
-        <div>
-          <div class="brand-title">Padel Riga</div>
-          <div class="brand-subtitle">Локальная версия сайта турниров</div>
-        </div>
+  <main class="container">
+    <section class="card topbar">
+      <div>
+        <h1>Padel Riga</h1>
+        <div class="muted" id="tournamentMeta">Sunday Cup • Riga • 12.04.2026</div>
       </div>
-      <nav class="nav-links">
-        <a href="#registration">Регистрация</a>
-        <a href="#tournament">Турнир</a>
-        <a href="#logic">Логика</a>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="card gradient">
-          <div class="pill live">● Local storage</div>
-          <h1>Падл-турниры без внешней базы</h1>
-          <p class="hero-copy muted">
-            Все данные хранятся локально в браузере. Игрок создает профиль один раз,
-            записывается в турнир, после закрытия регистрации формируются случайные пары,
-            группы и матчи.
-          </p>
-          <div class="hero-actions">
-            <a class="btn primary" href="#registration">Создать профиль</a>
-            <a class="btn secondary" href="#tournament">Открыть турнир</a>
-          </div>
-          <div class="stats">
-            <div class="stat">
-              <div class="stat-label">Регистрация</div>
-              <div class="stat-value">1 раз</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">Команда</div>
-              <div class="stat-value">2 игрока</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">Матч</div>
-              <div class="stat-value">4 игрока</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card peach">
-          <h3>Что уже есть</h3>
-          <div class="ideas small">
-            <div class="item highlight">Профиль игрока хранится локально в браузере</div>
-            <div class="item">Запись в турнир без повторного ввода данных</div>
-            <div class="item">Случайные пары после закрытия регистрации</div>
-            <div class="item">Группы, матчи и live-таблица</div>
-            <div class="item">Результат может ввести только участник матча</div>
-          </div>
-        </div>
-      </div>
+      <div class="status" id="tournamentStatus">Регистрация открыта</div>
     </section>
 
-    <section id="registration" class="section">
-      <div class="container grid-2">
-        <div class="card lavender">
-          <div class="section-head">
-            <h2>Регистрация игрока</h2>
-            <div class="pill ok" id="profileStatus">Профиль не создан</div>
-          </div>
-          <form id="profileForm">
-            <label>Имя
-              <input type="text" id="profileName" placeholder="Например, Nikolaj" required />
-            </label>
-            <label>Телефон или email
-              <input type="text" id="profileContact" placeholder="Контакт для связи" required />
-            </label>
-            <label>Уровень игры
-              <select id="profileLevel" required>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate" selected>Intermediate</option>
-                <option value="Advanced">Advanced</option>
-              </select>
-            </label>
-            <div class="toolbar">
-              <button type="submit" class="btn primary">Сохранить профиль</button>
-              <button type="button" class="btn" id="clearProfileBtn">Удалить профиль</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="card sky">
-          <div class="section-head">
-            <h2>Мой профиль</h2>
-            <div class="pill live" id="profileSavedPill">Нет данных</div>
-          </div>
-          <div id="profilePreview" class="list"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="tournament" class="section">
-      <div class="container">
-        <div class="card mint">
-          <div class="section-head">
-            <h2>Турнир</h2>
-            <div class="toolbar">
-              <div class="pill ok" id="tournamentStatus">Registration Open</div>
-              <button class="btn primary" id="joinTournamentBtn">Записаться в турнир</button>
-              <button class="btn sun" id="closeRegistrationBtn">Закрыть регистрацию и сформировать пары</button>
-              <button class="btn" id="seed20Btn">Загрузить демо 20 игроков</button>
-              <button class="btn" id="resetDemoBtn">Сбросить данные</button>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="item highlight">
-              <h3 id="tournamentName">Riga Padel Sunday Cup</h3>
-              <div class="small muted" id="tournamentMeta">2026-04-12 • Riga</div>
-              <div class="small muted" id="tournamentDeadline">Дедлайн: 2026-04-10 20:00</div>
-            </div>
-
-            <div class="item">
-              <div class="section-head compact">
-                <h3>Участники</h3>
-                <div class="pill warn" id="participantsCount">0 игроков</div>
-              </div>
-              <div class="list" id="participantsList"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container grid-2">
-        <div class="card peach">
-          <div class="section-head">
-            <h2>Пары и группы</h2>
-            <div class="pill live">Автоматически после дедлайна</div>
-          </div>
-          <div class="groups" id="groupsView"></div>
-        </div>
-
-        <div class="card sky">
-          <div class="section-head">
-            <h2>Live таблица</h2>
-            <div class="pill ok">Обновляется сразу</div>
-          </div>
-          <div id="standingsView"></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container card lavender">
+    <section class="grid">
+      <div class="card">
         <div class="section-head">
-          <h2>Матчи и ввод результатов</h2>
-          <div class="pill warn">Только участники матча</div>
+          <h2>Игроки</h2>
+          <div class="count" id="participantsCount">0</div>
         </div>
-        <div class="matches" id="matchesView"></div>
+        <form id="playerForm" class="form">
+          <input type="text" id="playerName" placeholder="Имя игрока" required />
+          <input type="text" id="playerContact" placeholder="Контакт" />
+          <select id="playerLevel">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate" selected>Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+          <div class="actions">
+            <button type="submit" class="btn primary">Добавить игрока</button>
+            <button type="button" class="btn" id="demoPlayersBtn">Демо 20</button>
+            <button type="button" class="btn" id="resetBtn">Сбросить</button>
+          </div>
+        </form>
+        <div id="participantsList" class="stack"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">
+          <h2>Турнир</h2>
+          <button class="btn primary" id="generateBtn">Сформировать турнир</button>
+        </div>
+        <div id="groupsView" class="stack empty">Пока турнир не сформирован.</div>
       </div>
     </section>
 
-    <section id="logic" class="section">
-      <div class="container grid-2">
-        <div class="card gradient">
-          <div class="section-head">
-            <h2>Логика сайта</h2>
-          </div>
-          <div class="ideas small">
-            <div class="item highlight">Игрок создаёт профиль один раз.</div>
-            <div class="item">До дедлайна существует только список участников.</div>
-            <div class="item">После дедлайна система случайно формирует пары.</div>
-            <div class="item">Группа = 4 пары.</div>
-            <div class="item">Внутри группы круговой турнир и 6 матчей.</div>
-            <div class="item">Таблица пересчитывается после каждого результата.</div>
-          </div>
-        </div>
+    <section class="grid">
+      <div class="card">
+        <h2>Таблица</h2>
+        <div id="standingsView" class="stack empty">Нет данных.</div>
+      </div>
 
-        <div class="card mint">
-          <div class="section-head">
-            <h2>Правила MVP</h2>
-          </div>
-          <table>
-            <tbody>
-              <tr><td>Формат</td><td>Round Robin</td></tr>
-              <tr><td>Команда</td><td>2 игрока</td></tr>
-              <tr><td>Матч</td><td>2 vs 2</td></tr>
-              <tr><td>Группа</td><td>4 пары</td></tr>
-              <tr><td>Матчей в группе</td><td>6</td></tr>
-              <tr><td>Формирование пар</td><td>Случайно</td></tr>
-              <tr><td>Ввод результата</td><td>Любой из 4 игроков матча</td></tr>
-              <tr><td>Сортировка</td><td>Победы → разница → выигранные геймы</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="card wide">
+        <h2>Матчи</h2>
+        <div id="matchesView" class="stack empty">Нет матчей.</div>
       </div>
     </section>
   </main>
-
-  <footer>
-    <div class="container">Локальная версия без Airtable и Netlify Functions.</div>
-  </footer>
 
   <script src="app.js"></script>
 </body>

@@ -1,32 +1,35 @@
-const STORAGE_KEY = 'padel-riga-local-v1';
+const STORAGE_KEY = 'padel-riga-local-v2';
 
 const initialState = {
   tournament: {
     id: 1,
-    name: 'Riga Padel Sunday Cup',
-    date: '2026-04-12',
+    name: 'Sunday Cup',
+    date: '12.04.2026',
     location: 'Riga',
-    deadline: '2026-04-10 20:00',
-    status: 'Registration Open'
+    status: 'Регистрация открыта'
   },
-  profile: null,
   participants: [],
   groups: []
 };
 
 const clone = (obj) => JSON.parse(JSON.stringify(obj));
+const byId = (id) => document.getElementById(id);
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10);
+}
 
 function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved ? JSON.parse(saved) : clone(initialState);
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : clone(initialState);
+  } catch {
+    return clone(initialState);
+  }
 }
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
 }
 
 function shuffle(list) {
@@ -36,6 +39,34 @@ function shuffle(list) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function splitTeamsIntoGroups(teams) {
+  if (teams.length <= 4) return [teams];
+
+  const groupCount = Math.ceil(teams.length / 4);
+  const baseSize = Math.floor(teams.length / groupCount);
+  let remainder = teams.length % groupCount;
+  let index = 0;
+  const groups = [];
+
+  for (let i = 0; i < groupCount; i++) {
+    const size = baseSize + (remainder > 0 ? 1 : 0);
+    remainder -= remainder > 0 ? 1 : 0;
+    groups.push(teams.slice(index, index + size));
+    index += size;
+  }
+
+  return groups;
 }
 
 function createMatches(teams) {
@@ -58,7 +89,7 @@ function createMatches(teams) {
 
 function computeStandings(group) {
   const standings = {};
-  group.teams.forEach(team => {
+  group.teams.forEach((team) => {
     standings[team.id] = {
       teamName: team.name,
       played: 0,
@@ -71,12 +102,13 @@ function computeStandings(group) {
     };
   });
 
-  group.matches.forEach(match => {
+  group.matches.forEach((match) => {
     if (match.status !== 'Completed') return;
-    const a = standings[match.teamA.id];
-    const b = standings[match.teamB.id];
+
     const ga = Number(match.gamesA);
     const gb = Number(match.gamesB);
+    const a = standings[match.teamA.id];
+    const b = standings[match.teamB.id];
 
     a.played += 1;
     b.played += 1;
@@ -97,104 +129,79 @@ function computeStandings(group) {
   });
 
   return Object.values(standings)
-    .map(row => ({ ...row, diff: row.gamesWon - row.gamesLost }))
+    .map((row) => ({ ...row, diff: row.gamesWon - row.gamesLost }))
     .sort((x, y) => y.points - x.points || y.diff - x.diff || y.gamesWon - x.gamesWon || x.teamName.localeCompare(y.teamName))
     .map((row, index) => ({ ...row, rank: index + 1 }));
 }
 
 function canPlayerUpdateMatch(playerName, match) {
   const allowedPlayers = [
-    ...match.teamA.players.map(player => player.name),
-    ...match.teamB.players.map(player => player.name)
+    ...match.teamA.players.map((player) => player.name.toLowerCase()),
+    ...match.teamB.players.map((player) => player.name.toLowerCase())
   ];
-  return allowedPlayers.includes(playerName);
+  return allowedPlayers.includes(playerName.trim().toLowerCase());
 }
 
-let state = loadState();
+function renderParticipants() {
+  byId('participantsCount').textContent = state.participants.length;
+  const list = byId('participantsList');
 
-const profileForm = document.getElementById('profileForm');
-const profileStatus = document.getElementById('profileStatus');
-const profileSavedPill = document.getElementById('profileSavedPill');
-const profilePreview = document.getElementById('profilePreview');
-const clearProfileBtn = document.getElementById('clearProfileBtn');
-
-const tournamentStatus = document.getElementById('tournamentStatus');
-const participantsCount = document.getElementById('participantsCount');
-const participantsList = document.getElementById('participantsList');
-const joinTournamentBtn = document.getElementById('joinTournamentBtn');
-const closeRegistrationBtn = document.getElementById('closeRegistrationBtn');
-const resetDemoBtn = document.getElementById('resetDemoBtn');
-const seed20Btn = document.getElementById('seed20Btn');
-
-const groupsView = document.getElementById('groupsView');
-const standingsView = document.getElementById('standingsView');
-const matchesView = document.getElementById('matchesView');
-
-function renderProfile() {
-  if (!state.profile) {
-    profileStatus.textContent = 'Профиль не создан';
-    profileSavedPill.textContent = 'Нет данных';
-    profilePreview.innerHTML = '<div class="item empty">Сначала создай профиль игрока.</div>';
-    document.getElementById('profileName').value = '';
-    document.getElementById('profileContact').value = '';
-    document.getElementById('profileLevel').value = 'Intermediate';
+  if (!state.participants.length) {
+    list.innerHTML = '<div class="empty">Список пуст.</div>';
     return;
   }
 
-  profileStatus.textContent = 'Профиль создан';
-  profileSavedPill.textContent = state.profile.name;
-  profilePreview.innerHTML = `
-    <div class="item highlight">
-      <strong>${state.profile.name}</strong>
-      <div class="small muted">${state.profile.contact}</div>
-      <div class="small muted">Уровень: ${state.profile.level}</div>
-    </div>
-  `;
-  document.getElementById('profileName').value = state.profile.name;
-  document.getElementById('profileContact').value = state.profile.contact;
-  document.getElementById('profileLevel').value = state.profile.level;
-}
-
-function renderTournament() {
-  tournamentStatus.textContent = state.tournament.status;
-  participantsCount.textContent = `${state.participants.length} игроков`;
-
-  participantsList.innerHTML = state.participants.length
-    ? state.participants.map((player, index) => `
-        <div class="item">
-          <strong>${index + 1}. ${player.name}</strong>
-          <div class="small muted">${player.contact} • ${player.level}</div>
-        </div>
-      `).join('')
-    : '<div class="item empty">Пока никто не записан в турнир.</div>';
-
-  joinTournamentBtn.disabled = state.tournament.status !== 'Registration Open';
-  closeRegistrationBtn.disabled = state.tournament.status !== 'Registration Open';
-}
-
-function renderGroups() {
-  if (!state.groups.length) {
-    groupsView.innerHTML = '<div class="item empty">Пары и группы появятся после закрытия регистрации.</div>';
-    standingsView.innerHTML = '<div class="item empty">Live таблица появится после генерации турнира.</div>';
-    matchesView.innerHTML = '<div class="item empty">Матчи еще не созданы.</div>';
-    return;
-  }
-
-  groupsView.innerHTML = state.groups.map(group => `
-    <div class="item">
-      <div class="section-head">
-        <h3>${group.name}</h3>
-        <div class="pill live">${group.teams.length} пары</div>
+  list.innerHTML = state.participants.map((player, index) => `
+    <div class="item row">
+      <div>
+        <strong>${index + 1}. ${escapeHtml(player.name)}</strong>
+        <div class="muted">${escapeHtml(player.contact || '')}</div>
       </div>
-      ${group.teams.map((team, index) => `<div class="small">${index + 1}. ${team.name}</div>`).join('')}
+      <button class="remove-btn" data-remove-player="${player.id}" title="Удалить">✕</button>
     </div>
   `).join('');
 
-  standingsView.innerHTML = state.groups.map(group => {
+  document.querySelectorAll('[data-remove-player]').forEach((button) => {
+    button.addEventListener('click', () => removePlayer(button.dataset.removePlayer));
+  });
+}
+
+function renderGroups() {
+  const groupsView = byId('groupsView');
+  const standingsView = byId('standingsView');
+  const matchesView = byId('matchesView');
+
+  if (!state.groups.length) {
+    groupsView.innerHTML = 'Пока турнир не сформирован.';
+    groupsView.className = 'stack empty';
+    standingsView.innerHTML = 'Нет данных.';
+    standingsView.className = 'stack empty';
+    matchesView.innerHTML = 'Нет матчей.';
+    matchesView.className = 'stack empty';
+    return;
+  }
+
+  groupsView.className = 'stack';
+  standingsView.className = 'stack';
+  matchesView.className = 'stack';
+
+  groupsView.innerHTML = state.groups.map((group) => `
+    <div class="item">
+      <div class="row">
+        <strong>${escapeHtml(group.name)}</strong>
+        <div class="badge">${group.teams.length} пары</div>
+      </div>
+      <div class="stack" style="margin-top:10px;">
+        ${group.teams.map((team, index) => `<div>${index + 1}. ${escapeHtml(team.name)}</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  standingsView.innerHTML = state.groups.map((group) => {
     const rows = computeStandings(group);
     return `
-      <div class="item" style="margin-bottom:12px;">
-        <h3>${group.name}</h3>
+      <div class="item">
+        <strong>${escapeHtml(group.name)}</strong>
         <table>
           <thead>
             <tr>
@@ -209,10 +216,10 @@ function renderGroups() {
             </tr>
           </thead>
           <tbody>
-            ${rows.map(row => `
+            ${rows.map((row) => `
               <tr>
                 <td>${row.rank}</td>
-                <td>${row.teamName}</td>
+                <td>${escapeHtml(row.teamName)}</td>
                 <td>${row.played}</td>
                 <td>${row.wins}</td>
                 <td>${row.losses}</td>
@@ -227,115 +234,97 @@ function renderGroups() {
     `;
   }).join('');
 
-  const allMatches = state.groups.flatMap(group => group.matches.map(match => ({ ...match, groupName: group.name })));
+  const allMatches = state.groups.flatMap((group) => group.matches.map((match) => ({ ...match, groupName: group.name })));
 
-  matchesView.innerHTML = allMatches.map(match => `
+  matchesView.innerHTML = allMatches.map((match) => `
     <div class="item">
-      <div class="section-head">
+      <div class="row">
         <div>
-          <strong>${match.teamA.name} vs ${match.teamB.name}</strong>
-          <div class="small muted">${match.groupName}</div>
+          <strong>${escapeHtml(match.teamA.name)} — ${escapeHtml(match.teamB.name)}</strong>
+          <div class="muted">${escapeHtml(match.groupName)}</div>
         </div>
-        <div class="pill ${match.status === 'Completed' ? 'ok' : 'warn'}">${match.status}</div>
+        <div class="badge ${match.status === 'Completed' ? 'ok' : 'warn'}">${match.status === 'Completed' ? 'Готово' : 'Матч'}</div>
       </div>
       <form class="match-form" data-id="${match.id}">
-        <div class="grid-3">
-          <label>Games A
-            <input type="number" min="0" name="gamesA" value="${match.gamesA}" />
-          </label>
-          <label>Games B
-            <input type="number" min="0" name="gamesB" value="${match.gamesB}" />
-          </label>
-          <label>Кто вводит результат
-            <input type="text" name="updatedBy" value="${match.lastUpdatedBy}" placeholder="Имя игрока из матча" />
-          </label>
+        <div class="match-grid">
+          <input type="number" min="0" name="gamesA" value="${match.gamesA}" placeholder="Геймы A" />
+          <input type="number" min="0" name="gamesB" value="${match.gamesB}" placeholder="Геймы B" />
+          <input type="text" name="updatedBy" value="${escapeHtml(match.lastUpdatedBy)}" placeholder="Кто вводит" />
         </div>
-        <div class="toolbar">
-          <button type="submit" class="btn primary">Сохранить результат</button>
+        <div class="actions" style="margin-top:10px;">
+          <button type="submit" class="btn primary">Сохранить</button>
         </div>
       </form>
     </div>
   `).join('');
 
-  document.querySelectorAll('.match-form').forEach(form => {
+  document.querySelectorAll('.match-form').forEach((form) => {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       const formData = new FormData(form);
       updateMatch(
         form.dataset.id,
-        formData.get('gamesA'),
-        formData.get('gamesB'),
+        String(formData.get('gamesA')).trim(),
+        String(formData.get('gamesB')).trim(),
         String(formData.get('updatedBy')).trim()
       );
     });
   });
 }
 
-function updateMatch(matchId, gamesA, gamesB, updatedBy) {
-  for (const group of state.groups) {
-    const match = group.matches.find(item => item.id === matchId);
-    if (!match) continue;
+function renderHeader() {
+  byId('tournamentStatus').textContent = state.tournament.status;
+}
 
-    if (!updatedBy || !canPlayerUpdateMatch(updatedBy, match)) {
-      alert('Результат может вводить только один из 4 игроков этого матча.');
-      return;
-    }
+function render() {
+  renderHeader();
+  renderParticipants();
+  renderGroups();
+}
 
-    match.gamesA = gamesA;
-    match.gamesB = gamesB;
-    match.lastUpdatedBy = updatedBy;
-    match.status = gamesA !== '' && gamesB !== '' && Number(gamesA) !== Number(gamesB)
-      ? 'Completed'
-      : 'Scheduled';
+function addPlayer(name, contact, level) {
+  const normalizedName = name.trim();
+  const normalizedContact = contact.trim();
+
+  if (!normalizedName) {
+    alert('Укажи имя игрока.');
+    return;
   }
+
+  const duplicate = state.participants.some((player) =>
+    player.name.trim().toLowerCase() === normalizedName.toLowerCase() &&
+    (player.contact || '').trim().toLowerCase() === normalizedContact.toLowerCase()
+  );
+
+  if (duplicate) {
+    alert('Такой игрок уже есть.');
+    return;
+  }
+
+  state.participants.push({
+    id: uid(),
+    name: normalizedName,
+    contact: normalizedContact,
+    level
+  });
 
   saveState();
   render();
 }
 
-
-function createDemoPlayers20() {
-  const names = [
-    ['Alex', 'alex@padelriga.lv', 'Intermediate'],
-    ['Marta', 'marta@padelriga.lv', 'Beginner'],
-    ['Denis', 'denis@padelriga.lv', 'Intermediate'],
-    ['Laura', 'laura@padelriga.lv', 'Advanced'],
-    ['Igor', 'igor@padelriga.lv', 'Beginner'],
-    ['Sofia', 'sofia@padelriga.lv', 'Intermediate'],
-    ['Roman', 'roman@padelriga.lv', 'Advanced'],
-    ['Elina', 'elina@padelriga.lv', 'Intermediate'],
-    ['Mark', 'mark@padelriga.lv', 'Intermediate'],
-    ['Anna', 'anna@padelriga.lv', 'Beginner'],
-    ['Viktor', 'viktor@padelriga.lv', 'Advanced'],
-    ['Liene', 'liene@padelriga.lv', 'Intermediate'],
-    ['Artur', 'artur@padelriga.lv', 'Beginner'],
-    ['Diana', 'diana@padelriga.lv', 'Advanced'],
-    ['Sergey', 'sergey@padelriga.lv', 'Intermediate'],
-    ['Inga', 'inga@padelriga.lv', 'Beginner'],
-    ['Janis', 'janis@padelriga.lv', 'Advanced'],
-    ['Kristine', 'kristine@padelriga.lv', 'Intermediate'],
-    ['Pavel', 'pavel@padelriga.lv', 'Intermediate'],
-    ['Eva', 'eva@padelriga.lv', 'Beginner']
-  ];
-
-  state.profile = null;
-  state.groups = [];
-  state.tournament.status = 'Registration Open';
-  state.participants = names.map(([name, contact, level]) => ({
-    id: uid(),
-    name,
-    contact,
-    level
-  }));
-
+function removePlayer(playerId) {
+  if (state.tournament.status !== 'Регистрация открыта') {
+    alert('Удаление доступно только до формирования турнира.');
+    return;
+  }
+  state.participants = state.participants.filter((player) => player.id !== playerId);
   saveState();
   render();
-  alert('Загружены 20 демо-игроков. Важно: текущая версия формирует турнир только при количестве игроков, кратном 8.');
 }
 
 function generateTournamentStructure() {
-  if (state.participants.length === 0 || state.participants.length % 8 !== 0) {
-    alert('Количество игроков должно быть кратно 8. 8 игроков = 4 пары = 1 группа.');
+  if (state.participants.length === 0 || state.participants.length % 4 !== 0) {
+    alert('Количество игроков должно быть кратно 4.');
     return;
   }
 
@@ -352,85 +341,90 @@ function generateTournamentStructure() {
     });
   }
 
-  const groups = [];
-  let groupCode = 65;
-  for (let i = 0; i < teams.length; i += 4) {
-    const groupTeams = teams.slice(i, i + 4);
-    groups.push({
-      id: uid(),
-      name: `Group ${String.fromCharCode(groupCode++)}`,
-      teams: groupTeams,
-      matches: createMatches(groupTeams)
-    });
-  }
-
-  state.groups = groups;
-  state.tournament.status = 'In Progress';
+  const groupChunks = splitTeamsIntoGroups(teams);
+  state.groups = groupChunks.map((groupTeams, index) => ({
+    id: uid(),
+    name: `Group ${String.fromCharCode(65 + index)}`,
+    teams: groupTeams,
+    matches: createMatches(groupTeams)
+  }));
+  state.tournament.status = 'Турнир сформирован';
   saveState();
   render();
 }
 
-function render() {
-  renderProfile();
-  renderTournament();
-  renderGroups();
+function updateMatch(matchId, gamesA, gamesB, updatedBy) {
+  for (const group of state.groups) {
+    const match = group.matches.find((item) => item.id === matchId);
+    if (!match) continue;
+
+    if (!updatedBy || !canPlayerUpdateMatch(updatedBy, match)) {
+      alert('Результат может вводить только игрок этого матча.');
+      return;
+    }
+
+    if (gamesA === '' || gamesB === '') {
+      alert('Заполни оба счета.');
+      return;
+    }
+
+    if (Number(gamesA) === Number(gamesB)) {
+      alert('Ничья не допускается.');
+      return;
+    }
+
+    match.gamesA = gamesA;
+    match.gamesB = gamesB;
+    match.lastUpdatedBy = updatedBy;
+    match.status = 'Completed';
+
+    saveState();
+    render();
+    return;
+  }
 }
 
-profileForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-  state.profile = {
-    id: state.profile?.id || uid(),
-    name: document.getElementById('profileName').value.trim(),
-    contact: document.getElementById('profileContact').value.trim(),
-    level: document.getElementById('profileLevel').value
-  };
-  saveState();
-  render();
-  alert('Профиль сохранен.');
-});
-
-clearProfileBtn.addEventListener('click', () => {
-  state.profile = null;
-  saveState();
-  render();
-});
-
-joinTournamentBtn.addEventListener('click', () => {
-  if (!state.profile) {
-    alert('Сначала создай профиль игрока.');
-    return;
-  }
-
-  if (state.tournament.status !== 'Registration Open') {
-    alert('Регистрация в турнир уже закрыта.');
-    return;
-  }
-
-  const alreadyJoined = state.participants.some(player => player.id === state.profile.id);
-  if (alreadyJoined) {
-    alert('Ты уже записан в этот турнир.');
-    return;
-  }
-
-  state.participants.push(clone(state.profile));
-  saveState();
-  render();
-});
-
-closeRegistrationBtn.addEventListener('click', () => {
-  state.tournament.status = 'Registration Closed';
-  saveState();
-  generateTournamentStructure();
-});
-
-resetDemoBtn.addEventListener('click', () => {
+function resetAll() {
   localStorage.removeItem(STORAGE_KEY);
   state = loadState();
   render();
+}
+
+function loadDemoPlayers20() {
+  if (state.tournament.status !== 'Регистрация открыта') {
+    alert('Сначала сбрось турнир.');
+    return;
+  }
+
+  state.participants = [
+    ['Nikolaj', 'nikolaj@demo.lv'], ['Mark', 'mark@demo.lv'], ['Erik', 'erik@demo.lv'], ['Valera', 'valera@demo.lv'],
+    ['Alex', 'alex@demo.lv'], ['Julia', 'julia@demo.lv'], ['Olga', 'olga@demo.lv'], ['David', 'david@demo.lv'],
+    ['Nadya', 'nadya@demo.lv'], ['Emils', 'emils@demo.lv'], ['Simona', 'simona@demo.lv'], ['Ignat', 'ignat@demo.lv'],
+    ['Inga', 'inga@demo.lv'], ['Alina', 'alina@demo.lv'], ['Lena', 'lena@demo.lv'], ['Anya', 'anya@demo.lv'],
+    ['Roman', 'roman@demo.lv'], ['Kate', 'kate@demo.lv'], ['Denis', 'denis@demo.lv'], ['Marta', 'marta@demo.lv']
+  ].map(([name, contact], index) => ({
+    id: uid(),
+    name,
+    contact,
+    level: index % 3 === 0 ? 'Advanced' : index % 2 === 0 ? 'Intermediate' : 'Beginner'
+  }));
+
+  saveState();
+  render();
+}
+
+let state = loadState();
+
+byId('playerForm').addEventListener('submit', (event) => {
+  event.preventDefault();
+  addPlayer(byId('playerName').value, byId('playerContact').value, byId('playerLevel').value);
+  byId('playerForm').reset();
+  byId('playerLevel').value = 'Intermediate';
+  byId('playerName').focus();
 });
 
-seed20Btn.addEventListener('click', () => {
-  createDemoPlayers20();
-});
+byId('generateBtn').addEventListener('click', generateTournamentStructure);
+byId('resetBtn').addEventListener('click', resetAll);
+byId('demoPlayersBtn').addEventListener('click', loadDemoPlayers20);
 
 render();
