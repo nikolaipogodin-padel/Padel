@@ -108,6 +108,7 @@ th,td{padding:12px 10px; border-bottom:1px solid var(--line); text-align:left}
 th{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted)}
 .leader-card{margin-bottom:14px; padding:16px 18px; border-radius:18px; background:linear-gradient(135deg,var(--primary-soft),#f8fbff); border:1px solid rgba(36,87,255,.12)}
 .modal{position:fixed; inset:0; background:rgba(12,21,38,.42); display:grid; place-items:center; padding:16px; z-index:50}
+.modal[hidden]{display:none !important}
 .modal-card{width:min(760px, 100%); background:var(--panel-strong); border-radius:24px; padding:20px; box-shadow:0 26px 80px rgba(9,23,49,.25)}
 .modal-head{display:flex; justify-content:space-between; gap:12px; align-items:flex-start; margin-bottom:14px}
 .modal-title{font-size:24px; font-weight:800; letter-spacing:-.03em}
