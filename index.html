@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Club — v17.4</title>
-  <link rel="stylesheet" href="styles.css?v=17.4" />
+  <title>Padel Club — v18.0</title>
+  <link rel="stylesheet" href="styles.css?v=18.0" />
 </head>
 <body>
   <header class="topbar">
@@ -20,6 +20,7 @@
         <nav class="global-tabs" id="globalTabs">
           <button class="tab is-active" data-screen="tournaments">Tournaments</button>
           <button class="tab" data-screen="club">Club Players</button>
+          <button class="tab" data-screen="playerMatches">Player Matches</button>
         </nav>
         <div class="role-session" id="roleSession" aria-label="Session info">
           <div class="session-role-line">
@@ -86,6 +87,38 @@
       </div>
     </section>
 
+
+    <section id="screenPlayerMatches" class="screen">
+      <div class="player-shell">
+        <section class="player-hero player-panel">
+          <div class="player-hero-copy">
+            <div class="eyebrow">Player side</div>
+            <h2 class="player-hero-title">My Matches</h2>
+            <p class="player-hero-subtitle">A focused player view: only your matches, result submission, and clear match status.</p>
+          </div>
+          <div class="player-hero-actions">
+            <label class="player-select-wrap">
+              <span class="player-select-label">Player identity</span>
+              <select id="playerIdentitySelect" class="select">
+                <option value="">Select player</option>
+              </select>
+            </label>
+          </div>
+        </section>
+        <section class="player-stats-grid" id="playerStatsGrid"></section>
+        <section class="player-panel">
+          <div class="player-panel-head">
+            <div>
+              <div class="section-title">Player Matches</div>
+              <div class="section-subtitle">Only the matches linked to the selected player are shown here.</div>
+            </div>
+          </div>
+          <div id="playerMatchesContent"></div>
+        </section>
+      </div>
+    </section>
+
+
     <section id="screenClub" class="screen">
       <div class="panel">
         <div class="panel-head">
@@ -131,6 +164,11 @@
           <strong>Viewer</strong>
           <span>Overview, schedule and standings only</span>
         </button>
+        <button class="role-access-card role-access-card-player" type="button" data-login-role="player">
+          <span class="role-access-kicker">Player side</span>
+          <strong>Player</strong>
+          <span>See only your matches and submit your result</span>
+        </button>
       </div>
       <div class="auth-hint">
         Role selection is temporary for testing and can be replaced later with real authentication.
@@ -145,6 +183,6 @@
   <div class="toast-stack" id="toastStack"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=17.4"></script>
+  <script src="app.js?v=18.0"></script>
 </body>
 </html>
