@@ -120,6 +120,7 @@ function bindEvents() {
     if (!btn) return;
     state.ui.detailTab = btn.dataset.detailTab;
     saveAndRender();
+    setTimeout(() => document.getElementById(`${state.ui.detailTab}Tab`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
   });
 
   els.historyToggleBtn.addEventListener('click', () => {
@@ -1080,39 +1081,20 @@ function applyTemporaryTooltips() {
     ['#historyToggleBtn', 'Временно: показать или скрыть историю турниров.'],
     ['#editTournamentBtn', 'Временно: редактировать параметры выбранного турнира.'],
     ['#joinFromClubBtn', 'Временно: добавить в турнир игроков из базы клуба.'],
-    ['#generateBtn', 'Временно: автоматически сформировать пары, расписание и матчи турнира.']
+    ['#generateBtn', 'Временно: автоматически сформировать пары, расписание и матчи турнира.'],
+    ['[data-screen="tournaments"]', 'Временно: открыть раздел управления турнирами.'],
+    ['[data-screen="club"]', 'Временно: открыть базу игроков клуба.'],
+    ['[data-detail-tab="overview"]', 'Временно: открыть краткий обзор турнира.'],
+    ['[data-detail-tab="players"]', 'Временно: открыть список участников турнира.'],
+    ['[data-detail-tab="schedule"]', 'Временно: открыть расписание матчей по времени и кортам.'],
+    ['[data-detail-tab="standings"]', 'Временно: открыть live-таблицу результатов.']
   ];
 
   tips.forEach(([selector, text]) => {
     document.querySelectorAll(selector).forEach(el => {
-      el.title = text;
+      el.dataset.tooltip = text;
       el.setAttribute('aria-label', text);
     });
-  });
-
-  document.querySelectorAll('[data-screen="tournaments"]').forEach(el => {
-    el.title = 'Временно: открыть раздел управления турнирами.';
-    el.setAttribute('aria-label', el.title);
-  });
-  document.querySelectorAll('[data-screen="club"]').forEach(el => {
-    el.title = 'Временно: открыть базу игроков клуба.';
-    el.setAttribute('aria-label', el.title);
-  });
-  document.querySelectorAll('[data-detail-tab="overview"]').forEach(el => {
-    el.title = 'Временно: открыть краткий обзор турнира.';
-    el.setAttribute('aria-label', el.title);
-  });
-  document.querySelectorAll('[data-detail-tab="players"]').forEach(el => {
-    el.title = 'Временно: открыть список участников турнира.';
-    el.setAttribute('aria-label', el.title);
-  });
-  document.querySelectorAll('[data-detail-tab="schedule"]').forEach(el => {
-    el.title = 'Временно: открыть расписание матчей по времени и кортам.';
-    el.setAttribute('aria-label', el.title);
-  });
-  document.querySelectorAll('[data-detail-tab="standings"]').forEach(el => {
-    el.title = 'Временно: открыть live-таблицу результатов.';
-    el.setAttribute('aria-label', el.title);
   });
 }
 

@@ -50,6 +50,10 @@ button{cursor:pointer}
 .btn.secondary{background:#fff; color:var(--primary); border-color:rgba(36,87,255,.18)}
 .btn.ghost{background:transparent}
 .link-btn{background:none;border:none;padding:12px 4px;color:var(--primary);font-weight:700}
+[data-tooltip]{position:relative}
+[data-tooltip]:hover::after,[data-tooltip]:focus-visible::after{content:attr(data-tooltip);position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 10px);background:#11203b;color:#fff;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:600;line-height:1.35;white-space:normal;min-width:180px;max-width:260px;box-shadow:0 12px 28px rgba(9,23,49,.28);z-index:120;pointer-events:none;text-align:left}
+[data-tooltip]:hover::before,[data-tooltip]:focus-visible::before{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 4px);border:6px solid transparent;border-top-color:#11203b;z-index:121;pointer-events:none}
+
 .app-shell{padding:22px 0 30px}
 .screen{display:none}
 .screen.is-active{display:block}
@@ -122,7 +126,7 @@ th{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--m
 .toast.success{background:#113829}
 .compact-select{min-width:160px}
 .results-toolbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap}
-@media (max-width: 1180px){
+@media (max-width: 920px){
   .layout-main{grid-template-columns:1fr}
   .metrics-grid{grid-template-columns:repeat(3, 1fr)}
 }
