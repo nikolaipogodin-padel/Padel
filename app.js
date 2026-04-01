@@ -81,6 +81,7 @@ const els = {
 };
 
 bindEvents();
+ensureModalClosed();
 render();
 
 function loadState() {
@@ -206,6 +207,7 @@ function render() {
   renderTournamentList();
   renderTournamentDetails();
   renderClubPlayers();
+  applyTemporaryTooltips();
 }
 
 function renderScreens() {
@@ -1042,9 +1044,20 @@ function computeStandings(tournament) {
     .map((row, idx) => ({ ...row, rank: idx + 1 }));
 }
 
+function ensureModalClosed() {
+  els.modalOverlay.hidden = true;
+  els.modalOverlay.setAttribute('aria-hidden', 'true');
+  els.modalOverlay.classList.remove('is-open');
+  els.modalOverlay.style.display = 'none';
+  els.modalCard.innerHTML = '';
+}
+
 function openModal(html) {
   els.modalCard.innerHTML = html;
   els.modalOverlay.hidden = false;
+  els.modalOverlay.setAttribute('aria-hidden', 'false');
+  els.modalOverlay.classList.add('is-open');
+  els.modalOverlay.style.display = 'grid';
   els.modalOverlay.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', closeModal));
   els.modalOverlay.addEventListener('click', overlayCloseHandler);
 }
@@ -1054,9 +1067,53 @@ function overlayCloseHandler(e) {
 }
 
 function closeModal() {
-  els.modalOverlay.hidden = true;
-  els.modalCard.innerHTML = '';
+  ensureModalClosed();
   els.modalOverlay.removeEventListener('click', overlayCloseHandler);
+}
+
+function applyTemporaryTooltips() {
+  const tips = [
+    ['#seedDemoBtn', 'Временно: загрузить демонстрационные данные для быстрого просмотра системы.'],
+    ['#resetAllBtn', 'Временно: полностью сбросить локальные данные приложения.'],
+    ['#newTournamentBtn', 'Временно: создать новый турнир.'],
+    ['#addClubPlayerBtn', 'Временно: добавить нового игрока в базу клуба.'],
+    ['#historyToggleBtn', 'Временно: показать или скрыть историю турниров.'],
+    ['#editTournamentBtn', 'Временно: редактировать параметры выбранного турнира.'],
+    ['#joinFromClubBtn', 'Временно: добавить в турнир игроков из базы клуба.'],
+    ['#generateBtn', 'Временно: автоматически сформировать пары, расписание и матчи турнира.']
+  ];
+
+  tips.forEach(([selector, text]) => {
+    document.querySelectorAll(selector).forEach(el => {
+      el.title = text;
+      el.setAttribute('aria-label', text);
+    });
+  });
+
+  document.querySelectorAll('[data-screen="tournaments"]').forEach(el => {
+    el.title = 'Временно: открыть раздел управления турнирами.';
+    el.setAttribute('aria-label', el.title);
+  });
+  document.querySelectorAll('[data-screen="club"]').forEach(el => {
+    el.title = 'Временно: открыть базу игроков клуба.';
+    el.setAttribute('aria-label', el.title);
+  });
+  document.querySelectorAll('[data-detail-tab="overview"]').forEach(el => {
+    el.title = 'Временно: открыть краткий обзор турнира.';
+    el.setAttribute('aria-label', el.title);
+  });
+  document.querySelectorAll('[data-detail-tab="players"]').forEach(el => {
+    el.title = 'Временно: открыть список участников турнира.';
+    el.setAttribute('aria-label', el.title);
+  });
+  document.querySelectorAll('[data-detail-tab="schedule"]').forEach(el => {
+    el.title = 'Временно: открыть расписание матчей по времени и кортам.';
+    el.setAttribute('aria-label', el.title);
+  });
+  document.querySelectorAll('[data-detail-tab="standings"]').forEach(el => {
+    el.title = 'Временно: открыть live-таблицу результатов.';
+    el.setAttribute('aria-label', el.title);
+  });
 }
 
 function seedDemo() {
