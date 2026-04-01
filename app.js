@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'padel-club-v13';
+const STORAGE_KEY = 'padel-club-v15_2';
 const DETAIL_TABS = ['overview', 'players', 'schedule', 'standings'];
 const DURATIONS = [1.5, 2, 3];
 
@@ -120,7 +120,13 @@ function bindEvents() {
     if (!btn) return;
     state.ui.detailTab = btn.dataset.detailTab;
     saveAndRender();
-    setTimeout(() => document.getElementById(`${state.ui.detailTab}Tab`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+  });
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-detail-tab]');
+    if (!btn) return;
+    state.ui.detailTab = btn.dataset.detailTab;
+    saveAndRender();
   });
 
   els.historyToggleBtn.addEventListener('click', () => {
@@ -203,12 +209,17 @@ function normalizeTournamentRegistrations(tournament) {
 }
 
 function render() {
-  renderScreens();
-  renderGlobalTabs();
-  renderTournamentList();
-  renderTournamentDetails();
-  renderClubPlayers();
-  applyTemporaryTooltips();
+  try {
+    renderScreens();
+    renderGlobalTabs();
+    renderTournamentList();
+    renderTournamentDetails();
+    renderClubPlayers();
+    applyTemporaryTooltips();
+  } catch (error) {
+    console.error('Render error:', error);
+    els.selectedTournamentHero.innerHTML = '<div class="empty">Temporary rendering issue. Use Reset or Load demo to restore local data.</div>';
+  }
 }
 
 function renderScreens() {
@@ -1094,6 +1105,7 @@ function applyTemporaryTooltips() {
     document.querySelectorAll(selector).forEach(el => {
       el.dataset.tooltip = text;
       el.setAttribute('aria-label', text);
+      el.setAttribute('title', text);
     });
   });
 }

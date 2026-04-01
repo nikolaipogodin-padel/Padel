@@ -173,3 +173,11 @@ th{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--m
 .player-row-waitlist{border-left:4px solid var(--warning)}
 .player-row-withdrawn{border-left:4px solid #8b97aa}
 @media (max-width: 860px){.status-strip,.player-status-layout{grid-template-columns:1fr}.player-status-layout .status-card.withdrawn{grid-column:auto}}
+
+
+.details-panel{position:relative; z-index:2}
+.hero-card{min-height:128px}
+.detail-tabs{position:relative; z-index:5; display:flex; gap:10px; flex-wrap:wrap}
+.detail-tabs .tab{position:relative; z-index:6; pointer-events:auto}
+.detail-view{position:relative; z-index:1}
+.tournament-item,.tab,.btn,.link-btn{cursor:pointer}
