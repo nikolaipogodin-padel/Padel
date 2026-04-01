@@ -358,3 +358,400 @@ body{
 @media (max-width: 920px){
   .hero-title{font-size:28px}
 }
+
+/* v16.6 working-site refresh + roles */
+:root{
+  --bg:#f3f6fb;
+  --panel:#ffffff;
+  --panel-strong:#ffffff;
+  --text:#10213d;
+  --muted:#6d7b93;
+  --line:rgba(149,166,196,.22);
+  --primary:#215cff;
+  --primary-soft:#edf3ff;
+  --success:#158a63;
+  --success-soft:#e9f8f1;
+  --warning:#c48a17;
+  --warning-soft:#fff7e7;
+  --danger:#d14d4d;
+  --danger-soft:#fff1f1;
+  --shadow:0 18px 44px rgba(19,37,68,.08);
+  --shadow-hover:0 22px 52px rgba(19,37,68,.12);
+}
+
+body{
+  background:
+    radial-gradient(circle at top left, rgba(33,92,255,.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(17,138,119,.10), transparent 18%),
+    linear-gradient(180deg, #f9fbfe 0%, #f2f5fa 100%);
+  color:var(--text);
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:30;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  background:rgba(250,252,255,.82);
+  border-bottom:1px solid rgba(149,166,196,.18);
+}
+
+.topbar-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  padding:16px 0;
+}
+
+.topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.brand-mark{
+  width:48px;
+  height:48px;
+  border-radius:18px;
+  box-shadow:0 16px 30px rgba(33,92,255,.24);
+}
+
+.eyebrow{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#7d8aa1;
+}
+
+.brand-title{
+  font-size:24px;
+  font-weight:900;
+}
+
+.panel,.hero-card,.metric,.card,.round-card,.result-card,.status-tile,.modal-card,.status-card{
+  background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(252,253,255,.94) 100%);
+  border:1px solid rgba(149,166,196,.18);
+  box-shadow:var(--shadow);
+}
+
+.panel-head{
+  align-items:center;
+}
+
+.section-title,.hero-title{
+  letter-spacing:-.04em;
+}
+
+.section-title{
+  font-size:34px;
+  font-weight:900;
+}
+
+.section-subtitle{
+  color:var(--muted);
+}
+
+.global-tabs,
+.detail-tabs{
+  gap:10px;
+}
+
+.global-tabs .tab,
+.detail-tabs .tab,
+.role-chip{
+  height:44px;
+  padding:0 16px;
+  border-radius:14px;
+  border:1px solid rgba(149,166,196,.18);
+  background:#fff;
+  font-weight:800;
+  color:#41506c;
+}
+
+.global-tabs .tab.is-active,
+.detail-tabs .tab.is-active{
+  background:linear-gradient(180deg,#eff4ff 0%,#e8efff 100%);
+  color:var(--primary);
+  box-shadow:0 12px 28px rgba(33,92,255,.12);
+}
+
+.role-switcher{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px;
+  border-radius:18px;
+  background:rgba(255,255,255,.9);
+  border:1px solid rgba(149,166,196,.18);
+  box-shadow:var(--shadow);
+}
+
+.role-chip{
+  cursor:pointer;
+  min-width:92px;
+  transition:all .18s ease;
+}
+
+.role-chip.is-active{
+  background:#10213d;
+  color:#fff;
+  border-color:#10213d;
+  box-shadow:0 10px 24px rgba(16,33,61,.18);
+}
+
+.btn{
+  height:44px;
+  border-radius:14px;
+  font-weight:800;
+}
+
+.btn.primary{
+  background:linear-gradient(135deg,#215cff,#4e88ff);
+  border:none;
+  box-shadow:0 16px 34px rgba(33,92,255,.24);
+}
+
+.btn.secondary{
+  background:#fff;
+  border:1px solid rgba(33,92,255,.16);
+  color:var(--primary);
+}
+
+.btn.ghost{
+  background:#f6f8fc;
+}
+
+.btn.is-disabled,
+.btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+.app-shell{
+  padding-top:26px;
+  padding-bottom:34px;
+}
+
+.layout-main{
+  align-items:start;
+  gap:22px;
+}
+
+.tournaments-panel{
+  position:sticky;
+  top:96px;
+}
+
+.tournament-table-header{
+  padding:0 6px 10px;
+}
+
+.tournament-list{
+  display:grid;
+  gap:12px;
+}
+
+.tournament-item{
+  position:relative;
+  overflow:hidden;
+  border-radius:20px;
+  border:1px solid rgba(149,166,196,.18);
+  background:linear-gradient(180deg,#fff 0%,#fbfcff 100%);
+  box-shadow:none;
+}
+
+.tournament-item::before{
+  content:'';
+  position:absolute;
+  inset:0 auto 0 0;
+  width:5px;
+  background:linear-gradient(180deg,#215cff,#70a3ff);
+  opacity:0;
+  transition:opacity .18s ease;
+}
+
+.tournament-item.is-active{
+  border-color:rgba(33,92,255,.2);
+  box-shadow:0 16px 34px rgba(33,92,255,.12);
+}
+
+.tournament-item.is-active::before{
+  opacity:1;
+}
+
+.hero-card{
+  padding:26px;
+  border-radius:28px;
+}
+
+.hero-top{
+  align-items:center;
+}
+
+.hero-meta{
+  gap:12px;
+  font-size:14px;
+}
+
+.hero-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.role-badge,
+.readonly-note{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:38px;
+  padding:0 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.role-badge{
+  background:#0f1f3a;
+  color:#fff;
+}
+
+.readonly-note{
+  background:#f6f8fc;
+  color:#6b778d;
+  border:1px solid rgba(149,166,196,.18);
+}
+
+.readonly-note.compact{
+  height:34px;
+}
+
+.metrics-grid{
+  grid-template-columns:repeat(7, minmax(0,1fr));
+  gap:14px;
+}
+
+.metric{
+  border-radius:20px;
+  min-height:92px;
+}
+
+.metric-label{
+  font-weight:700;
+}
+
+.metric-value{
+  font-size:30px;
+}
+
+.status-strip{
+  gap:14px;
+}
+
+.status-tile,
+.status-card,
+.card,
+.round-card{
+  border-radius:24px;
+}
+
+.status-card .panel-head h3,
+.card h3,
+.round-title{
+  font-size:20px;
+  font-weight:900;
+}
+
+.player-row,.club-row,.mini-item,.result-card,.round-match{
+  border-radius:18px;
+  min-height:72px;
+}
+
+.player-row strong,
+.club-row strong,
+.round-match strong{
+  font-size:16px;
+}
+
+.search-input,.select,.input{
+  height:48px;
+  border-radius:14px;
+  background:#fff;
+}
+
+.textarea{
+  min-height:240px;
+  height:auto;
+}
+
+.club-toolbar{
+  margin-bottom:16px;
+}
+
+.leader-card{
+  border-radius:22px;
+}
+
+.toast{
+  border-radius:16px;
+  background:#10213d;
+  padding:14px 16px;
+}
+
+.empty{
+  border-radius:20px;
+  background:linear-gradient(180deg,#fafcff 0%,#f7f9fd 100%);
+}
+
+.link-btn{
+  color:var(--primary);
+  font-weight:800;
+}
+
+@media (max-width: 1180px){
+  .metrics-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+}
+
+@media (max-width: 920px){
+  .topbar-inner{align-items:flex-start;}
+  .topbar-actions{width:100%;}
+  .tournaments-panel{position:static;}
+}
+
+@media (max-width: 760px){
+  .topbar-inner,
+  .topbar-actions,
+  .role-switcher{flex-direction:column; align-items:stretch;}
+  .role-chip{width:100%;}
+  .metrics-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .hero-actions{width:100%;}
+  .hero-actions .btn{flex:1 1 auto;}
+}
+
+
+.role-session{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.session-role-line{display:flex;align-items:center;gap:8px}
+.session-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.session-role-pill{display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-weight:800}
+.session-user-line{color:var(--muted);font-size:13px}
+.session-actions{display:flex;gap:8px;flex-wrap:wrap}
+.compact-btn{padding:9px 12px;border-radius:12px}
+.auth-overlay{position:fixed;inset:0;display:none;place-items:center;padding:20px;background:linear-gradient(180deg,rgba(7,14,26,.72),rgba(7,14,26,.82));backdrop-filter:blur(16px);z-index:80}
+.auth-overlay.is-visible{display:grid}
+.auth-card{width:min(460px,100%);background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.86);box-shadow:0 28px 90px rgba(5,14,29,.28);border-radius:28px;padding:28px}
+.auth-badge{display:inline-flex;padding:6px 10px;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-size:12px;font-weight:800;margin-bottom:12px}
+.auth-card h1{margin:0 0 8px;font-size:30px;letter-spacing:-.04em}
+.auth-subtitle{margin:0 0 18px;color:var(--muted)}
+.auth-form{display:grid;gap:14px}
+.auth-form label{display:grid;gap:7px}
+.auth-form span{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.auth-submit{width:100%;margin-top:4px;justify-content:center}
+.auth-hint{margin-top:14px;padding:12px 14px;border-radius:16px;background:#f5f8fd;color:var(--muted);font-size:12px;line-height:1.5}
+.auth-hint code{font-family:ui-monospace,SFMono-Regular,monospace;color:var(--text)}
+[hidden]{display:none !important}
+@media (max-width: 860px){.role-session{justify-content:flex-start}.auth-card{padding:22px}}

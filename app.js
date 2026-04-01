@@ -26,7 +26,13 @@ async function testSupabaseConnection() {
 testSupabaseConnection();
 
 const STORAGE_KEY = 'padel-club-v15_2';
-const UI_STORAGE_KEY = 'padel-club-ui-v1';
+const UI_STORAGE_KEY = 'padel-club-ui-v2';
+const AUTH_STORAGE_KEY = 'padel-club-auth-v1';
+const ROLE_CREDENTIALS = {
+  admin: { username: 'admin', password: 'PadelAdmin2026!', label: 'Admin' },
+  operator: { username: 'operator', password: 'PadelOperator2026!', label: 'Operator' },
+  viewer: { username: 'viewer', password: 'PadelViewer2026!', label: 'Viewer' }
+};
 const DETAIL_TABS = ['overview', 'players', 'schedule', 'standings'];
 const DURATIONS = [1.5, 2, 3];
 const REALTIME_DEBOUNCE_MS = 250;
@@ -46,7 +52,8 @@ const initialState = {
     showHistory: false,
     clubSearch: '',
     clubStatusFilter: 'all',
-    role: 'admin'
+    role: 'viewer',
+    auth: { isAuthenticated: false, username: '', role: 'viewer' }
   },
   clubPlayers: [
     { id: 'p1', name: 'Nikolaj', contact: '+371 20000001', level: 'Intermediate', status: 'Pending', createdAt: '2026-03-01T10:00:00Z' },
@@ -490,23 +497,40 @@ const els = {
   toastStack: document.getElementById('toastStack'),
   newTournamentBtn: document.getElementById('newTournamentBtn'),
   addClubPlayerBtn: document.getElementById('addClubPlayerBtn'),
-  roleSwitcher: document.getElementById('roleSwitcher')
+  roleSession: document.getElementById('roleSession'),
+  sessionRolePill: document.getElementById('sessionRolePill'),
+  sessionUserLine: document.getElementById('sessionUserLine'),
+  changeRoleBtn: document.getElementById('changeRoleBtn'),
+  logoutBtn: document.getElementById('logoutBtn'),
+  authOverlay: document.getElementById('authOverlay'),
+  loginForm: document.getElementById('loginForm'),
+  loginUsername: document.getElementById('loginUsername'),
+  loginPassword: document.getElementById('loginPassword')
 };
 
 bindEvents();
+bindAuthEvents();
 ensureModalClosed();
+updateAuthUi();
 initApp();
 
 function loadState() {
   try {
     const raw = localStorage.getItem(UI_STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
+    const rawAuth = sessionStorage.getItem(AUTH_STORAGE_KEY) || localStorage.getItem(AUTH_STORAGE_KEY);
     const localState = raw ? JSON.parse(raw) : {};
+    const authState = rawAuth ? JSON.parse(rawAuth) : {};
     return {
       ...structuredClone(initialState),
       ...localState,
       ui: {
         ...structuredClone(initialState.ui),
-        ...(localState?.ui || {})
+        ...(localState?.ui || {}),
+        auth: {
+          ...structuredClone(initialState.ui.auth),
+          ...(authState || {}),
+          ...(localState?.ui?.auth || {})
+        }
       }
     };
   } catch {
@@ -517,21 +541,35 @@ function loadState() {
 async function initApp() {
   await syncCoreDataFromSupabase();
   initRealtime();
+  enforceRoleUi();
+  updateAuthUi();
   render();
 }
 
 function saveState() {
   const stateToPersist = {
-    ui: state.ui
+    ui: {
+      ...state.ui,
+      auth: {
+        ...state.ui.auth,
+        password: undefined
+      }
+    }
   };
   localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(stateToPersist));
+  sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state.ui.auth || {}));
 }
 
 function ensureStateShape() {
   state.ui ??= structuredClone(initialState.ui);
-  state.ui.role ??= 'admin';
+  state.ui.role ??= 'viewer';
+  state.ui.auth ??= structuredClone(initialState.ui.auth);
+  state.ui.auth.isAuthenticated ??= false;
+  state.ui.auth.username ??= '';
+  state.ui.auth.role ??= state.ui.role || 'viewer';
   state.clubPlayers ??= [];
   state.tournaments ??= [];
+  enforceRoleUi();
 }
 
 function uid(prefix = 'id') {
@@ -539,7 +577,92 @@ function uid(prefix = 'id') {
 }
 
 function getCurrentRole() {
-  return state.ui?.role || 'admin';
+  if (state.ui?.auth?.isAuthenticated) {
+    return state.ui?.auth?.role || state.ui?.role || 'viewer';
+  }
+  return 'viewer';
+}
+
+
+function isAuthenticated() {
+  return Boolean(state.ui?.auth?.isAuthenticated);
+}
+
+function enforceRoleUi() {
+  const role = getCurrentRole();
+  state.ui.role = role;
+  if (role !== 'admin' && state.ui.screen === 'club') {
+    state.ui.screen = 'tournaments';
+  }
+  if (role === 'viewer' && state.ui.detailTab === 'players') {
+    state.ui.detailTab = 'overview';
+  }
+}
+
+function setAuthSession(role, username) {
+  state.ui.auth = { isAuthenticated: true, username, role };
+  state.ui.role = role;
+  enforceRoleUi();
+  saveState();
+}
+
+function clearAuthSession() {
+  state.ui.auth = { isAuthenticated: false, username: '', role: 'viewer' };
+  state.ui.role = 'viewer';
+  enforceRoleUi();
+  saveState();
+}
+
+function authenticateUser(username, password) {
+  const normalized = String(username || '').trim().toLowerCase();
+  return Object.entries(ROLE_CREDENTIALS).find(([role, creds]) => {
+    return normalized === creds.username.toLowerCase() && password === creds.password;
+  });
+}
+
+function updateAuthUi() {
+  const role = getCurrentRole();
+  if (els.sessionRolePill) els.sessionRolePill.textContent = capitalize(role);
+  if (els.sessionUserLine) {
+    els.sessionUserLine.textContent = isAuthenticated() ? `${state.ui.auth.username} signed in` : 'Signed out';
+  }
+  if (els.authOverlay) {
+    els.authOverlay.classList.toggle('is-visible', !isAuthenticated());
+  }
+}
+
+function bindAuthEvents() {
+  els.loginForm?.addEventListener('submit', e => {
+    e.preventDefault();
+    const username = els.loginUsername?.value || '';
+    const password = els.loginPassword?.value || '';
+    const matched = authenticateUser(username, password);
+    if (!matched) {
+      toast('Incorrect login or password.', 'error');
+      return;
+    }
+    const [role, creds] = matched;
+    setAuthSession(role, creds.username);
+    if (els.loginPassword) els.loginPassword.value = '';
+    updateAuthUi();
+    render();
+    toast(`Signed in as ${capitalize(role)}.`, 'success');
+  });
+
+  els.changeRoleBtn?.addEventListener('click', () => {
+    clearAuthSession();
+    updateAuthUi();
+    render();
+    setTimeout(() => els.loginUsername?.focus(), 50);
+  });
+
+  els.logoutBtn?.addEventListener('click', () => {
+    clearAuthSession();
+    updateAuthUi();
+    render();
+    toast('You have been logged out.', 'success');
+    setTimeout(() => els.loginUsername?.focus(), 50);
+  });
 }
 
 function canEditClub() {
@@ -555,6 +678,11 @@ function canEnterResults() {
 }
 
 function guardPermission(check, message = 'This action is not allowed for the current role.') {
+  if (!isAuthenticated()) {
+    toast('Please sign in first.', 'error');
+    updateAuthUi();
+    return false;
+  }
   if (check()) return true;
   toast(message, 'error');
   return false;
@@ -594,14 +722,6 @@ function bindEvents() {
   els.newTournamentBtn?.addEventListener('click', () => openTournamentModal());
   els.addClubPlayerBtn?.addEventListener('click', openClubPlayerModal);
 
-  els.roleSwitcher?.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-role]');
-    if (!btn) return;
-    state.ui.role = btn.dataset.role;
-    closeModal();
-    saveAndRender();
-    toast(`Role: ${capitalize(state.ui.role)}`, 'success');
-  });
 
   els.clubSearchInput.addEventListener('input', () => {
     state.ui.clubSearch = els.clubSearchInput.value;
@@ -620,6 +740,7 @@ function bindEvents() {
 }
 
 function saveAndRender(save = true) {
+  enforceRoleUi();
   if (save) saveState();
   render();
 }
@@ -693,35 +814,46 @@ function render() {
 }
 
 function renderScreens() {
+  enforceRoleUi();
   els.screenTournaments.classList.toggle('is-active', state.ui.screen === 'tournaments');
-  els.screenClub.classList.toggle('is-active', state.ui.screen === 'club');
+  els.screenClub.classList.toggle('is-active', state.ui.screen === 'club' && canEditClub());
 }
 
 function renderGlobalTabs() {
+  const role = getCurrentRole();
   els.globalTabs.querySelectorAll('[data-screen]').forEach(btn => {
-    btn.classList.toggle('is-active', btn.dataset.screen === state.ui.screen);
+    const isClub = btn.dataset.screen === 'club';
+    const allowed = isClub ? canEditClub() : true;
+    btn.hidden = !allowed;
+    btn.classList.toggle('is-active', allowed && btn.dataset.screen === state.ui.screen);
   });
   els.detailTabs.querySelectorAll('[data-detail-tab]').forEach(btn => {
-    btn.classList.toggle('is-active', btn.dataset.detailTab === state.ui.detailTab);
+    const isPlayers = btn.dataset.detailTab === 'players';
+    const allowed = role !== 'viewer' || !isPlayers;
+    btn.hidden = !allowed;
+    btn.classList.toggle('is-active', allowed && btn.dataset.detailTab === state.ui.detailTab);
   });
   DETAIL_TABS.forEach(tab => {
-    document.getElementById(`${tab}Tab`).classList.toggle('is-active', tab === state.ui.detailTab);
+    const allowed = role !== 'viewer' || tab !== 'players';
+    document.getElementById(`${tab}Tab`).classList.toggle('is-active', allowed && tab === state.ui.detailTab);
+    document.getElementById(`${tab}Tab`).hidden = !allowed;
   });
 }
 
 function renderRoleControls() {
-  els.roleSwitcher?.querySelectorAll('[data-role]').forEach(btn => {
-    btn.classList.toggle('is-active', btn.dataset.role === getCurrentRole());
-  });
-
+  updateAuthUi();
   const clubLocked = !canEditClub();
   const tournamentLocked = !canManageTournaments();
 
-  els.addClubPlayerBtn?.classList.toggle('is-disabled', clubLocked);
-  if (els.addClubPlayerBtn) els.addClubPlayerBtn.disabled = clubLocked;
+  if (els.addClubPlayerBtn) {
+    els.addClubPlayerBtn.disabled = clubLocked;
+    els.addClubPlayerBtn.hidden = clubLocked;
+  }
 
-  els.newTournamentBtn?.classList.toggle('is-disabled', tournamentLocked);
-  if (els.newTournamentBtn) els.newTournamentBtn.disabled = tournamentLocked;
+  if (els.newTournamentBtn) {
+    els.newTournamentBtn.disabled = tournamentLocked;
+    els.newTournamentBtn.hidden = tournamentLocked;
+  }
 }
 
 function renderTournamentList() {
@@ -1738,9 +1870,8 @@ function applyTemporaryTooltips() {
     ['[data-detail-tab="players"]', 'Open players.'],
     ['[data-detail-tab="schedule"]', 'Open schedule.'],
     ['[data-detail-tab="standings"]', 'Open standings.'],
-    ['[data-role="admin"]', 'Full access to club and tournaments.'],
-    ['[data-role="operator"]', 'Can manage tournaments and results.'],
-    ['[data-role="viewer"]', 'Read-only mode.']
+    ['#changeRoleBtn', 'Sign in under a different role.'],
+    ['#logoutBtn', 'End the current session.']
   ];
 
   tips.forEach(([selector, text]) => {

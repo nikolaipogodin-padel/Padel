@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Club — v16.4</title>
-  <link rel="stylesheet" href="styles.css?v=16.4" />
+  <title>Padel Club — v16.7</title>
+  <link rel="stylesheet" href="styles.css?v=16.7" />
 </head>
 <body>
   <header class="topbar">
@@ -12,15 +12,28 @@
       <div class="brand-block">
         <div class="brand-mark">P</div>
         <div>
-          <div class="eyebrow">Local MVP</div>
+          <div class="eyebrow">Riga Tournament Engine</div>
           <div class="brand-title">Padel Club</div>
         </div>
       </div>
-      <nav class="global-tabs" id="globalTabs">
-        <button class="tab is-active" data-screen="tournaments">Tournaments</button>
-        <button class="tab" data-screen="club">Club Players</button>
-      </nav>
+      <div class="topbar-actions">
+        <nav class="global-tabs" id="globalTabs">
+          <button class="tab is-active" data-screen="tournaments">Tournaments</button>
+          <button class="tab" data-screen="club">Club Players</button>
+        </nav>
+        <div class="role-session" id="roleSession" aria-label="Session info">
+          <div class="session-role-line">
+            <span class="session-label">Access</span>
+            <span class="session-role-pill" id="sessionRolePill">Viewer</span>
+          </div>
+          <div class="session-user-line" id="sessionUserLine">Signed out</div>
+          <div class="session-actions">
+            <button class="btn ghost compact-btn" id="changeRoleBtn" type="button">Switch role</button>
+            <button class="btn ghost compact-btn" id="logoutBtn" type="button">Log out</button>
+          </div>
         </div>
+      </div>
+    </div>
   </header>
 
   <main class="container app-shell">
@@ -89,6 +102,29 @@
     </section>
   </main>
 
+
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-badge">Padel Club</div>
+      <h1>Welcome back</h1>
+      <p class="auth-subtitle">Sign in to open the working area with the right level of access.</p>
+      <form id="loginForm" class="auth-form">
+        <label>
+          <span>Email or login</span>
+          <input id="loginUsername" class="input" type="text" autocomplete="username" placeholder="admin" required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input id="loginPassword" class="input" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </label>
+        <button class="btn primary auth-submit" type="submit">Enter workspace</button>
+      </form>
+      <div class="auth-hint">
+        Demo credentials are configured in <code>app.js</code> and can be replaced later with real authentication.
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="modalOverlay" hidden aria-hidden="true" style="display:none">
     <div class="modal-card" id="modalCard"></div>
   </div>
@@ -96,6 +132,6 @@
   <div class="toast-stack" id="toastStack"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=16.4"></script>
+  <script src="app.js?v=16.7"></script>
 </body>
 </html>

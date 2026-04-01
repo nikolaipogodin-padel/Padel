@@ -28,3 +28,7 @@ V14 update:
 
 
 v15.4: visual refresh only (no logic changes).
+
+
+v16.5: club approval flow refined. New players default to Pending, only Approved can join/restore tournaments, and non-approved players are auto-removed from active tournament lists.
+v16.6: working-site visual redesign and local role split added. Roles: Admin (full access), Operator (tournaments/results), Viewer (read-only).
