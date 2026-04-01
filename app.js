@@ -828,7 +828,7 @@ function render() {
     applyTemporaryTooltips();
   } catch (error) {
     console.error('Render error:', error);
-    els.selectedTournamentHero.innerHTML = '<div class="empty">Rendering issue. Reload the page.</div>';
+    els.selectedTournamentHero.innerHTML = emptyStateHtml('Rendering issue', 'Reload the page to restore the workspace.', 'warning');
   }
 }
 
@@ -895,7 +895,7 @@ function renderTournamentList() {
   }
 
   if (!items.length) {
-    els.tournamentRows.innerHTML = '<div class="empty">No tournaments match the current filters.</div>';
+    els.tournamentRows.innerHTML = emptyStateHtml('No tournaments found', 'Try a different search or clear the status filter.');
     els.historyToggleBtn.hidden = false;
     els.historyToggleBtn.textContent = state.ui.showHistory ? 'Show less' : 'Show more';
     return;
@@ -945,7 +945,7 @@ function renderTournamentList() {
 function renderTournamentDetails() {
   const tournament = getSelectedTournament();
   if (!tournament) {
-    els.selectedTournamentHero.innerHTML = '<div class="empty">Create your first tournament.</div>';
+    els.selectedTournamentHero.innerHTML = emptyStateHtml('No tournament selected', 'Create a tournament to open the control center.', 'success');
     els.overviewTab.innerHTML = els.playersTab.innerHTML = els.scheduleTab.innerHTML = els.standingsTab.innerHTML = '';
     return;
   }
@@ -1106,7 +1106,7 @@ function playerRowHtml(player, bucket, tournamentId) {
 
 function renderScheduleTab(tournament) {
   if (!tournament.rounds?.length) {
-    els.scheduleTab.innerHTML = '<div class="empty">No schedule yet. Add approved players and click Generate.</div>';
+    els.scheduleTab.innerHTML = emptyStateHtml('No schedule yet', 'Add approved players and generate the event schedule.', 'warning');
     return;
   }
 
@@ -1191,37 +1191,76 @@ function resultCardHtml(match) {
 function renderStandingsTab(tournament, leader) {
   const standings = computeStandings(tournament);
   if (!standings.length) {
-    els.standingsTab.innerHTML = '<div class="empty">Standings will appear after tournament generation.</div>';
+    els.standingsTab.innerHTML = emptyStateHtml('Standings are empty', 'Generate the tournament and enter results to see rankings.');
     return;
   }
 
+  const totalMatches = tournament.matches?.length || 0;
+  const playedMatches = tournament.matches?.filter(match => match.result).length || 0;
+  const totalTeams = standings.length;
+  const bestDiff = Math.max(...standings.map(row => row.diff));
+  const podium = standings.slice(0, 3);
+
   els.standingsTab.innerHTML = `
-    <div class="leader-card">
-      <strong>Current leader:</strong> ${leader ? escapeHtml(leader.teamName) : '—'}
-    </div>
-    <div class="card table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>GW</th><th>GL</th><th>Diff</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${standings.map(row => `
-            <tr>
-              <td>${row.rank}</td>
-              <td>${escapeHtml(row.teamName)}</td>
-              <td>${row.played}</td>
-              <td>${row.wins}</td>
-              <td>${row.losses}</td>
-              <td>${row.gamesWon}</td>
-              <td>${row.gamesLost}</td>
-              <td>${row.diff}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
+    <section class="standings-shell">
+      <div class="leader-card standings-leader-card">
+        <div>
+          <div class="eyebrow">Current leader</div>
+          <h3>${leader ? escapeHtml(leader.teamName) : '—'}</h3>
+          <div class="section-subtitle">Updated from submitted results and team game differential.</div>
+        </div>
+        <div class="standings-leader-metrics">
+          <div class="summary-pill">
+            <span>Teams</span>
+            <strong>${totalTeams}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Played</span>
+            <strong>${playedMatches}/${totalMatches}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Best diff</span>
+            <strong>${bestDiff > 0 ? '+' : ''}${bestDiff}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="podium-grid">
+        ${podium.map((row, index) => `
+          <article class="podium-card ${index === 0 ? 'is-first' : ''}">
+            <div class="podium-rank">#${row.rank}</div>
+            <strong>${escapeHtml(row.teamName)}</strong>
+            <div class="podium-meta">${row.wins}W · ${row.losses}L · Diff ${row.diff > 0 ? '+' : ''}${row.diff}</div>
+          </article>
+        `).join('')}
+      </div>
+
+      <div class="standings-card-grid">
+        ${standings.map(row => `
+          <article class="standing-card ${row.rank === 1 ? 'is-leading' : ''}">
+            <div class="standing-card-main">
+              <div class="standing-rank-wrap">
+                <span class="standing-rank">#${row.rank}</span>
+                <div>
+                  <strong>${escapeHtml(row.teamName)}</strong>
+                  <div class="muted">${row.played} matches played</div>
+                </div>
+              </div>
+              <div class="standing-chip-row">
+                <span class="score-chip">${row.wins}W</span>
+                <span class="score-chip ghost">${row.losses}L</span>
+                <span class="score-chip ${row.diff >= 0 ? 'positive' : 'negative'}">Diff ${row.diff > 0 ? '+' : ''}${row.diff}</span>
+              </div>
+            </div>
+            <div class="standing-stats-grid">
+              <div><span>Games won</span><strong>${row.gamesWon}</strong></div>
+              <div><span>Games lost</span><strong>${row.gamesLost}</strong></div>
+              <div><span>Points</span><strong>${row.wins * 3}</strong></div>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    </section>
   `;
 }
 
@@ -1237,35 +1276,68 @@ function renderClubPlayers() {
     return matchQ && matchStatus;
   });
 
+  const approvedCount = state.clubPlayers.filter(player => player.status === 'Approved').length;
+  const pendingCount = state.clubPlayers.filter(player => player.status === 'Pending').length;
+  const blockedCount = state.clubPlayers.filter(player => player.status === 'Blocked').length;
+
   els.clubPlayersTable.innerHTML = `
-    <div class="club-toolbar club-toolbar-top">
-      ${canEditClub() ? `<button class="btn secondary" type="button" id="importClubBtn">Import players</button>` : ''}
-      <button class="btn ghost" type="button" id="exportClubBtn">Export JSON</button>
-    </div>
-    <div class="club-table-header">
-      <div>Player</div>
-      <div>Level</div>
-      <div>Status</div>
-      <div>Actions</div>
-    </div>
-    <div class="club-rows">
-      ${players.length ? players.map(player => `
-        <div class="club-row">
-          <div class="club-main">
-            <strong>${escapeHtml(player.name)}</strong>
-            <small>${escapeHtml(player.contact)}</small>
+    <section class="club-premium-shell">
+      <div class="club-topline">
+        <div class="status-strip club-status-strip">
+          <div class="status-tile card soft-success">
+            <span class="status-label">Approved</span>
+            <strong class="status-count">${approvedCount}</strong>
+            <small>Available for tournaments</small>
           </div>
-          <div class="club-cell club-level"><span class="club-label">Level</span>${escapeHtml(player.level)}</div>
-          <div class="club-cell club-status"><span class="club-label">Status</span><span class="badge badge-${player.status.toLowerCase()}">${escapeHtml(player.status)}</span></div>
-          <div class="actions-row actions-row-wrap">
-            ${canEditClub() && player.status !== 'Approved' ? `<button class="btn secondary" type="button" data-set-status="Approved" data-player-id="${player.id}">Approve</button>` : ''}
-            ${canEditClub() && player.status !== 'Blocked' ? `<button class="btn ghost" type="button" data-set-status="Blocked" data-player-id="${player.id}">Block</button>` : ''}
-            ${canEditClub() && player.status !== 'Pending' ? `<button class="btn ghost" type="button" data-set-status="Pending" data-player-id="${player.id}">Reset</button>` : ''}
-            ${!canEditClub() ? `<span class="readonly-note compact">Read only</span>` : ''}
+          <div class="status-tile card soft-warning">
+            <span class="status-label">Pending</span>
+            <strong class="status-count">${pendingCount}</strong>
+            <small>Need admin review</small>
+          </div>
+          <div class="status-tile card soft-danger">
+            <span class="status-label">Blocked</span>
+            <strong class="status-count">${blockedCount}</strong>
+            <small>Restricted from play</small>
           </div>
         </div>
-      `).join('') : '<div class="empty">No players found.</div>'}
-    </div>
+
+        <div class="club-toolbar club-toolbar-top premium-toolbar-top">
+          ${canEditClub() ? `<button class="btn secondary" type="button" id="importClubBtn">Import players</button>` : ''}
+          <button class="btn ghost" type="button" id="exportClubBtn">Export JSON</button>
+        </div>
+      </div>
+
+      <div class="club-card-grid">
+        ${players.length ? players.map(player => `
+          <article class="club-player-card status-${player.status.toLowerCase()}">
+            <div class="club-player-main">
+              <div class="club-player-headline">
+                <div>
+                  <strong>${escapeHtml(player.name)}</strong>
+                  <div class="muted">${escapeHtml(player.contact)}</div>
+                </div>
+                <span class="badge badge-${player.status.toLowerCase()}">${escapeHtml(player.status)}</span>
+              </div>
+              <div class="club-player-meta">
+                <span class="meta-chip"><span class="meta-chip-label">Level</span><strong>${escapeHtml(player.level)}</strong></span>
+                <span class="meta-chip"><span class="meta-chip-label">Role</span><strong>Club player</strong></span>
+              </div>
+            </div>
+            <div class="club-player-footer">
+              <div class="club-player-presence ${player.status === 'Approved' ? 'ready' : player.status === 'Pending' ? 'review' : 'locked'}">
+                ${player.status === 'Approved' ? 'Ready for tournament entry' : player.status === 'Pending' ? 'Awaiting approval' : 'Access restricted'}
+              </div>
+              <div class="actions-row actions-row-wrap club-card-actions">
+                ${canEditClub() && player.status !== 'Approved' ? `<button class="btn secondary" type="button" data-set-status="Approved" data-player-id="${player.id}">Approve</button>` : ''}
+                ${canEditClub() && player.status !== 'Blocked' ? `<button class="btn ghost" type="button" data-set-status="Blocked" data-player-id="${player.id}">Block</button>` : ''}
+                ${canEditClub() && player.status !== 'Pending' ? `<button class="btn ghost" type="button" data-set-status="Pending" data-player-id="${player.id}">Reset</button>` : ''}
+                ${!canEditClub() ? `<span class="readonly-note compact">Read only</span>` : ''}
+              </div>
+            </div>
+          </article>
+        `).join('') : emptyStateHtml('No club players found', 'Add a player or adjust the active search and status filter.')}
+      </div>
+    </section>
   `;
 
   els.clubPlayersTable.querySelectorAll('[data-set-status]').forEach(btn => {
@@ -2022,10 +2094,34 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+
+function emptyStateHtml(title, description, tone = 'default') {
+  return `
+    <div class="empty-state empty-state-${tone}">
+      <div class="empty-state-icon">${tone === 'warning' ? '!' : tone === 'success' ? '✓' : '•'}</div>
+      <div class="empty-state-content">
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(description)}</p>
+      </div>
+    </div>
+  `;
+}
+
 function toast(message, type = 'default') {
   const el = document.createElement('div');
-  el.className = `toast ${type === 'success' ? 'success' : ''}`;
-  el.textContent = message;
+  el.className = `toast ${type}`;
+  const icon = type === 'success' ? '✓' : type === 'error' ? '!' : '•';
+  el.innerHTML = `
+    <div class="toast-icon">${icon}</div>
+    <div class="toast-body">
+      <div class="toast-title">${type === 'success' ? 'Updated' : type === 'error' ? 'Attention' : 'Notice'}</div>
+      <div class="toast-message">${escapeHtml(message)}</div>
+    </div>
+    <button class="toast-close" type="button" aria-label="Close notification">×</button>
+    <span class="toast-progress"></span>
+  `;
   els.toastStack.appendChild(el);
-  setTimeout(() => el.remove(), 2600);
+  const remove = () => el.remove();
+  el.querySelector('.toast-close')?.addEventListener('click', remove);
+  setTimeout(remove, 3200);
 }
