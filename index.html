@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Club — v18.0</title>
-  <link rel="stylesheet" href="styles.css?v=18.0" />
+  <title>Padel Club — v19.0</title>
+  <link rel="stylesheet" href="styles.css?v=19.0" />
 </head>
 <body>
   <header class="topbar">
@@ -20,7 +20,7 @@
         <nav class="global-tabs" id="globalTabs">
           <button class="tab is-active" data-screen="tournaments">Tournaments</button>
           <button class="tab" data-screen="club">Club Players</button>
-          <button class="tab" data-screen="playerMatches">Player Matches</button>
+          <button class="tab" data-screen="player">Player Matches</button>
         </nav>
         <div class="role-session" id="roleSession" aria-label="Session info">
           <div class="session-role-line">
@@ -87,38 +87,6 @@
       </div>
     </section>
 
-
-    <section id="screenPlayerMatches" class="screen">
-      <div class="player-shell">
-        <section class="player-hero player-panel">
-          <div class="player-hero-copy">
-            <div class="eyebrow">Player side</div>
-            <h2 class="player-hero-title">My Matches</h2>
-            <p class="player-hero-subtitle">A focused player view: only your matches, result submission, and clear match status.</p>
-          </div>
-          <div class="player-hero-actions">
-            <label class="player-select-wrap">
-              <span class="player-select-label">Player identity</span>
-              <select id="playerIdentitySelect" class="select">
-                <option value="">Select player</option>
-              </select>
-            </label>
-          </div>
-        </section>
-        <section class="player-stats-grid" id="playerStatsGrid"></section>
-        <section class="player-panel">
-          <div class="player-panel-head">
-            <div>
-              <div class="section-title">Player Matches</div>
-              <div class="section-subtitle">Only the matches linked to the selected player are shown here.</div>
-            </div>
-          </div>
-          <div id="playerMatchesContent"></div>
-        </section>
-      </div>
-    </section>
-
-
     <section id="screenClub" class="screen">
       <div class="panel">
         <div class="panel-head">
@@ -140,6 +108,30 @@
         <div id="clubPlayersTable"></div>
       </div>
     </section>
+  
+
+    <section id="screenPlayer" class="screen">
+      <div class="player-screen-shell">
+        <section class="player-hero panel neon-panel">
+          <div class="player-hero-copy">
+            <div class="eyebrow neon-eyebrow">Player side</div>
+            <h2 class="player-title">My Matches</h2>
+            <p class="player-subtitle">Only your matches, result submission, clear status, and who saved the result.</p>
+          </div>
+          <div class="player-select-wrap">
+            <label class="player-select-label" for="playerSelector">Player identity</label>
+            <select id="playerSelector" class="select compact neon-select">
+              <option value="">Select player</option>
+            </select>
+          </div>
+        </section>
+
+        <section id="playerSummary" class="player-summary-grid"></section>
+        <section id="playerMatchesState" class="player-state-shell"></section>
+        <section id="playerMatchesList" class="player-matches-grid"></section>
+      </div>
+    </section>
+
   </main>
 
 
@@ -164,7 +156,8 @@
           <strong>Viewer</strong>
           <span>Overview, schedule and standings only</span>
         </button>
-        <button class="role-access-card role-access-card-player" type="button" data-login-role="player">
+      
+        <button class="role-access-card" type="button" data-login-role="player">
           <span class="role-access-kicker">Player side</span>
           <strong>Player</strong>
           <span>See only your matches and submit your result</span>
@@ -176,6 +169,28 @@
     </div>
   </div>
 
+  <button id="debugFab" class="debug-fab" type="button" aria-label="Open debug layer">Debug</button>
+  <aside id="debugPanel" class="debug-panel" aria-hidden="true">
+    <div class="debug-panel__head">
+      <div>
+        <div class="debug-kicker">Live diagnostics</div>
+        <strong>Debug layer</strong>
+      </div>
+      <div class="debug-panel__actions">
+        <button id="debugRefreshBtn" class="btn ghost compact-btn" type="button">Refresh</button>
+        <button id="debugClearBtn" class="btn ghost compact-btn" type="button">Clear</button>
+        <button id="debugCloseBtn" class="btn ghost compact-btn" type="button">Close</button>
+      </div>
+    </div>
+    <div id="debugMeta" class="debug-meta"></div>
+    <div id="debugLog" class="debug-log"></div>
+  </aside>
+
+
+  <div class="modal submit-result-modal" id="playerResultModal" hidden aria-hidden="true" style="display:none">
+    <div class="modal-card player-result-modal-card" id="playerResultModalCard"></div>
+  </div>
+
   <div class="modal" id="modalOverlay" hidden aria-hidden="true" style="display:none">
     <div class="modal-card" id="modalCard"></div>
   </div>
@@ -183,6 +198,6 @@
   <div class="toast-stack" id="toastStack"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=18.0"></script>
+  <script src="app.js?v=19.0"></script>
 </body>
 </html>

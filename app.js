@@ -31,8 +31,7 @@ const AUTH_STORAGE_KEY = 'padel-club-auth-v2';
 const ROLE_CREDENTIALS = {
   admin: { username: 'admin', label: 'Admin' },
   operator: { username: 'operator', label: 'Operator' },
-  viewer: { username: 'viewer', label: 'Viewer' },
-  player: { username: 'player', label: 'Player' }
+  viewer: { username: 'viewer', label: 'Viewer' }
 };
 const DETAIL_TABS = ['overview', 'players', 'schedule', 'standings'];
 const DURATIONS = [1.5, 2, 3];
@@ -54,9 +53,6 @@ const initialState = {
     showHistory: false,
     clubSearch: '',
     clubStatusFilter: 'all',
-    playerSearch: '',
-    playerScreenFilter: 'all',
-    currentPlayerId: '',
     role: 'viewer',
     auth: { isAuthenticated: false, username: '', role: 'viewer' }
   },
@@ -281,11 +277,6 @@ async function syncCoreDataFromSupabase() {
     state.ui.selectedTournamentId = state.tournaments[0]?.id || null;
   }
 
-  const approvedPlayers = state.clubPlayers.filter(player => player.status === 'Approved');
-  if (!approvedPlayers.some(player => player.id === state.ui.currentPlayerId)) {
-    state.ui.currentPlayerId = approvedPlayers[0]?.id || '';
-  }
-
   saveState();
 }
 
@@ -308,7 +299,6 @@ function queueRealtimeSync(reason = 'db_change') {
     try {
       console.log('Realtime sync started:', reason);
       await syncCoreDataFromSupabase();
-      await loadPlayerMatchesForCurrentPlayer();
       render();
     } catch (error) {
       console.error('Realtime sync error:', error);
@@ -491,11 +481,7 @@ function getFriendlySupabaseError(error, fallbackMessage = 'Supabase error') {
 const els = {
   screenTournaments: document.getElementById('screenTournaments'),
   screenClub: document.getElementById('screenClub'),
-  screenPlayerMatches: document.getElementById('screenPlayerMatches'),
   globalTabs: document.getElementById('globalTabs'),
-  playerIdentitySelect: document.getElementById('playerIdentitySelect'),
-  playerStatsGrid: document.getElementById('playerStatsGrid'),
-  playerMatchesContent: document.getElementById('playerMatchesContent'),
   tournamentRows: document.getElementById('tournamentRows'),
   tournamentSearchInput: document.getElementById('tournamentSearchInput'),
   tournamentStatusFilter: document.getElementById('tournamentStatusFilter'),
@@ -557,7 +543,6 @@ function loadState() {
 
 async function initApp() {
   await syncCoreDataFromSupabase();
-  await loadPlayerMatchesForCurrentPlayer();
   initRealtime();
   enforceRoleUi();
   updateAuthUi();
@@ -616,11 +601,8 @@ function isAuthenticated() {
 function enforceRoleUi() {
   const role = getCurrentRole();
   state.ui.role = role;
-  if (role === 'player') {
-    state.ui.screen = 'playerMatches';
-  }
   if (role !== 'admin' && state.ui.screen === 'club') {
-    state.ui.screen = role === 'player' ? 'playerMatches' : 'tournaments';
+    state.ui.screen = 'tournaments';
   }
   if (role === 'viewer' && state.ui.detailTab === 'players') {
     state.ui.detailTab = 'overview';
@@ -711,18 +693,6 @@ function canEnterResults() {
   return ['admin', 'operator'].includes(getCurrentRole());
 }
 
-function canUsePlayerScreen() {
-  return ['admin', 'operator', 'player'].includes(getCurrentRole());
-}
-
-function getCurrentPlayerId() {
-  return state.ui?.currentPlayerId || '';
-}
-
-function getCurrentPlayer() {
-  return getClubPlayer(getCurrentPlayerId()) || null;
-}
-
 function guardPermission(check, message = 'This action is not allowed for the current role.') {
   if (!isAuthenticated()) {
     toast('Please sign in first.', 'error');
@@ -785,12 +755,6 @@ function bindEvents() {
   });
   els.clubStatusFilter.addEventListener('change', () => {
     state.ui.clubStatusFilter = els.clubStatusFilter.value;
-    saveAndRender(false);
-  });
-
-  els.playerIdentitySelect?.addEventListener('change', async () => {
-    state.ui.currentPlayerId = els.playerIdentitySelect.value || '';
-    await loadPlayerMatchesForCurrentPlayer();
     saveAndRender(false);
   });
 
@@ -868,7 +832,6 @@ function render() {
     renderRoleControls();
     renderTournamentDetails();
     renderClubPlayers();
-    renderPlayerMatchesScreen();
     applyTemporaryTooltips();
   } catch (error) {
     console.error('Render error:', error);
@@ -880,19 +843,15 @@ function renderScreens() {
   enforceRoleUi();
   els.screenTournaments.classList.toggle('is-active', state.ui.screen === 'tournaments');
   els.screenClub.classList.toggle('is-active', state.ui.screen === 'club' && canEditClub());
-  els.screenPlayerMatches.classList.toggle('is-active', state.ui.screen === 'playerMatches' && canUsePlayerScreen());
 }
 
 function renderGlobalTabs() {
   const role = getCurrentRole();
   els.globalTabs.querySelectorAll('[data-screen]').forEach(btn => {
-    const screen = btn.dataset.screen;
-    let allowed = true;
-    if (screen === 'club') allowed = canEditClub();
-    if (screen === 'playerMatches') allowed = canUsePlayerScreen();
-    if (role === 'player' && screen !== 'playerMatches') allowed = false;
+    const isClub = btn.dataset.screen === 'club';
+    const allowed = isClub ? canEditClub() : true;
     btn.hidden = !allowed;
-    btn.classList.toggle('is-active', allowed && screen === state.ui.screen);
+    btn.classList.toggle('is-active', allowed && btn.dataset.screen === state.ui.screen);
   });
   els.detailTabs.querySelectorAll('[data-detail-tab]').forEach(btn => {
     const isPlayers = btn.dataset.detailTab === 'players';
@@ -920,17 +879,6 @@ function renderRoleControls() {
   if (els.newTournamentBtn) {
     els.newTournamentBtn.disabled = tournamentLocked;
     els.newTournamentBtn.hidden = tournamentLocked;
-  }
-
-  if (els.playerIdentitySelect) {
-    const approvedPlayers = state.clubPlayers.filter(player => player.status === 'Approved');
-    if (!state.ui.currentPlayerId && approvedPlayers.length) {
-      state.ui.currentPlayerId = approvedPlayers[0].id;
-    }
-    els.playerIdentitySelect.innerHTML = `
-      <option value="">Select player</option>
-      ${approvedPlayers.map(player => `<option value="${player.id}" ${player.id === state.ui.currentPlayerId ? 'selected' : ''}>${escapeHtml(player.name)}</option>`).join('')}
-    `;
   }
 }
 
@@ -1451,229 +1399,6 @@ function renderStandingsTab(tournament, leader) {
       </div>
     </section>
   `;
-}
-
-
-
-async function loadPlayerMatchesForCurrentPlayer() {
-  const playerId = getCurrentPlayerId();
-  if (!playerId || !sbClient) {
-    state.playerMatchCards = [];
-    return;
-  }
-
-  try {
-    const { data, error } = await sbClient
-      .from('v2_my_match_cards')
-      .select('*')
-      .eq('viewer_player_id', playerId);
-
-    if (error) throw error;
-    state.playerMatchCards = Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error('Player matches load error:', error);
-    state.playerMatchCards = [];
-  }
-}
-
-function normalizePlayerMatchCard(row) {
-  const teamAScore = row.team_a_score ?? row.games_a ?? row.score_a ?? null;
-  const teamBScore = row.team_b_score ?? row.games_b ?? row.score_b ?? null;
-  const submittedBy = row.submitted_by_name || row.result_submitted_by_name || row.submitted_by || '';
-  const hasResult = Number.isInteger(Number(teamAScore)) && Number.isInteger(Number(teamBScore));
-
-  return {
-    id: row.match_id || row.id,
-    tournamentName: row.tournament_name || row.tournament || 'Tournament',
-    stageName: row.stage_name || row.round_name || row.phase_name || 'Match',
-    matchDate: row.match_date || row.date || '',
-    matchTime: row.match_time || row.time || '',
-    court: row.court_name || row.court || '',
-    partnerName: row.partner_name || row.partner || '—',
-    opponents: [row.opponent_1_name, row.opponent_2_name].filter(Boolean),
-    teamAScore,
-    teamBScore,
-    submittedBy,
-    completed: hasResult,
-    raw: row
-  };
-}
-
-function renderPlayerMatchesScreen() {
-  if (!els.playerMatchesContent || !els.playerStatsGrid) return;
-
-  const currentPlayer = getCurrentPlayer();
-  const role = getCurrentRole();
-  const cards = (state.playerMatchCards || []).map(normalizePlayerMatchCard);
-  const completedCount = cards.filter(item => item.completed).length;
-  const pendingCount = cards.length - completedCount;
-
-  els.playerStatsGrid.innerHTML = `
-    <article class="player-stat-card">
-      <span class="player-stat-label">Identity</span>
-      <strong class="player-stat-value">${currentPlayer ? escapeHtml(currentPlayer.name) : 'Not selected'}</strong>
-      <small class="player-stat-note">${currentPlayer ? escapeHtml(currentPlayer.level || 'Club player') : 'Choose a player to load match cards'}</small>
-    </article>
-    <article class="player-stat-card">
-      <span class="player-stat-label">Matches</span>
-      <strong class="player-stat-value">${cards.length}</strong>
-      <small class="player-stat-note">Loaded from v2_my_match_cards</small>
-    </article>
-    <article class="player-stat-card">
-      <span class="player-stat-label">Pending result</span>
-      <strong class="player-stat-value">${pendingCount}</strong>
-      <small class="player-stat-note">Still waiting for submission</small>
-    </article>
-    <article class="player-stat-card">
-      <span class="player-stat-label">Completed</span>
-      <strong class="player-stat-value">${completedCount}</strong>
-      <small class="player-stat-note">Results already saved</small>
-    </article>
-  `;
-
-  if (!currentPlayer) {
-    els.playerMatchesContent.innerHTML = emptyStateHtml('Select player', 'Choose the player identity above to load only that player\'s matches.');
-    return;
-  }
-
-  if (!cards.length) {
-    els.playerMatchesContent.innerHTML = emptyStateHtml('No matches yet', 'There are no match cards returned for this player yet.');
-    return;
-  }
-
-  const sorted = cards.sort((a, b) => {
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
-    return String(a.matchDate + ' ' + a.matchTime).localeCompare(String(b.matchDate + ' ' + b.matchTime));
-  });
-
-  els.playerMatchesContent.innerHTML = `
-    <div class="player-match-grid">
-      ${sorted.map(card => `
-        <article class="player-match-card ${card.completed ? 'is-completed' : 'is-pending'}">
-          <div class="player-match-glow"></div>
-          <div class="player-match-head">
-            <div>
-              <div class="player-card-kicker">${escapeHtml(card.tournamentName)}</div>
-              <h3>${escapeHtml(card.stageName)}</h3>
-            </div>
-            <span class="player-status-pill ${card.completed ? 'is-completed' : 'is-pending'}">${card.completed ? 'Completed' : 'Ready for result'}</span>
-          </div>
-
-          <div class="player-chip-row">
-            <span class="player-chip">${escapeHtml(card.matchDate || 'Date TBC')}</span>
-            <span class="player-chip">${escapeHtml(card.matchTime || 'Time TBC')}</span>
-            <span class="player-chip">${escapeHtml(card.court || 'Court TBC')}</span>
-          </div>
-
-          <div class="player-lines">
-            <div class="player-line"><span>Partner</span><strong>${escapeHtml(card.partnerName || '—')}</strong></div>
-            <div class="player-line"><span>Opponents</span><strong>${escapeHtml(card.opponents.join(' / ') || '—')}</strong></div>
-          </div>
-
-          <div class="player-score-pill ${card.completed ? '' : 'is-empty'}">
-            ${card.completed ? `${escapeHtml(card.teamAScore)} : ${escapeHtml(card.teamBScore)}` : 'No result yet'}
-          </div>
-
-          <div class="player-submit-row">
-            <div class="player-submit-meta">
-              <span>Submitted by</span>
-              <strong>${card.submittedBy ? escapeHtml(card.submittedBy) : '—'}</strong>
-            </div>
-            ${(role === 'player' || role === 'admin' || role === 'operator') && !card.completed ? `<button class="btn primary player-submit-btn" type="button" data-player-submit="${card.id}">Submit result</button>` : ''}
-          </div>
-        </article>
-      `).join('')}
-    </div>
-  `;
-
-  els.playerMatchesContent.querySelectorAll('[data-player-submit]').forEach(btn => {
-    btn.addEventListener('click', () => openPlayerResultModal(btn.dataset.playerSubmit));
-  });
-}
-
-function openPlayerResultModal(matchId) {
-  const currentPlayer = getCurrentPlayer();
-  if (!currentPlayer) {
-    toast('Select a player first.', 'error');
-    return;
-  }
-  const rawCard = (state.playerMatchCards || []).find(row => String(row.match_id || row.id) === String(matchId));
-  const card = rawCard ? normalizePlayerMatchCard(rawCard) : null;
-  if (!card) return;
-
-  openModal(`
-    <div class="modal-head">
-      <div>
-        <div class="modal-title">Submit Result</div>
-        <div class="section-subtitle">${escapeHtml(card.tournamentName)} • ${escapeHtml(card.stageName)}</div>
-      </div>
-      <button class="btn ghost" data-close-modal>Close</button>
-    </div>
-    <form id="playerResultForm">
-      <div class="player-result-modal-grid">
-        <label><div class="section-subtitle">Team A score</div><input class="input input-score" type="number" name="scoreA" min="0" step="1" required /></label>
-        <label><div class="section-subtitle">Team B score</div><input class="input input-score" type="number" name="scoreB" min="0" step="1" required /></label>
-      </div>
-      <div class="player-modal-note">Result author will be linked to the selected player identity: <strong>${escapeHtml(currentPlayer.name)}</strong></div>
-      <div class="modal-foot">
-        <button class="btn ghost" type="button" data-close-modal>Cancel</button>
-        <button class="btn primary" type="submit">Save result</button>
-      </div>
-    </form>
-  `);
-
-  document.getElementById('playerResultForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const ok = await submitPlayerMatchResult({
-      matchId: card.id,
-      teamAScore: Number(fd.get('scoreA')),
-      teamBScore: Number(fd.get('scoreB')),
-      playerId: currentPlayer.id
-    });
-    if (ok) closeModal();
-  });
-}
-
-async function submitPlayerMatchResult({ matchId, teamAScore, teamBScore, playerId }) {
-  if (!playerId) {
-    toast('Select a player first.', 'error');
-    return false;
-  }
-  if (!Number.isInteger(teamAScore) || !Number.isInteger(teamBScore)) {
-    toast('Enter valid integer scores.', 'error');
-    return false;
-  }
-  if (teamAScore === teamBScore) {
-    toast('Tie score is not allowed.', 'error');
-    return false;
-  }
-  const candidates = [
-    { p_match_id: matchId, p_team_a_score: teamAScore, p_team_b_score: teamBScore, p_submitted_by_player_id: playerId },
-    { match_id: matchId, team_a_score: teamAScore, team_b_score: teamBScore, submitted_by_player_id: playerId },
-    { p_match_id: matchId, p_team_a_score: teamAScore, p_team_b_score: teamBScore },
-    { match_id: matchId, team_a_score: teamAScore, team_b_score: teamBScore }
-  ];
-
-  let lastError = null;
-  for (const payload of candidates) {
-    try {
-      const { error } = await sbClient.rpc('v2_submit_match_result', payload);
-      if (!error) {
-        await loadPlayerMatchesForCurrentPlayer();
-        saveAndRender();
-        toast('Result saved.', 'success');
-        return true;
-      }
-      lastError = error;
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  console.error('Player result submit error:', lastError);
-  toast(getFriendlySupabaseError(lastError, 'Could not save result to Supabase.'), 'error');
-  return false;
 }
 
 function renderClubPlayers() {
@@ -2433,7 +2158,6 @@ function applyTemporaryTooltips() {
     ['#generateBtn', 'Generate pairs, schedule and matches.'],
     ['[data-screen="tournaments"]', 'Open tournaments.'],
     ['[data-screen="club"]', 'Open club players.'],
-    ['[data-screen="playerMatches"]', 'Open player-only match cards.'],
     ['[data-detail-tab="overview"]', 'Open overview.'],
     ['[data-detail-tab="players"]', 'Open players.'],
     ['[data-detail-tab="schedule"]', 'Open schedule.'],
@@ -2538,3 +2262,480 @@ function toast(message, type = 'default') {
   el.querySelector('.toast-close')?.addEventListener('click', remove);
   setTimeout(remove, 3200);
 }
+
+
+/* =========================================================
+   v19 PROD DEBUG + PLAYER MATCHES LAYER
+   ========================================================= */
+ROLE_CREDENTIALS.player = { username: 'player', label: 'Player' };
+state.ui.playerSelectedId ??= '';
+state.ui.playerDebugOpen ??= false;
+state.ui.playerMatches ??= [];
+state.ui.playerMatchesLoading ??= false;
+state.ui.playerMatchesError ??= '';
+state.ui.debugEntries ??= [];
+state.ui.playerSubmitBusy ??= false;
+
+els.screenPlayer = document.getElementById('screenPlayer');
+els.playerSelector = document.getElementById('playerSelector');
+els.playerSummary = document.getElementById('playerSummary');
+els.playerMatchesState = document.getElementById('playerMatchesState');
+els.playerMatchesList = document.getElementById('playerMatchesList');
+els.playerResultModal = document.getElementById('playerResultModal');
+els.playerResultModalCard = document.getElementById('playerResultModalCard');
+els.debugFab = document.getElementById('debugFab');
+els.debugPanel = document.getElementById('debugPanel');
+els.debugMeta = document.getElementById('debugMeta');
+els.debugLog = document.getElementById('debugLog');
+els.debugRefreshBtn = document.getElementById('debugRefreshBtn');
+els.debugClearBtn = document.getElementById('debugClearBtn');
+els.debugCloseBtn = document.getElementById('debugCloseBtn');
+
+function debugPush(type, message, payload = null) {
+  state.ui.debugEntries ??= [];
+  const entry = {
+    id: uid('dbg'),
+    time: new Date().toLocaleTimeString(),
+    type,
+    message,
+    payload
+  };
+  state.ui.debugEntries.unshift(entry);
+  state.ui.debugEntries = state.ui.debugEntries.slice(0, 80);
+  renderDebugLayer();
+  try { console[type === 'error' ? 'error' : 'log']('[debug]', message, payload); } catch {}
+}
+
+function renderDebugLayer() {
+  if (!els.debugPanel || !els.debugLog || !els.debugMeta) return;
+  els.debugPanel.classList.toggle('is-open', !!state.ui.playerDebugOpen);
+  els.debugPanel.setAttribute('aria-hidden', state.ui.playerDebugOpen ? 'false' : 'true');
+  const role = getCurrentRole();
+  const matchesCount = Array.isArray(state.ui.playerMatches) ? state.ui.playerMatches.length : 0;
+  els.debugMeta.innerHTML = `
+    <div><strong>Role:</strong> ${escapeHtml(role)}</div>
+    <div><strong>Player:</strong> ${escapeHtml(state.ui.playerSelectedId || 'not selected')}</div>
+    <div><strong>Screen:</strong> ${escapeHtml(state.ui.screen || 'tournaments')}</div>
+    <div><strong>Matches loaded:</strong> ${matchesCount}</div>
+  `;
+  const entries = state.ui.debugEntries || [];
+  els.debugLog.innerHTML = entries.length ? entries.map(entry => `
+    <article class="debug-entry">
+      <div class="debug-entry-head">
+        <span class="debug-entry-type">${escapeHtml(entry.type)}</span>
+        <span class="debug-entry-time">${escapeHtml(entry.time)}</span>
+      </div>
+      <div>${escapeHtml(entry.message)}</div>
+      ${entry.payload == null ? '' : `<pre>${escapeHtml(typeof entry.payload === 'string' ? entry.payload : JSON.stringify(entry.payload, null, 2))}</pre>`}
+    </article>
+  `).join('') : '<div class="debug-entry"><div>No logs yet.</div></div>';
+}
+
+function bindDebugLayerEvents() {
+  els.debugFab?.addEventListener('click', () => {
+    state.ui.playerDebugOpen = !state.ui.playerDebugOpen;
+    renderDebugLayer();
+    saveState();
+  });
+  els.debugCloseBtn?.addEventListener('click', () => {
+    state.ui.playerDebugOpen = false;
+    renderDebugLayer();
+    saveState();
+  });
+  els.debugClearBtn?.addEventListener('click', () => {
+    state.ui.debugEntries = [];
+    renderDebugLayer();
+    saveState();
+  });
+  els.debugRefreshBtn?.addEventListener('click', async () => {
+    debugPush('info', 'Manual refresh requested.');
+    await refreshPlayerMatches();
+  });
+  window.addEventListener('error', (event) => {
+    debugPush('error', event.message || 'Window error', { file: event.filename, line: event.lineno, col: event.colno });
+  });
+  window.addEventListener('unhandledrejection', (event) => {
+    debugPush('error', 'Unhandled promise rejection', String(event.reason || 'unknown'));
+  });
+}
+
+function canUsePlayerView() {
+  return getCurrentRole() === 'player';
+}
+
+function getApprovedPlayers() {
+  return (state.clubPlayers || []).filter(player => String(player.status || '').toLowerCase() === 'approved');
+}
+
+function ensurePlayerSelection() {
+  if (state.ui.playerSelectedId && state.clubPlayers.some(p => String(p.id) === String(state.ui.playerSelectedId))) return;
+  const firstApproved = getApprovedPlayers()[0];
+  state.ui.playerSelectedId = firstApproved?.id || '';
+}
+
+function renderPlayerSelector() {
+  if (!els.playerSelector) return;
+  ensurePlayerSelection();
+  const options = getApprovedPlayers().map(player => `<option value="${escapeHtml(player.id)}" ${String(player.id) === String(state.ui.playerSelectedId) ? 'selected' : ''}>${escapeHtml(player.name)}</option>`).join('');
+  els.playerSelector.innerHTML = `<option value="">Select player</option>${options}`;
+}
+
+function getSelectedPlayer() {
+  return (state.clubPlayers || []).find(player => String(player.id) === String(state.ui.playerSelectedId)) || null;
+}
+
+async function fetchPlayerMatches(playerId) {
+  if (!sbClient) throw new Error('Supabase client is not available.');
+  const { data, error } = await sbClient
+    .from('v2_my_match_cards')
+    .select('*')
+    .eq('viewer_player_id', playerId)
+    .order('match_date', { ascending: true })
+    .order('match_time', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+function normalizePlayerMatch(row) {
+  const hasResult = row.team_a_score != null && row.team_b_score != null;
+  const submittedBy = row.submitted_by_name || row.result_submitted_by_name || row.result_author_name || '';
+  return {
+    id: row.match_id || row.id,
+    tournamentName: row.tournament_name || 'Tournament',
+    stageName: row.stage_name || row.round_name || row.phase_name || 'Match',
+    date: row.match_date || row.date || '',
+    time: row.match_time || row.time || '',
+    court: row.court_name || row.court || '',
+    partnerName: row.partner_name || row.partner || 'TBD',
+    opponents: [row.opponent_1_name, row.opponent_2_name].filter(Boolean),
+    teamAScore: row.team_a_score,
+    teamBScore: row.team_b_score,
+    status: hasResult ? 'Completed' : 'Ready for result',
+    submittedBy,
+    raw: row
+  };
+}
+
+async function refreshPlayerMatches() {
+  if (!canUsePlayerView()) {
+    renderPlayerView();
+    return;
+  }
+  if (!state.ui.playerSelectedId) {
+    state.ui.playerMatches = [];
+    state.ui.playerMatchesError = '';
+    renderPlayerView();
+    return;
+  }
+  state.ui.playerMatchesLoading = true;
+  state.ui.playerMatchesError = '';
+  renderPlayerView();
+  debugPush('info', 'Loading player matches', { playerId: state.ui.playerSelectedId });
+  try {
+    const rows = await fetchPlayerMatches(state.ui.playerSelectedId);
+    state.ui.playerMatches = rows.map(normalizePlayerMatch);
+    debugPush('success', 'Player matches loaded', { count: state.ui.playerMatches.length });
+  } catch (error) {
+    state.ui.playerMatches = [];
+    state.ui.playerMatchesError = error?.message || String(error);
+    debugPush('error', 'Failed to load player matches', state.ui.playerMatchesError);
+  } finally {
+    state.ui.playerMatchesLoading = false;
+    renderPlayerView();
+    saveState();
+  }
+}
+
+function renderPlayerSummary() {
+  if (!els.playerSummary) return;
+  const player = getSelectedPlayer();
+  const matches = state.ui.playerMatches || [];
+  const completed = matches.filter(m => m.teamAScore != null && m.teamBScore != null).length;
+  const pending = matches.length - completed;
+  const submitted = matches.filter(m => m.submittedBy).length;
+  const cards = [
+    ['Identity', player?.name || 'No player', player?.level || 'Approved club player'],
+    ['Matches', String(matches.length), 'Loaded from v2_my_match_cards'],
+    ['Pending', String(pending), pending ? 'Need result submission' : 'Everything is up to date'],
+    ['Submitted', String(submitted), 'Cards with known author']
+  ];
+  els.playerSummary.innerHTML = cards.map(([label, value, note]) => `
+    <article class="player-summary-card">
+      <span class="player-summary-label">${escapeHtml(label)}</span>
+      <div class="player-summary-value">${escapeHtml(value)}</div>
+      <div class="player-summary-note">${escapeHtml(note)}</div>
+    </article>
+  `).join('');
+}
+
+function renderPlayerState() {
+  if (!els.playerMatchesState) return;
+  const role = getCurrentRole();
+  if (role !== 'player') {
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Player mode is hidden.</strong><div>Choose the Player role in the access overlay to use this screen.</div></div>`;
+    return;
+  }
+  if (!state.ui.playerSelectedId) {
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Select a player.</strong><div>Only approved club players appear in the selector.</div></div>`;
+    return;
+  }
+  if (state.ui.playerMatchesLoading) {
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Loading matches…</strong><div>Requesting rows from v2_my_match_cards.</div></div>`;
+    return;
+  }
+  if (state.ui.playerMatchesError) {
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Data error</strong><div>${escapeHtml(state.ui.playerMatchesError)}</div></div>`;
+    return;
+  }
+  if (!(state.ui.playerMatches || []).length) {
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>No matches yet.</strong><div>Only the matches linked to the selected player are shown here.</div></div>`;
+    return;
+  }
+  els.playerMatchesState.innerHTML = '';
+}
+
+function renderPlayerMatchesList() {
+  if (!els.playerMatchesList) return;
+  const matches = state.ui.playerMatches || [];
+  if (!matches.length || state.ui.playerMatchesLoading || state.ui.playerMatchesError || !canUsePlayerView()) {
+    els.playerMatchesList.innerHTML = '';
+    return;
+  }
+  els.playerMatchesList.innerHTML = matches.map(match => {
+    const hasResult = match.teamAScore != null && match.teamBScore != null;
+    return `
+      <article class="player-match-card">
+        <div class="player-match-top">
+          <div>
+            <div class="player-match-kicker">${escapeHtml(match.tournamentName)}</div>
+            <div class="player-match-title">${escapeHtml(match.stageName)}</div>
+          </div>
+          <div class="player-match-status ${hasResult ? 'completed' : ''}">${escapeHtml(match.status)}</div>
+        </div>
+        <div class="player-match-meta">
+          <span class="player-chip">${escapeHtml(match.date || 'TBD')}</span>
+          <span class="player-chip">${escapeHtml(match.time || 'TBD')}</span>
+          <span class="player-chip">${escapeHtml(match.court || 'Court TBD')}</span>
+        </div>
+        <div class="player-opponents">
+          <div class="player-line"><span>Partner</span><span>${escapeHtml(match.partnerName)}</span></div>
+          <div class="player-line"><span>Opponents</span><span>${escapeHtml(match.opponents.join(' / ') || 'TBD')}</span></div>
+        </div>
+        <div class="player-score">
+          <div class="player-score-pill ${hasResult ? '' : 'player-score-empty'}">${hasResult ? `${escapeHtml(match.teamAScore)} : ${escapeHtml(match.teamBScore)}` : 'No result yet'}</div>
+        </div>
+        <div class="player-submitted">
+          <div class="player-line"><span>Submitted by</span><span>${escapeHtml(match.submittedBy || 'Not submitted')}</span></div>
+        </div>
+        <div class="player-card-actions">
+          ${hasResult ? '' : `<button class="btn-neon" type="button" data-submit-player-result="${escapeHtml(match.id)}">Submit Result</button>`}
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  els.playerMatchesList.querySelectorAll('[data-submit-player-result]').forEach(btn => {
+    btn.addEventListener('click', () => openPlayerResultModal(btn.dataset.submitPlayerResult));
+  });
+}
+
+function renderPlayerView() {
+  renderPlayerSelector();
+  renderPlayerSummary();
+  renderPlayerState();
+  renderPlayerMatchesList();
+  renderDebugLayer();
+}
+
+function openPlayerResultModal(matchId) {
+  const match = (state.ui.playerMatches || []).find(item => String(item.id) === String(matchId));
+  if (!match || !els.playerResultModal || !els.playerResultModalCard) return;
+  els.playerResultModalCard.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Submit result</div>
+        <div class="section-subtitle">${escapeHtml(match.tournamentName)} · ${escapeHtml(match.stageName)}</div>
+      </div>
+      <button class="btn ghost" type="button" data-close-player-result>Close</button>
+    </div>
+    <form id="playerResultForm" class="player-result-form">
+      <div class="player-result-grid">
+        <label>
+          <div class="section-subtitle">Team A</div>
+          <input class="input player-result-input" name="teamAScore" type="number" min="0" step="1" required placeholder="0" />
+        </label>
+        <div class="player-result-vs">:</div>
+        <label>
+          <div class="section-subtitle">Team B</div>
+          <input class="input player-result-input" name="teamBScore" type="number" min="0" step="1" required placeholder="0" />
+        </label>
+      </div>
+      <div class="player-card-actions">
+        <button class="btn-neon alt" type="button" data-close-player-result>Cancel</button>
+        <button class="btn-neon" type="submit">${state.ui.playerSubmitBusy ? 'Saving…' : 'Save result'}</button>
+      </div>
+    </form>
+  `;
+  els.playerResultModal.hidden = false;
+  els.playerResultModal.style.display = 'grid';
+  els.playerResultModal.classList.add('is-open');
+  els.playerResultModal.setAttribute('aria-hidden', 'false');
+  els.playerResultModal.querySelectorAll('[data-close-player-result]').forEach(btn => btn.addEventListener('click', closePlayerResultModal));
+  els.playerResultModal.addEventListener('click', playerResultOverlayClose);
+  els.playerResultModalCard.querySelector('#playerResultForm')?.addEventListener('submit', (event) => submitPlayerResult(event, match));
+}
+
+function playerResultOverlayClose(event) {
+  if (event.target === els.playerResultModal) closePlayerResultModal();
+}
+
+function closePlayerResultModal() {
+  if (!els.playerResultModal || !els.playerResultModalCard) return;
+  els.playerResultModal.hidden = true;
+  els.playerResultModal.style.display = 'none';
+  els.playerResultModal.classList.remove('is-open');
+  els.playerResultModal.setAttribute('aria-hidden', 'true');
+  els.playerResultModalCard.innerHTML = '';
+  els.playerResultModal.removeEventListener('click', playerResultOverlayClose);
+}
+
+async function submitPlayerResult(event, match) {
+  event.preventDefault();
+  if (state.ui.playerSubmitBusy) return;
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const teamAScore = Number(formData.get('teamAScore'));
+  const teamBScore = Number(formData.get('teamBScore'));
+  if (!Number.isInteger(teamAScore) || !Number.isInteger(teamBScore)) {
+    toast('Enter valid scores.', 'error');
+    debugPush('error', 'Invalid result payload', { teamAScore, teamBScore });
+    return;
+  }
+  state.ui.playerSubmitBusy = true;
+  debugPush('info', 'Submitting result', { matchId: match.id, teamAScore, teamBScore });
+  try {
+    const payloads = [
+      { p_match_id: match.id, p_team_a_score: teamAScore, p_team_b_score: teamBScore },
+      { match_id: match.id, team_a_score: teamAScore, team_b_score: teamBScore },
+      { p_match_id: match.id, p_score_a: teamAScore, p_score_b: teamBScore }
+    ];
+    let lastError = null;
+    let response = null;
+    for (const payload of payloads) {
+      const { data, error } = await sbClient.rpc('v2_submit_match_result', payload);
+      if (!error) {
+        response = data;
+        debugPush('success', 'Result accepted by RPC', payload);
+        break;
+      }
+      lastError = error;
+      debugPush('error', 'RPC attempt failed', { payload, error: error.message });
+    }
+    if (lastError && response == null) throw lastError;
+    toast('Result saved.', 'success');
+    closePlayerResultModal();
+    await refreshPlayerMatches();
+  } catch (error) {
+    toast(error?.message || 'Failed to save result.', 'error');
+    debugPush('error', 'Submit result failed', error?.message || String(error));
+  } finally {
+    state.ui.playerSubmitBusy = false;
+    saveState();
+  }
+}
+
+function renderScreens() {
+  enforceRoleUi();
+  els.screenTournaments.classList.toggle('is-active', state.ui.screen === 'tournaments');
+  els.screenClub.classList.toggle('is-active', state.ui.screen === 'club' && canEditClub());
+  if (els.screenPlayer) els.screenPlayer.classList.toggle('is-active', state.ui.screen === 'player' && canUsePlayerView());
+}
+
+function renderGlobalTabs() {
+  const role = getCurrentRole();
+  els.globalTabs.querySelectorAll('[data-screen]').forEach(btn => {
+    const screen = btn.dataset.screen;
+    const allowed = screen === 'club' ? canEditClub() : screen === 'player' ? canUsePlayerView() : true;
+    btn.hidden = !allowed;
+    btn.classList.toggle('is-active', allowed && screen === state.ui.screen);
+  });
+  els.detailTabs.querySelectorAll('[data-detail-tab]').forEach(btn => {
+    const isPlayers = btn.dataset.detailTab === 'players';
+    const allowed = role !== 'viewer' || !isPlayers;
+    btn.hidden = !allowed;
+    btn.classList.toggle('is-active', allowed && btn.dataset.detailTab === state.ui.detailTab);
+  });
+  DETAIL_TABS.forEach(tab => {
+    const allowed = role !== 'viewer' || tab !== 'players';
+    document.getElementById(`${tab}Tab`).classList.toggle('is-active', allowed && tab === state.ui.detailTab);
+    document.getElementById(`${tab}Tab`).hidden = !allowed;
+  });
+}
+
+function enforceRoleUi() {
+  const role = getCurrentRole();
+  state.ui.role = role;
+  if (role !== 'admin' && state.ui.screen === 'club') state.ui.screen = 'tournaments';
+  if (role !== 'player' && state.ui.screen === 'player') state.ui.screen = 'tournaments';
+  if (role === 'viewer' && state.ui.detailTab === 'players') state.ui.detailTab = 'overview';
+  if (!['rounds','results'].includes(state.ui.scheduleView)) state.ui.scheduleView = 'rounds';
+}
+
+function updateAuthUi() {
+  const role = getCurrentRole();
+  if (els.sessionRolePill) els.sessionRolePill.textContent = capitalize(role);
+  if (els.sessionUserLine) els.sessionUserLine.textContent = isAuthenticated() ? `${state.ui.auth.username} signed in` : 'Signed out';
+  if (els.authOverlay) els.authOverlay.classList.toggle('is-visible', !isAuthenticated());
+}
+
+function renderRoleControls() {
+  updateAuthUi();
+  const clubLocked = !canEditClub();
+  const tournamentLocked = !canManageTournaments();
+  if (els.addClubPlayerBtn) { els.addClubPlayerBtn.disabled = clubLocked; els.addClubPlayerBtn.hidden = clubLocked; }
+  if (els.newTournamentBtn) { els.newTournamentBtn.disabled = tournamentLocked; els.newTournamentBtn.hidden = tournamentLocked; }
+}
+
+function render() {
+  try {
+    renderScreens();
+    renderGlobalTabs();
+    renderTournamentList();
+    renderRoleControls();
+    renderTournamentDetails();
+    renderClubPlayers();
+    renderPlayerView();
+    applyTemporaryTooltips();
+  } catch (error) {
+    debugPush('error', 'Render error', error?.message || String(error));
+    console.error('Render error:', error);
+    els.selectedTournamentHero.innerHTML = emptyStateHtml('Rendering issue', 'Reload the page to restore the workspace.', 'warning');
+  }
+}
+
+(function bindPlayerLayer() {
+  bindDebugLayerEvents();
+  els.playerSelector?.addEventListener('change', async () => {
+    state.ui.playerSelectedId = els.playerSelector.value;
+    saveState();
+    await refreshPlayerMatches();
+  });
+  document.addEventListener('visibilitychange', async () => {
+    if (!document.hidden && canUsePlayerView() && state.ui.screen === 'player') await refreshPlayerMatches();
+  });
+  const originalBindAuthEvents = bindAuthEvents;
+  bindAuthEvents = function patchedBindAuthEvents() {
+    originalBindAuthEvents();
+  };
+  renderPlayerSelector();
+  renderDebugLayer();
+  setTimeout(() => {
+    if (canUsePlayerView()) {
+      state.ui.screen = 'player';
+      refreshPlayerMatches();
+    } else {
+      renderPlayerView();
+    }
+  }, 0);
+  debugPush('info', 'Debug layer attached.');
+})();
