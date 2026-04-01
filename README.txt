@@ -10,3 +10,5 @@ Included:
 Notes:
 - Use Debug button to inspect role, selected player, rows loaded, and RPC errors.
 - If RPC signature differs, debug panel will show each failed payload.
+
+v21: cyber glass reframe closer to reference.
