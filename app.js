@@ -26,6 +26,7 @@ async function testSupabaseConnection() {
 testSupabaseConnection();
 
 const STORAGE_KEY = 'padel-club-v15_2';
+const UI_STORAGE_KEY = 'padel-club-ui-v1';
 const DETAIL_TABS = ['overview', 'players', 'schedule', 'standings'];
 const DURATIONS = [1.5, 2, 3];
 
@@ -81,7 +82,27 @@ const initialState = {
 
 let state = loadState();
 ensureStateShape();
-refreshAllTournamentRegistrations();
+refreshAllTournamentRegistrations(false);
+
+async function loadClubPlayersFromSupabase() {
+  if (!sbClient) {
+    console.error('Supabase client is unavailable. Club players will stay local.');
+    return [];
+  }
+
+  const { data, error } = await sbClient
+    .from('clubplayers')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error loading club players from Supabase:', error);
+    return [];
+  }
+
+  console.log('Club players loaded from Supabase:', data);
+  return data || [];
+}
 
 async function loadTournamentsFromSupabase() {
   if (!sbClient) {
@@ -101,6 +122,37 @@ async function loadTournamentsFromSupabase() {
 
   console.log('Tournaments loaded from Supabase:', data);
   return data || [];
+}
+
+async function loadRegistrationsFromSupabase() {
+  if (!sbClient) {
+    console.error('Supabase client is unavailable. Registrations will stay local.');
+    return [];
+  }
+
+  const { data, error } = await sbClient
+    .from('registrations')
+    .select('*')
+    .order('joinedat', { ascending: true });
+
+  if (error) {
+    console.error('Error loading registrations from Supabase:', error);
+    return [];
+  }
+
+  console.log('Registrations loaded from Supabase:', data);
+  return data || [];
+}
+
+function mapSupabasePlayer(row) {
+  return {
+    id: row.id,
+    name: row.name || 'Unnamed player',
+    contact: row.contact || '',
+    level: row.level || 'Intermediate',
+    status: row.status || 'Pending',
+    createdAt: row.created_at || new Date().toISOString()
+  };
 }
 
 function mapSupabaseTournament(row) {
@@ -124,9 +176,51 @@ function mapSupabaseTournament(row) {
   };
 }
 
-async function syncTournamentsFromSupabase() {
-  const remoteTournaments = await loadTournamentsFromSupabase();
-  state.tournaments = remoteTournaments.map(mapSupabaseTournament);
+function mapSupabaseRegistration(row) {
+  return {
+    id: row.id,
+    playerId: row.playerid,
+    tournamentId: row.tournamentid,
+    status: row.status || 'Joined',
+    joinedAt: row.joinedat || new Date().toISOString()
+  };
+}
+
+async function syncCoreDataFromSupabase() {
+  const [remotePlayers, remoteTournaments, remoteRegistrations] = await Promise.all([
+    loadClubPlayersFromSupabase(),
+    loadTournamentsFromSupabase(),
+    loadRegistrationsFromSupabase()
+  ]);
+
+  if (remotePlayers.length) {
+    state.clubPlayers = remotePlayers.map(mapSupabasePlayer);
+  } else {
+    state.clubPlayers = [];
+  }
+
+  const tournamentsById = new Map(
+    remoteTournaments.map(row => {
+      const tournament = mapSupabaseTournament(row);
+      return [tournament.id, tournament];
+    })
+  );
+
+  remoteRegistrations
+    .map(mapSupabaseRegistration)
+    .forEach(reg => {
+      const tournament = tournamentsById.get(reg.tournamentId);
+      if (!tournament) return;
+      tournament.registrations.push({
+        id: reg.id,
+        playerId: reg.playerId,
+        status: reg.status,
+        joinedAt: reg.joinedAt
+      });
+    });
+
+  state.tournaments = Array.from(tournamentsById.values());
+  refreshAllTournamentRegistrations(false);
 
   const currentSelectedExists = state.tournaments.some(t => t.id === state.ui.selectedTournamentId);
   if (!currentSelectedExists) {
@@ -134,6 +228,112 @@ async function syncTournamentsFromSupabase() {
   }
 
   saveState();
+}
+
+async function createTournamentInSupabase(payload) {
+  const { data, error } = await sbClient
+    .from('tournaments')
+    .insert({
+      name: payload.name,
+      date: payload.date,
+      location: payload.location,
+      starttime: payload.startTime,
+      duration: Math.round(Number(payload.durationHours || 2) * 60),
+      status: payload.status
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return mapSupabaseTournament(data);
+}
+
+async function updateTournamentInSupabase(payload) {
+  const { data, error } = await sbClient
+    .from('tournaments')
+    .update({
+      name: payload.name,
+      date: payload.date,
+      location: payload.location,
+      starttime: payload.startTime,
+      duration: Math.round(Number(payload.durationHours || 2) * 60),
+      status: payload.status
+    })
+    .eq('id', payload.id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return mapSupabaseTournament(data);
+}
+
+async function deleteTournamentInSupabase(tournamentId) {
+  const { error } = await sbClient
+    .from('tournaments')
+    .delete()
+    .eq('id', tournamentId);
+
+  if (error) throw error;
+}
+
+async function createClubPlayerInSupabase(payload) {
+  const { data, error } = await sbClient
+    .from('clubplayers')
+    .insert({
+      name: payload.name,
+      contact: payload.contact,
+      level: payload.level,
+      status: payload.status
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return mapSupabasePlayer(data);
+}
+
+async function updateClubPlayerStatusInSupabase(playerId, newStatus) {
+  const { data, error } = await sbClient
+    .from('clubplayers')
+    .update({ status: newStatus })
+    .eq('id', playerId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return mapSupabasePlayer(data);
+}
+
+async function createRegistrationInSupabase(tournamentId, playerId) {
+  const { data, error } = await sbClient
+    .from('registrations')
+    .insert({
+      playerid: playerId,
+      tournamentid: tournamentId,
+      status: 'Joined',
+      joinedat: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return mapSupabaseRegistration(data);
+}
+
+async function updateRegistrationInSupabase(registrationId, patch) {
+  const dbPatch = {};
+  if (patch.status !== undefined) dbPatch.status = patch.status;
+  if (patch.joinedAt !== undefined) dbPatch.joinedat = patch.joinedAt;
+
+  const { data, error } = await sbClient
+    .from('registrations')
+    .update(dbPatch)
+    .eq('id', registrationId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return mapSupabaseRegistration(data);
 }
 
 const els = {
@@ -166,20 +366,31 @@ initApp();
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : structuredClone(initialState);
+    const raw = localStorage.getItem(UI_STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
+    const localState = raw ? JSON.parse(raw) : {};
+    return {
+      ...structuredClone(initialState),
+      ...localState,
+      ui: {
+        ...structuredClone(initialState.ui),
+        ...(localState?.ui || {})
+      }
+    };
   } catch {
     return structuredClone(initialState);
   }
 }
 
 async function initApp() {
-  await syncTournamentsFromSupabase();
+  await syncCoreDataFromSupabase();
   render();
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const stateToPersist = {
+    ui: state.ui
+  };
+  localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(stateToPersist));
 }
 
 function ensureStateShape() {
@@ -282,9 +493,9 @@ function getTournamentDerived(tournament) {
   return { joinedPlayers, mainDrawPlayers, waitlistPlayers, withdrawnPlayers, mainCount, courts, activeTeams, totalMatches, rounds, matchMinutes, transitionMinutes };
 }
 
-function refreshAllTournamentRegistrations() {
+function refreshAllTournamentRegistrations(shouldSave = true) {
   state.tournaments.forEach(t => normalizeTournamentRegistrations(t));
-  saveState();
+  if (shouldSave) saveState();
 }
 
 function normalizeTournamentRegistrations(tournament) {
@@ -687,7 +898,7 @@ function openTournamentModal(tournament = null) {
     </form>
   `);
 
-  document.getElementById('tournamentForm').addEventListener('submit', (e) => {
+  document.getElementById('tournamentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const date = String(fd.get('date'));
@@ -696,51 +907,60 @@ function openTournamentModal(tournament = null) {
       return;
     }
 
-    if (isEdit) {
-      tournament.name = String(fd.get('name')).trim();
-      tournament.location = String(fd.get('location')).trim();
-      tournament.date = date;
-      tournament.startTime = String(fd.get('startTime'));
-      tournament.durationHours = Number(fd.get('durationHours'));
-      tournament.status = String(fd.get('status'));
-      if (tournament.matches?.length) {
-        tournament.rounds = [];
-        tournament.matches = [];
-        tournament.teams = [];
-        if (tournament.status === 'Finished') {
-          // keep finished if admin sets it explicitly
-        } else {
-          tournament.status = 'Open';
+    const payload = {
+      id: tournament?.id,
+      name: String(fd.get('name')).trim(),
+      location: String(fd.get('location')).trim(),
+      date,
+      startTime: String(fd.get('startTime')),
+      durationHours: Number(fd.get('durationHours')),
+      status: String(fd.get('status'))
+    };
+
+    try {
+      if (isEdit) {
+        const updatedTournament = await updateTournamentInSupabase(payload);
+        updatedTournament.registrations = tournament.registrations || [];
+        updatedTournament.rounds = tournament.rounds || [];
+        updatedTournament.matches = tournament.matches || [];
+        updatedTournament.teams = tournament.teams || [];
+        const index = state.tournaments.findIndex(item => item.id === tournament.id);
+        if (index >= 0) state.tournaments[index] = updatedTournament;
+        if (updatedTournament.matches?.length && updatedTournament.status !== 'Finished') {
+          updatedTournament.rounds = [];
+          updatedTournament.matches = [];
+          updatedTournament.teams = [];
+          updatedTournament.status = 'Open';
         }
+        toast('Tournament updated.', 'success');
+      } else {
+        const nextTournament = await createTournamentInSupabase(payload);
+        state.tournaments.unshift(nextTournament);
+        state.ui.selectedTournamentId = nextTournament.id;
+        state.ui.screen = 'tournaments';
+        toast('Tournament created.', 'success');
       }
-      toast('Tournament updated.', 'success');
-    } else {
-      const nextTournament = {
-        id: uid('t'),
-        name: String(fd.get('name')).trim(),
-        location: String(fd.get('location')).trim(),
-        date,
-        startTime: String(fd.get('startTime')),
-        durationHours: Number(fd.get('durationHours')),
-        status: String(fd.get('status')),
-        registrations: [], teams: [], rounds: [], matches: []
-      };
-      state.tournaments.unshift(nextTournament);
-      state.ui.selectedTournamentId = nextTournament.id;
-      state.ui.screen = 'tournaments';
-      toast('Tournament created.', 'success');
+      closeModal();
+      saveAndRender();
+    } catch (error) {
+      console.error('Tournament save error:', error);
+      toast('Could not save tournament to Supabase.', 'error');
     }
-    closeModal();
-    saveAndRender();
   });
 
-  document.getElementById('deleteTournamentBtn')?.addEventListener('click', () => {
+  document.getElementById('deleteTournamentBtn')?.addEventListener('click', async () => {
     if (!confirm('Delete this tournament?')) return;
-    state.tournaments = state.tournaments.filter(item => item.id !== tournament.id);
-    state.ui.selectedTournamentId = state.tournaments[0]?.id || null;
-    closeModal();
-    saveAndRender();
-    toast('Tournament deleted.', 'success');
+    try {
+      await deleteTournamentInSupabase(tournament.id);
+      state.tournaments = state.tournaments.filter(item => item.id !== tournament.id);
+      state.ui.selectedTournamentId = state.tournaments[0]?.id || null;
+      closeModal();
+      saveAndRender();
+      toast('Tournament deleted.', 'success');
+    } catch (error) {
+      console.error('Tournament delete error:', error);
+      toast('Could not delete tournament from Supabase.', 'error');
+    }
   });
 }
 
@@ -772,7 +992,7 @@ function openClubPlayerModal() {
     </form>
   `);
 
-  document.getElementById('clubPlayerForm').addEventListener('submit', (e) => {
+  document.getElementById('clubPlayerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const name = String(fd.get('name')).trim();
@@ -781,15 +1001,21 @@ function openClubPlayerModal() {
       toast('Duplicate player.', 'error');
       return;
     }
-    state.clubPlayers.unshift({
-      id: uid('p'), name, contact,
-      level: String(fd.get('level')),
-      status: 'Approved',
-      createdAt: new Date().toISOString()
-    });
-    closeModal();
-    saveAndRender();
-    toast('Club player added.', 'success');
+    try {
+      const createdPlayer = await createClubPlayerInSupabase({
+        name,
+        contact,
+        level: String(fd.get('level')),
+        status: 'Approved'
+      });
+      state.clubPlayers.unshift(createdPlayer);
+      closeModal();
+      saveAndRender();
+      toast('Club player added.', 'success');
+    } catch (error) {
+      console.error('Club player save error:', error);
+      toast('Could not save player to Supabase.', 'error');
+    }
   });
 }
 
@@ -816,7 +1042,7 @@ function openImportPlayersModal() {
     </form>
   `);
 
-  document.getElementById('importPlayersForm').addEventListener('submit', (e) => {
+  document.getElementById('importPlayersForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const raw = String(new FormData(e.target).get('rows') || '');
     const rows = raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -928,7 +1154,7 @@ function openResultModal(tournamentId, matchId) {
   });
 }
 
-function addPlayerToTournament(tournamentId, playerId) {
+async function addPlayerToTournament(tournamentId, playerId) {
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   const player = getClubPlayer(playerId);
   if (!tournament || !player) return;
@@ -940,42 +1166,92 @@ function addPlayerToTournament(tournamentId, playerId) {
     toast('Player already added.', 'error');
     return;
   }
-  tournament.registrations.push({ playerId, status: 'Joined', joinedAt: new Date().toISOString() });
-  normalizeTournamentRegistrations(tournament);
-  saveAndRender();
-  toast('Player added to tournament.', 'success');
+
+  try {
+    const createdRegistration = await createRegistrationInSupabase(tournamentId, playerId);
+    tournament.registrations.push({
+      id: createdRegistration.id,
+      playerId,
+      status: createdRegistration.status,
+      joinedAt: createdRegistration.joinedAt
+    });
+    normalizeTournamentRegistrations(tournament);
+
+    const updatedRegs = tournament.registrations.filter(r => r.id);
+    await Promise.all(updatedRegs.map(reg => updateRegistrationInSupabase(reg.id, {
+      status: reg.status,
+      joinedAt: reg.joinedAt
+    })));
+
+    saveAndRender();
+    toast('Player added to tournament.', 'success');
+  } catch (error) {
+    console.error('Registration create error:', error);
+    toast('Could not add player to tournament.', 'error');
+  }
 }
 
-function withdrawPlayer(tournamentId, playerId) {
+async function withdrawPlayer(tournamentId, playerId) {
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   if (!tournament) return;
   const reg = (tournament.registrations || []).find(r => r.playerId === playerId);
-  if (!reg) return;
-  reg.status = 'Withdrawn';
-  normalizeTournamentRegistrations(tournament);
-  saveAndRender();
-  toast('Player moved to withdrawn.', 'success');
+  if (!reg?.id) return;
+
+  try {
+    const updatedRegistration = await updateRegistrationInSupabase(reg.id, { status: 'Withdrawn' });
+    reg.status = updatedRegistration.status;
+    normalizeTournamentRegistrations(tournament);
+    saveAndRender();
+    toast('Player moved to withdrawn.', 'success');
+  } catch (error) {
+    console.error('Registration withdraw error:', error);
+    toast('Could not update registration.', 'error');
+  }
 }
 
-function restorePlayer(tournamentId, playerId) {
+async function restorePlayer(tournamentId, playerId) {
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   if (!tournament) return;
   const reg = (tournament.registrations || []).find(r => r.playerId === playerId);
-  if (!reg) return;
-  reg.status = 'Waitlist';
-  reg.joinedAt = new Date().toISOString();
-  normalizeTournamentRegistrations(tournament);
-  saveAndRender();
-  toast('Player restored to active list.', 'success');
+  if (!reg?.id) return;
+
+  try {
+    const updatedRegistration = await updateRegistrationInSupabase(reg.id, {
+      status: 'Waitlist',
+      joinedAt: new Date().toISOString()
+    });
+    reg.status = updatedRegistration.status;
+    reg.joinedAt = updatedRegistration.joinedAt;
+    normalizeTournamentRegistrations(tournament);
+
+    const updatedRegs = tournament.registrations.filter(r => r.id);
+    await Promise.all(updatedRegs.map(item => updateRegistrationInSupabase(item.id, {
+      status: item.status,
+      joinedAt: item.joinedAt
+    })));
+
+    saveAndRender();
+    toast('Player restored to active list.', 'success');
+  } catch (error) {
+    console.error('Registration restore error:', error);
+    toast('Could not restore registration.', 'error');
+  }
 }
 
-function setClubPlayerStatus(playerId, newStatus) {
+async function setClubPlayerStatus(playerId, newStatus) {
   const player = getClubPlayer(playerId);
   if (!player) return;
-  player.status = newStatus;
-  state.tournaments.forEach(normalizeTournamentRegistrations);
-  saveAndRender();
-  toast(`Player status: ${newStatus}`, 'success');
+
+  try {
+    const updatedPlayer = await updateClubPlayerStatusInSupabase(playerId, newStatus);
+    Object.assign(player, updatedPlayer);
+    state.tournaments.forEach(normalizeTournamentRegistrations);
+    saveAndRender();
+    toast(`Player status: ${newStatus}`, 'success');
+  } catch (error) {
+    console.error('Club player status error:', error);
+    toast('Could not update player status.', 'error');
+  }
 }
 
 function generateTournament(tournamentId) {
@@ -1227,6 +1503,7 @@ function seedDemo() {
 function resetAll() {
   if (!confirm('Reset all local data?')) return;
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(UI_STORAGE_KEY);
   state = structuredClone(initialState);
   saveAndRender();
   toast('All data reset.', 'success');
