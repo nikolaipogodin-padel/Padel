@@ -1,17 +1,17 @@
 const SUPABASE_URL = 'https://ybscycueqcnnettvahaa.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_yZs5Wnf9ceV0cS0tTyeXQg_WVstbQW5';
 
-const supabase = window.supabase?.createClient
+const sbClient = window.supabase?.createClient
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
 async function testSupabaseConnection() {
-  if (!supabase) {
+  if (!sbClient) {
     console.error('Supabase client was not created. Check CDN script loading.');
     return;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await sbClient
     .from('tournaments')
     .select('*')
     .limit(1);
