@@ -1,219 +1,104 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Riga</title>
+  <title>Padel Club — v12</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="topbar-inner">
+    <div class="container topbar-inner">
       <div class="brand-block">
         <div class="brand-mark">P</div>
         <div>
-          <div class="brand-name">Padel Riga</div>
-          <div class="brand-sub">Tournament planner</div>
+          <div class="eyebrow">Local MVP</div>
+          <div class="brand-title">Padel Club</div>
         </div>
       </div>
-
-      <div class="toolbar">
-        <button id="newTournamentBtn" class="btn primary icon-btn">＋ Турнир</button>
-        <button id="demo20Btn" class="btn secondary">Демо 20</button>
-        <button id="generateBtn" class="btn primary">Сформировать</button>
+      <nav class="global-tabs" id="globalTabs">
+        <button class="tab is-active" data-screen="tournaments">Tournaments</button>
+        <button class="tab" data-screen="club">Club Players</button>
+      </nav>
+      <div class="top-actions">
+        <button class="btn secondary" id="seedDemoBtn">Load demo</button>
+        <button class="btn ghost" id="resetAllBtn">Reset</button>
       </div>
     </div>
   </header>
 
-  <main class="app-shell">
-    <section class="card tournaments-card">
-      <div class="section-head tournaments-head">
-        <div>
-          <div class="eyebrow">Турниры</div>
-          <h1>Список турниров</h1>
-        </div>
-        <button id="toggleHistoryBtn" class="btn ghost">История</button>
-      </div>
-
-      <div class="tournaments-table-wrap">
-        <div class="tournaments-table tournaments-header">
-          <div>Дата</div>
-          <div>Название</div>
-          <div>Место</div>
-          <div>Старт</div>
-          <div>Длительность</div>
-          <div>Статус</div>
-        </div>
-        <div id="tournamentsList"></div>
-      </div>
-    </section>
-
-    <section class="hero card">
-      <div class="hero-grid">
-        <div>
-          <div class="eyebrow">Активный турнир</div>
-          <h2 id="heroTournamentName">Riga Padel Cup</h2>
-          <div class="hero-meta-row">
-            <span class="hero-meta-pill" id="heroDateLabel">12.04.2026</span>
-            <span class="hero-meta-pill" id="heroLocationLabel">Riga</span>
-            <span class="hero-meta-pill" id="heroStatusLabel">Открыт</span>
-          </div>
-        </div>
-        <div id="summaryView" class="summary-grid"></div>
-      </div>
-      <div class="settings-inline">
-        <label>Название
-          <input id="tournamentName" type="text" />
-        </label>
-        <label>Дата
-          <input id="tournamentDate" type="date" />
-        </label>
-        <label>Место
-          <input id="tournamentLocation" type="text" />
-        </label>
-        <label>Старт
-          <input id="startTime" type="time" />
-        </label>
-        <label>Длительность
-          <select id="durationSelect">
-            <option value="90">1.5 часа</option>
-            <option value="120">2 часа</option>
-            <option value="180">3 часа</option>
-          </select>
-        </label>
-        <button id="saveSettingsBtn" class="btn ghost" type="button">Сохранить</button>
-      </div>
-    </section>
-
-    <section class="card details-card">
-      <div class="section-head details-head">
-        <div>
-          <div class="eyebrow">Детали турнира</div>
-          <h2>Рабочая зона</h2>
-        </div>
-      </div>
-
-      <div class="tab-nav" id="detailTabs">
-        <button class="tab-btn active" data-tab="playersTab">Игроки</button>
-        <button class="tab-btn" data-tab="scheduleTab">Сетка</button>
-        <button class="tab-btn" data-tab="standingsTab">Таблица</button>
-      </div>
-
-      <div id="playersTab" class="tab-panel active">
-        <section class="split-grid split-60-40">
-          <section class="card inner-card">
-            <div class="section-head">
-              <div>
-                <div class="eyebrow">Игроки</div>
-                <h2>Участники</h2>
-              </div>
-              <div class="row-actions">
-                <div id="participantsCount" class="pill">0</div>
-                <button id="resetPlayersBtn" class="btn ghost">Очистить</button>
-              </div>
-            </div>
-
-            <form id="playerForm" class="add-player-row">
-              <input id="playerName" type="text" placeholder="Имя игрока" required />
-              <input id="playerContact" type="text" placeholder="Контакт" />
-              <button type="submit" class="btn primary">Добавить</button>
-            </form>
-
-            <div id="playersView" class="players-compact"></div>
-          </section>
-
-          <section class="card inner-card compact-card">
-            <div class="section-head">
-              <div>
-                <div class="eyebrow">Очередь</div>
-                <h2>Вне сетки</h2>
-              </div>
-              <div id="queueCount" class="pill">0</div>
-            </div>
-            <div id="queueView" class="list"></div>
-          </section>
-        </section>
-      </div>
-
-      <div id="scheduleTab" class="tab-panel">
-        <section class="split-grid split-60-40">
-          <section class="card inner-card">
-            <div class="section-head">
-              <div>
-                <div class="eyebrow">Сетка</div>
-                <h2>Расписание</h2>
-                <div id="scheduleMeta" class="muted"></div>
-              </div>
-            </div>
-            <div id="scheduleView" class="schedule"></div>
-          </section>
-
-          <section class="card inner-card compact-card">
-            <div class="section-head">
-              <div>
-                <div class="eyebrow">Результаты</div>
-                <h2>Матчи</h2>
-              </div>
-            </div>
-            <div id="matchesView" class="matches"></div>
-          </section>
-        </section>
-      </div>
-
-      <div id="standingsTab" class="tab-panel">
-        <section class="card inner-card compact-card full-width">
-          <div class="section-head">
+  <main class="container app-shell">
+    <section id="screenTournaments" class="screen is-active">
+      <div class="layout-main">
+        <aside class="panel tournaments-panel">
+          <div class="panel-head">
             <div>
-              <div class="eyebrow">Таблица</div>
-              <h2>Standings</h2>
+              <div class="section-title">Tournaments</div>
+              <div class="section-subtitle">First 3 shown by default</div>
             </div>
+            <button class="btn primary" id="newTournamentBtn">+ Tournament</button>
           </div>
-          <div id="standingsView"></div>
+
+          <div class="tournament-table-header tournament-row">
+            <div>Name</div>
+            <div>Date</div>
+            <div>Place</div>
+            <div>Start</div>
+            <div>Duration</div>
+            <div>Status</div>
+          </div>
+
+          <div id="tournamentRows" class="tournament-list"></div>
+          <button class="link-btn" id="historyToggleBtn">Show history</button>
+        </aside>
+
+        <section class="details-panel">
+          <div class="hero-card" id="selectedTournamentHero"></div>
+
+          <div class="detail-tabs" id="detailTabs">
+            <button class="tab is-active" data-detail-tab="overview">Overview</button>
+            <button class="tab" data-detail-tab="players">Players</button>
+            <button class="tab" data-detail-tab="schedule">Schedule</button>
+            <button class="tab" data-detail-tab="standings">Standings</button>
+          </div>
+
+          <div id="overviewTab" class="detail-view is-active"></div>
+          <div id="playersTab" class="detail-view"></div>
+          <div id="scheduleTab" class="detail-view"></div>
+          <div id="standingsTab" class="detail-view"></div>
         </section>
+      </div>
+    </section>
+
+    <section id="screenClub" class="screen">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="section-title">Club Players</div>
+            <div class="section-subtitle">Only approved players can join tournaments</div>
+          </div>
+          <button class="btn primary" id="addClubPlayerBtn">+ Player</button>
+        </div>
+        <div class="club-toolbar">
+          <input id="clubSearchInput" class="search-input" type="text" placeholder="Search player" />
+          <select id="clubStatusFilter" class="select compact">
+            <option value="all">All statuses</option>
+            <option value="Approved">Approved</option>
+            <option value="Pending">Pending</option>
+            <option value="Blocked">Blocked</option>
+          </select>
+        </div>
+        <div id="clubPlayersTable"></div>
       </div>
     </section>
   </main>
 
-  <dialog id="tournamentDialog" class="dialog">
-    <form method="dialog" class="dialog-card" id="newTournamentForm">
-      <div class="dialog-head">
-        <div>
-          <div class="eyebrow">Новый турнир</div>
-          <h3>Создать турнир</h3>
-        </div>
-        <button type="button" id="closeDialogBtn" class="btn ghost">✕</button>
-      </div>
+  <div class="modal" id="modalOverlay" hidden>
+    <div class="modal-card" id="modalCard"></div>
+  </div>
 
-      <div class="settings-grid dialog-grid">
-        <label>Название
-          <input id="newTournamentName" type="text" value="Riga Padel Cup" required />
-        </label>
-        <label>Дата
-          <input id="newTournamentDate" type="date" required />
-        </label>
-        <label>Место
-          <input id="newTournamentLocation" type="text" value="Riga" required />
-        </label>
-        <label>Старт
-          <input id="newTournamentStart" type="time" value="10:00" required />
-        </label>
-        <label>Длительность
-          <select id="newTournamentDuration">
-            <option value="90">1.5 часа</option>
-            <option value="120" selected>2 часа</option>
-            <option value="180">3 часа</option>
-          </select>
-        </label>
-      </div>
+  <div class="toast-stack" id="toastStack"></div>
 
-      <div class="toolbar top-gap end">
-        <button type="button" id="demoTournamentBtn" class="btn ghost">Быстрый шаблон</button>
-        <button type="submit" class="btn primary">Создать</button>
-      </div>
-    </form>
-  </dialog>
-
-  <div id="toast" class="toast" aria-live="polite"></div>
   <script src="app.js"></script>
 </body>
 </html>
