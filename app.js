@@ -559,8 +559,12 @@ function saveState() {
       }
     }
   };
-  localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(stateToPersist));
-  sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state.ui.auth || {}));
+  try {
+    localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(stateToPersist));
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state.ui.auth || {}));
+  } catch (error) {
+    console.warn('State persistence is unavailable in this browser/context.', error);
+  }
 }
 
 function ensureStateShape() {
@@ -612,6 +616,10 @@ function setAuthSession(role, username) {
   state.ui.auth = { isAuthenticated: true, username, role };
   state.ui.role = role;
   enforceRoleUi();
+  if (els.authOverlay) {
+    els.authOverlay.classList.remove('is-visible');
+    els.authOverlay.setAttribute('aria-hidden', 'true');
+  }
   saveState();
 }
 
@@ -619,6 +627,10 @@ function clearAuthSession() {
   state.ui.auth = { isAuthenticated: false, username: '', role: 'viewer' };
   state.ui.role = 'viewer';
   enforceRoleUi();
+  if (els.authOverlay) {
+    els.authOverlay.classList.add('is-visible');
+    els.authOverlay.removeAttribute('aria-hidden');
+  }
   saveState();
 }
 
