@@ -83,6 +83,59 @@ let state = loadState();
 ensureStateShape();
 refreshAllTournamentRegistrations();
 
+async function loadTournamentsFromSupabase() {
+  if (!sbClient) {
+    console.error('Supabase client is unavailable. Tournaments will stay local.');
+    return [];
+  }
+
+  const { data, error } = await sbClient
+    .from('tournaments')
+    .select('*')
+    .order('date', { ascending: true });
+
+  if (error) {
+    console.error('Error loading tournaments from Supabase:', error);
+    return [];
+  }
+
+  console.log('Tournaments loaded from Supabase:', data);
+  return data || [];
+}
+
+function mapSupabaseTournament(row) {
+  const rawStartTime = row.starttime || row.startTime || '';
+  const normalizedStartTime = typeof rawStartTime === 'string' ? rawStartTime.slice(0, 5) : '';
+  const durationMinutes = Number(row.duration || 0);
+  const durationHours = durationMinutes > 0 ? durationMinutes / 60 : 2;
+
+  return {
+    id: row.id,
+    name: row.name || 'Untitled tournament',
+    date: row.date || '',
+    location: row.location || '',
+    startTime: normalizedStartTime,
+    durationHours,
+    status: row.status || 'Open',
+    registrations: [],
+    teams: [],
+    rounds: [],
+    matches: []
+  };
+}
+
+async function syncTournamentsFromSupabase() {
+  const remoteTournaments = await loadTournamentsFromSupabase();
+  state.tournaments = remoteTournaments.map(mapSupabaseTournament);
+
+  const currentSelectedExists = state.tournaments.some(t => t.id === state.ui.selectedTournamentId);
+  if (!currentSelectedExists) {
+    state.ui.selectedTournamentId = state.tournaments[0]?.id || null;
+  }
+
+  saveState();
+}
+
 const els = {
   screenTournaments: document.getElementById('screenTournaments'),
   screenClub: document.getElementById('screenClub'),
@@ -109,7 +162,7 @@ const els = {
 
 bindEvents();
 ensureModalClosed();
-render();
+initApp();
 
 function loadState() {
   try {
@@ -118,6 +171,11 @@ function loadState() {
   } catch {
     return structuredClone(initialState);
   }
+}
+
+async function initApp() {
+  await syncTournamentsFromSupabase();
+  render();
 }
 
 function saveState() {
