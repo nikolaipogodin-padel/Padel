@@ -25,3 +25,6 @@ V14 update:
 - cleaner Joined / Waitlist / Withdrawn visual sections
 - withdrawn players stay visible in tournament history
 - restore action added
+
+
+v15.4: visual refresh only (no logic changes).
