@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Club — v17.2</title>
-  <link rel="stylesheet" href="styles.css?v=17.2" />
+  <title>Padel Club — v17.4</title>
+  <link rel="stylesheet" href="styles.css?v=17.4" />
 </head>
 <body>
   <header class="topbar">
@@ -28,7 +28,7 @@
           </div>
           <div class="session-user-line" id="sessionUserLine">Signed out</div>
           <div class="session-actions">
-            <button class="btn ghost compact-btn" id="changeRoleBtn" type="button">Switch role</button>
+            <button class="btn ghost compact-btn" id="changeRoleBtn" type="button">Change access</button>
             <button class="btn ghost compact-btn" id="logoutBtn" type="button">Log out</button>
           </div>
         </div>
@@ -39,21 +39,23 @@
   <main class="container app-shell">
     <section id="screenTournaments" class="screen is-active">
       <div class="layout-main">
-        <aside class="panel tournaments-panel">
-          <div class="panel-head panel-head-tight">
+        <aside class="panel tournaments-panel command-panel-shell">
+          <div class="panel-head panel-head-tight command-panel-head">
             <div>
               <div class="section-title">Tournaments</div>
-              <div class="section-subtitle">Compact control center for live events</div>
+              <div class="section-subtitle">Search, filter and run live events from one command panel</div>
             </div>
-            <button class="btn secondary icon-btn" id="newTournamentBtn" aria-label="Create tournament">
+            <button class="btn secondary icon-btn" id="newTournamentBtn" aria-label="Create tournament" type="button">
               <span class="icon-plus">+</span>
               <span>New</span>
             </button>
           </div>
 
-          <div class="toolbar-row tournament-toolbar">
-            <input id="tournamentSearchInput" class="search-input" type="text" placeholder="Search tournament" />
-            <select id="tournamentStatusFilter" class="select compact">
+          <div id="tournamentCommandSummary" class="command-summary-grid"></div>
+
+          <div class="toolbar-row tournament-toolbar command-toolbar">
+            <input id="tournamentSearchInput" class="search-input" type="text" placeholder="Search tournament or venue" />
+            <select id="tournamentStatusFilter" class="select compact" hidden>
               <option value="all">All statuses</option>
               <option value="Open">Open</option>
               <option value="Live">Live</option>
@@ -61,8 +63,9 @@
             </select>
           </div>
 
-          <div id="tournamentRows" class="tournament-list tournament-list-compact"></div>
-          <button class="link-btn" id="historyToggleBtn">Show more</button>
+          <div id="tournamentStatusChips" class="status-filter-pills" aria-label="Tournament status filter"></div>
+          <div id="tournamentRows" class="tournament-list tournament-list-compact command-tournament-list"></div>
+          <button class="link-btn command-history-btn" id="historyToggleBtn" type="button">Show more</button>
         </aside>
 
         <section class="details-panel">
@@ -108,23 +111,29 @@
 
 
   <div class="auth-overlay" id="authOverlay">
-    <div class="auth-card">
+    <div class="auth-card auth-card-rolepicker">
       <div class="auth-badge">Padel Club</div>
-      <h1>Welcome back</h1>
-      <p class="auth-subtitle">Sign in to open the working area with the right level of access.</p>
-      <form id="loginForm" class="auth-form">
-        <label>
-          <span>Email or login</span>
-          <input id="loginUsername" class="input" type="text" autocomplete="username" placeholder="admin" required />
-        </label>
-        <label>
-          <span>Password</span>
-          <input id="loginPassword" class="input" type="password" autocomplete="current-password" placeholder="••••••••" required />
-        </label>
-        <button class="btn primary auth-submit" type="submit">Enter workspace</button>
-      </form>
+      <h1>Open workspace</h1>
+      <p class="auth-subtitle">During testing, access is password-free. Choose a role and continue.</p>
+      <div class="role-picker-grid" id="rolePickerGrid">
+        <button class="role-access-card" type="button" data-login-role="admin">
+          <span class="role-access-kicker">Full control</span>
+          <strong>Admin</strong>
+          <span>Club players, tournaments, schedule and results</span>
+        </button>
+        <button class="role-access-card" type="button" data-login-role="operator">
+          <span class="role-access-kicker">Tournament desk</span>
+          <strong>Operator</strong>
+          <span>Runs tournaments, schedule and live results</span>
+        </button>
+        <button class="role-access-card" type="button" data-login-role="viewer">
+          <span class="role-access-kicker">Read only</span>
+          <strong>Viewer</strong>
+          <span>Overview, schedule and standings only</span>
+        </button>
+      </div>
       <div class="auth-hint">
-        Demo credentials are configured in <code>app.js</code> and can be replaced later with real authentication.
+        Role selection is temporary for testing and can be replaced later with real authentication.
       </div>
     </div>
   </div>
@@ -136,6 +145,6 @@
   <div class="toast-stack" id="toastStack"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=17.2"></script>
+  <script src="app.js?v=17.4"></script>
 </body>
 </html>

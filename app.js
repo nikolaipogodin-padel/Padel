@@ -26,12 +26,12 @@ async function testSupabaseConnection() {
 testSupabaseConnection();
 
 const STORAGE_KEY = 'padel-club-v15_2';
-const UI_STORAGE_KEY = 'padel-club-ui-v2';
-const AUTH_STORAGE_KEY = 'padel-club-auth-v1';
+const UI_STORAGE_KEY = 'padel-club-ui-v3';
+const AUTH_STORAGE_KEY = 'padel-club-auth-v2';
 const ROLE_CREDENTIALS = {
-  admin: { username: 'admin', password: 'PadelAdmin2026!', label: 'Admin' },
-  operator: { username: 'operator', password: 'PadelOperator2026!', label: 'Operator' },
-  viewer: { username: 'viewer', password: 'PadelViewer2026!', label: 'Viewer' }
+  admin: { username: 'admin', label: 'Admin' },
+  operator: { username: 'operator', label: 'Operator' },
+  viewer: { username: 'viewer', label: 'Viewer' }
 };
 const DETAIL_TABS = ['overview', 'players', 'schedule', 'standings'];
 const DURATIONS = [1.5, 2, 3];
@@ -485,6 +485,8 @@ const els = {
   tournamentRows: document.getElementById('tournamentRows'),
   tournamentSearchInput: document.getElementById('tournamentSearchInput'),
   tournamentStatusFilter: document.getElementById('tournamentStatusFilter'),
+  tournamentStatusChips: document.getElementById('tournamentStatusChips'),
+  tournamentCommandSummary: document.getElementById('tournamentCommandSummary'),
   historyToggleBtn: document.getElementById('historyToggleBtn'),
   selectedTournamentHero: document.getElementById('selectedTournamentHero'),
   detailTabs: document.getElementById('detailTabs'),
@@ -506,9 +508,7 @@ const els = {
   changeRoleBtn: document.getElementById('changeRoleBtn'),
   logoutBtn: document.getElementById('logoutBtn'),
   authOverlay: document.getElementById('authOverlay'),
-  loginForm: document.getElementById('loginForm'),
-  loginUsername: document.getElementById('loginUsername'),
-  loginPassword: document.getElementById('loginPassword')
+  rolePickerGrid: document.getElementById('rolePickerGrid')
 };
 
 bindEvents();
@@ -622,11 +622,10 @@ function clearAuthSession() {
   saveState();
 }
 
-function authenticateUser(username, password) {
-  const normalized = String(username || '').trim().toLowerCase();
-  return Object.entries(ROLE_CREDENTIALS).find(([role, creds]) => {
-    return normalized === creds.username.toLowerCase() && password === creds.password;
-  });
+function authenticateUser(role) {
+  const normalized = String(role || '').trim().toLowerCase();
+  if (!normalized || !ROLE_CREDENTIALS[normalized]) return null;
+  return [normalized, ROLE_CREDENTIALS[normalized]];
 }
 
 function updateAuthUi() {
@@ -641,28 +640,25 @@ function updateAuthUi() {
 }
 
 function bindAuthEvents() {
-  els.loginForm?.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = els.loginUsername?.value || '';
-    const password = els.loginPassword?.value || '';
-    const matched = authenticateUser(username, password);
+  els.rolePickerGrid?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-login-role]');
+    if (!btn) return;
+    const matched = authenticateUser(btn.dataset.loginRole);
     if (!matched) {
-      toast('Incorrect login or password.', 'error');
+      toast('Unknown access role.', 'error');
       return;
     }
     const [role, creds] = matched;
-    setAuthSession(role, creds.username);
-    if (els.loginPassword) els.loginPassword.value = '';
+    setAuthSession(role, creds.label);
     updateAuthUi();
     render();
-    toast(`Signed in as ${capitalize(role)}.`, 'success');
+    toast(`${creds.label} workspace is ready.`, 'success');
   });
 
   els.changeRoleBtn?.addEventListener('click', () => {
     clearAuthSession();
     updateAuthUi();
     render();
-    setTimeout(() => els.loginUsername?.focus(), 50);
   });
 
   els.logoutBtn?.addEventListener('click', () => {
@@ -670,7 +666,6 @@ function bindAuthEvents() {
     updateAuthUi();
     render();
     toast('You have been logged out.', 'success');
-    setTimeout(() => els.loginUsername?.focus(), 50);
   });
 }
 
@@ -875,15 +870,60 @@ function renderRoleControls() {
   }
 }
 
+
 function renderTournamentList() {
   const search = String(state.ui.tournamentSearch || '').trim().toLowerCase();
   const statusFilter = state.ui.tournamentStatusFilter || 'all';
+  const totals = {
+    all: state.tournaments.length,
+    Open: state.tournaments.filter(t => t.status === 'Open').length,
+    Live: state.tournaments.filter(t => t.status === 'Live').length,
+    Finished: state.tournaments.filter(t => t.status === 'Finished').length
+  };
 
   if (els.tournamentSearchInput && els.tournamentSearchInput.value !== state.ui.tournamentSearch) {
     els.tournamentSearchInput.value = state.ui.tournamentSearch || '';
   }
   if (els.tournamentStatusFilter) {
     els.tournamentStatusFilter.value = statusFilter;
+  }
+
+  if (els.tournamentCommandSummary) {
+    const liveNow = state.tournaments.find(t => t.status === 'Live');
+    const selected = getSelectedTournament();
+    els.tournamentCommandSummary.innerHTML = `
+      <button class="command-summary-card ${statusFilter === 'all' ? 'is-active' : ''}" type="button" data-status-filter="all">
+        <span class="command-summary-label">All</span>
+        <strong>${totals.all}</strong>
+      </button>
+      <button class="command-summary-card ${statusFilter === 'Live' ? 'is-active' : ''}" type="button" data-status-filter="Live">
+        <span class="command-summary-label">Live</span>
+        <strong>${totals.Live}</strong>
+      </button>
+      <div class="command-summary-card static ${liveNow ? 'is-live' : ''}">
+        <span class="command-summary-label">Now</span>
+        <strong>${liveNow ? escapeHtml(liveNow.name) : 'No live event'}</strong>
+      </div>
+      <div class="command-summary-card static">
+        <span class="command-summary-label">Selected</span>
+        <strong>${selected ? escapeHtml(selected.status) : '—'}</strong>
+      </div>
+    `;
+  }
+
+  if (els.tournamentStatusChips) {
+    const filters = [
+      ['all', 'All', totals.all],
+      ['Open', 'Open', totals.Open],
+      ['Live', 'Live', totals.Live],
+      ['Finished', 'Finished', totals.Finished]
+    ];
+    els.tournamentStatusChips.innerHTML = filters.map(([value, label, count]) => `
+      <button class="filter-pill ${statusFilter === value ? 'is-active' : ''}" type="button" data-status-filter="${value}">
+        <span>${label}</span>
+        <strong>${count}</strong>
+      </button>
+    `).join('');
   }
 
   let items = [...state.tournaments];
@@ -905,34 +945,45 @@ function renderTournamentList() {
     state.ui.selectedTournamentId = items[0].id;
   }
 
-  const visible = state.ui.showHistory ? items : items.slice(0, 8);
+  const visible = state.ui.showHistory ? items : items.slice(0, 10);
   els.tournamentRows.innerHTML = visible.map(t => {
     const active = t.id === state.ui.selectedTournamentId ? 'is-active' : '';
     const statusClass = `status-${(t.status || 'open').toLowerCase()}`;
     const isLive = t.status === 'Live';
+    const derived = getTournamentDerived(t);
+    const canManage = canManageTournaments();
     return `
-      <button class="tournament-item tournament-item-compact ${active}" type="button" data-select-tournament="${t.id}">
-        <div class="tournament-item-main">
-          <div class="tournament-item-top">
-            <div class="tournament-name-wrap">
-              <strong class="tournament-name">${escapeHtml(t.name)}</strong>
-              <span class="tournament-place">${escapeHtml(t.location)}</span>
+      <article class="tournament-command-card ${active} ${isLive ? 'is-live' : ''}">
+        <button class="tournament-item tournament-item-compact tournament-command-main ${active}" type="button" data-select-tournament="${t.id}">
+          <div class="tournament-item-main">
+            <div class="tournament-item-top">
+              <div class="tournament-name-wrap">
+                <strong class="tournament-name">${escapeHtml(t.name)}</strong>
+                <span class="tournament-place">${escapeHtml(t.location)}</span>
+              </div>
+              <span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span>
             </div>
-            <span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span>
+            <div class="tournament-meta-row compact compact-meta-grid">
+              <span class="meta-chip">${formatDate(t.date)}</span>
+              <span class="meta-chip">${escapeHtml(t.startTime)}</span>
+              <span class="meta-chip">${t.durationHours}h</span>
+              <span class="meta-chip">${derived.joinedPlayers.length} players</span>
+              <span class="meta-chip ${isLive ? 'accent live-chip' : ''}">${isLive ? '<span class="live-dot"></span>Live now' : `${derived.totalMatches} matches`}</span>
+            </div>
           </div>
-          <div class="tournament-meta-row compact">
-            <span class="meta-chip">${formatDate(t.date)}</span>
-            <span class="meta-chip">${escapeHtml(t.startTime)}</span>
-            <span class="meta-chip">${t.durationHours}h</span>
-            ${isLive ? '<span class="meta-chip accent">Live now</span>' : ''}
-          </div>
-        </div>
-      </button>
+        </button>
+        ${canManage ? `
+          <div class="tournament-quick-actions">
+            <button class="quick-status-btn ${t.status === 'Open' ? 'is-current' : ''}" type="button" data-quick-status="Open" data-quick-tournament="${t.id}">Open</button>
+            <button class="quick-status-btn ${t.status === 'Live' ? 'is-current' : ''} ${!t.matches?.length ? 'is-disabled' : ''}" type="button" data-quick-status="Live" data-quick-tournament="${t.id}">Live</button>
+            <button class="quick-status-btn ${t.status === 'Finished' ? 'is-current' : ''} ${!t.matches?.length ? 'is-disabled' : ''}" type="button" data-quick-status="Finished" data-quick-tournament="${t.id}">Finish</button>
+          </div>` : ''}
+      </article>
     `;
   }).join('');
 
-  els.historyToggleBtn.hidden = items.length <= 8;
-  els.historyToggleBtn.textContent = state.ui.showHistory ? 'Show less' : `Show more (${items.length - Math.min(items.length, 8)})`;
+  els.historyToggleBtn.hidden = items.length <= 10;
+  els.historyToggleBtn.textContent = state.ui.showHistory ? 'Show less' : `Show more (${items.length - Math.min(items.length, 10)})`;
 
   els.tournamentRows.querySelectorAll('[data-select-tournament]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -940,6 +991,37 @@ function renderTournamentList() {
       saveAndRender();
     });
   });
+
+  els.tournamentRows.querySelectorAll('[data-quick-status]').forEach(btn => {
+    btn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (btn.classList.contains('is-disabled')) return;
+      setTournamentStatus(btn.dataset.quickTournament, btn.dataset.quickStatus);
+    });
+  });
+}
+
+async function setTournamentStatus(tournamentId, nextStatus) {
+  if (!guardPermission(canManageTournaments, 'Only Admin or Operator can change tournament status.')) return;
+  const tournament = state.tournaments.find(t => t.id === tournamentId);
+  if (!tournament || tournament.status === nextStatus) return;
+
+  if ((nextStatus === 'Live' || nextStatus === 'Finished') && !tournament.matches?.length) {
+    toast('Generate the tournament before switching to Live or Finished.', 'warning');
+    return;
+  }
+
+  tournament.status = nextStatus;
+
+  try {
+    await saveTournamentRuntimeToSupabase(tournament);
+    saveAndRender();
+    toast(`Tournament status updated to ${nextStatus}.`, 'success');
+  } catch (error) {
+    console.error('Tournament status sync error:', error);
+    toast(getFriendlySupabaseError(error, 'Could not update tournament status.'), 'error');
+    saveAndRender();
+  }
 }
 
 function renderTournamentDetails() {
@@ -953,46 +1035,68 @@ function renderTournamentDetails() {
   const derived = getTournamentDerived(tournament);
   const leader = computeStandings(tournament)[0] || null;
   const progress = derived.joinedPlayers.length ? Math.round((derived.mainDrawPlayers.length / derived.joinedPlayers.length) * 100) : 0;
+  const completedMatches = tournament.matches?.filter(match => match.status === 'Completed').length || 0;
+  const completionRate = derived.totalMatches ? Math.round((completedMatches / derived.totalMatches) * 100) : 0;
+  const statusTone = tournament.status === 'Live' ? 'live' : tournament.status === 'Finished' ? 'finished' : 'open';
 
   els.selectedTournamentHero.innerHTML = `
-    <div class="hero-shell">
-      <div class="hero-main-block">
-        <div class="hero-title-row">
+    <div class="dashboard-hero-grid">
+      <div class="dashboard-hero-main card-shell ${statusTone}">
+        <div class="dashboard-hero-head">
           <div>
+            <div class="hero-kicker">Tournament control center</div>
             <div class="hero-title">${escapeHtml(tournament.name)}</div>
             <div class="hero-subline">${formatDate(tournament.date)} · ${escapeHtml(tournament.location)} · ${escapeHtml(tournament.startTime)} · ${tournament.durationHours}h</div>
           </div>
-          <span class="status-badge status-${tournament.status.toLowerCase()}">${escapeHtml(tournament.status)}</span>
-        </div>
-        <div class="hero-inline-stats">
-          <div class="inline-stat"><span>Players</span><strong>${derived.joinedPlayers.length}</strong></div>
-          <div class="inline-stat"><span>Main draw</span><strong>${derived.mainDrawPlayers.length}</strong></div>
-          <div class="inline-stat"><span>Courts</span><strong>${derived.courts}</strong></div>
-          <div class="inline-stat"><span>Match time</span><strong>${derived.matchMinutes || '—'} min</strong></div>
-        </div>
-        <div class="hero-progress-card">
-          <div>
-            <div class="hero-progress-label">Readiness</div>
-            <div class="hero-progress-value">${progress}% scheduled</div>
+          <div class="hero-status-stack">
+            <span class="status-badge status-${tournament.status.toLowerCase()}">${escapeHtml(tournament.status)}</span>
+            ${tournament.status === 'Live' ? `<span class="live-inline-pill"><span class="live-dot"></span>Live</span>` : ``}
           </div>
-          <div class="progress-bar"><span style="width:${Math.min(progress,100)}%"></span></div>
+        </div>
+        <div class="hero-kpi-strip">
+          <div class="hero-kpi-card emphasis"><span>Joined</span><strong>${derived.joinedPlayers.length}</strong><small>confirmed</small></div>
+          <div class="hero-kpi-card"><span>Main draw</span><strong>${derived.mainDrawPlayers.length}</strong><small>scheduled</small></div>
+          <div class="hero-kpi-card"><span>Courts</span><strong>${derived.courts}</strong><small>auto count</small></div>
+          <div class="hero-kpi-card"><span>Rounds</span><strong>${derived.rounds}</strong><small>rotation</small></div>
+          <div class="hero-kpi-card"><span>Completed</span><strong>${completedMatches}/${derived.totalMatches}</strong><small>results</small></div>
+        </div>
+        <div class="hero-progress-panel">
+          <div class="hero-progress-copy">
+            <div>
+              <div class="hero-progress-label">Schedule coverage</div>
+              <div class="hero-progress-value">${progress}% ready</div>
+            </div>
+            <div>
+              <div class="hero-progress-label">Live completion</div>
+              <div class="hero-progress-value">${completionRate}% complete</div>
+            </div>
+          </div>
+          <div class="progress-bar double"><span style="width:${Math.min(progress,100)}%"></span></div>
         </div>
       </div>
-      <div class="hero-side-block">
+      <aside class="dashboard-hero-side card-shell">
+        <div class="dashboard-side-head">
+          <div>
+            <div class="hero-kicker">Live panel</div>
+            <h3>Operations</h3>
+          </div>
+          <span class="mini-badge ${statusTone}">${escapeHtml(tournament.status)}</span>
+        </div>
+        <div class="ops-stack">
+          <div class="ops-row"><span>Leader</span><strong>${leader ? escapeHtml(leader.teamName) : '—'}</strong></div>
+          <div class="ops-row"><span>Waitlist</span><strong>${derived.waitlistPlayers.length}</strong></div>
+          <div class="ops-row"><span>Match time</span><strong>${derived.matchMinutes || '—'} min</strong></div>
+          <div class="ops-row"><span>Next action</span><strong>${tournament.matches?.length ? (tournament.status === 'Finished' ? 'Review standings' : 'Enter results') : 'Generate draw'}</strong></div>
+        </div>
         ${canManageTournaments()
-          ? `<button class="btn ghost" type="button" id="editTournamentBtn">Edit</button>
-             <button class="btn secondary" type="button" id="joinFromClubBtn">Add players</button>
-             <button class="btn primary" type="button" id="generateBtn">Generate</button>`
-          : `<div class="readonly-note-block"><div class="readonly-note">Viewer mode</div><div class="section-subtitle">Overview, schedule and standings only</div></div>`}
-      </div>
-    </div>
-    <div class="metrics-grid metrics-grid-emphasis">
-      <div class="metric emphasis"><div class="metric-label">Joined</div><div class="metric-value">${derived.joinedPlayers.length}</div><div class="metric-note">Confirmed registrations</div></div>
-      <div class="metric"><div class="metric-label">Waitlist</div><div class="metric-value">${derived.waitlistPlayers.length}</div><div class="metric-note">Overflow after main draw</div></div>
-      <div class="metric"><div class="metric-label">Teams</div><div class="metric-value">${derived.activeTeams}</div><div class="metric-note">Auto-generated pairs</div></div>
-      <div class="metric"><div class="metric-label">Matches</div><div class="metric-value">${derived.totalMatches}</div><div class="metric-note">Total planned games</div></div>
-    </div>
-  `;
+          ? `<div class="hero-action-stack">
+               <button class="btn ghost" type="button" id="editTournamentBtn">Edit</button>
+               <button class="btn secondary" type="button" id="joinFromClubBtn">Add players</button>
+               <button class="btn primary" type="button" id="generateBtn">Generate</button>
+             </div>`
+          : `<div class="readonly-note-block compact"><div class="readonly-note">Viewer mode</div><div class="section-subtitle">Overview, schedule and standings only</div></div>`}
+      </aside>
+    </div>`;
 
   if (canManageTournaments()) {
     document.getElementById('joinFromClubBtn')?.addEventListener('click', () => openAddFromClubModal(tournament.id));
@@ -1010,37 +1114,58 @@ function renderOverview(tournament, derived, leader) {
   const completion = tournament.matches?.length
     ? tournament.matches.filter(match => match.status === 'Completed').length
     : 0;
+  const completionRate = derived.totalMatches ? Math.round((completion / derived.totalMatches) * 100) : 0;
+  const readinessRate = derived.joinedPlayers.length ? Math.round((derived.mainDrawPlayers.length / derived.joinedPlayers.length) * 100) : 0;
+  const nextAction = !tournament.matches?.length
+    ? 'Generate schedule'
+    : completion < derived.totalMatches
+      ? 'Keep entering scores'
+      : 'Review final standings';
 
   els.overviewTab.innerHTML = `
-    <div class="info-grid">
-      <div class="card info-card primary-info-card">
-        <div class="card-kicker">Tournament snapshot</div>
-        <h3>Event information</h3>
-        <div class="info-list compact-info-list">
+    <div class="dashboard-overview-grid">
+      <div class="card overview-dashboard-card overview-primary-card">
+        <div class="card-kicker">Control overview</div>
+        <h3>Command snapshot</h3>
+        <div class="overview-kpi-grid">
+          <div class="overview-kpi"><span>Readiness</span><strong>${readinessRate}%</strong><small>main draw filled</small></div>
+          <div class="overview-kpi"><span>Completion</span><strong>${completionRate}%</strong><small>results entered</small></div>
+          <div class="overview-kpi"><span>Leader</span><strong>${leader ? escapeHtml(leader.teamName) : '—'}</strong><small>current top team</small></div>
+          <div class="overview-kpi"><span>Next move</span><strong>${nextAction}</strong><small>suggested action</small></div>
+        </div>
+      </div>
+
+      <div class="card overview-dashboard-card">
+        <div class="card-kicker">Event brief</div>
+        <h3>Tournament info</h3>
+        <div class="info-list compact-info-list dashboard-info-list">
           <div class="info-row"><span>Date</span><strong>${formatDate(tournament.date)}</strong></div>
           <div class="info-row"><span>Venue</span><strong>${escapeHtml(tournament.location)}</strong></div>
           <div class="info-row"><span>Start time</span><strong>${escapeHtml(tournament.startTime)}</strong></div>
           <div class="info-row"><span>Duration</span><strong>${tournament.durationHours} hours</strong></div>
         </div>
       </div>
-      <div class="card info-card">
-        <div class="card-kicker">Operations</div>
-        <h3>Readiness</h3>
-        <div class="info-list compact-info-list">
-          <div class="info-row"><span>Main draw ready</span><strong>${derived.mainDrawPlayers.length} / ${derived.joinedPlayers.length}</strong></div>
-          <div class="info-row"><span>Schedule generated</span><strong>${tournament.rounds?.length ? 'Yes' : 'No'}</strong></div>
-          <div class="info-row"><span>Results entered</span><strong>${completion} / ${derived.totalMatches}</strong></div>
-          <div class="info-row"><span>Leader</span><strong>${leader ? escapeHtml(leader.teamName) : '—'}</strong></div>
+
+      <div class="card overview-dashboard-card">
+        <div class="card-kicker">Player flow</div>
+        <h3>Registration funnel</h3>
+        <div class="funnel-metrics">
+          <div class="funnel-row"><span>Joined</span><strong>${derived.joinedPlayers.length}</strong></div>
+          <div class="funnel-row"><span>Main draw</span><strong>${derived.mainDrawPlayers.length}</strong></div>
+          <div class="funnel-row"><span>Waitlist</span><strong>${derived.waitlistPlayers.length}</strong></div>
+          <div class="funnel-row"><span>Withdrawn</span><strong>${derived.withdrawnPlayers.length}</strong></div>
         </div>
       </div>
-      <div class="card info-card accent-card">
-        <div class="card-kicker">Format</div>
+
+      <div class="card overview-dashboard-card overview-accent-card">
+        <div class="card-kicker">Engine</div>
         <h3>Auto-calculation</h3>
         <div class="pill-cloud">
           <span class="meta-chip">${derived.courts} courts</span>
           <span class="meta-chip">${derived.activeTeams} teams</span>
           <span class="meta-chip">${derived.rounds} rounds</span>
           <span class="meta-chip">${derived.matchMinutes || '—'} min / match</span>
+          <span class="meta-chip">${completion}/${derived.totalMatches} results</span>
         </div>
       </div>
     </div>
