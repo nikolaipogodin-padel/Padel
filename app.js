@@ -45,10 +45,11 @@ const initialState = {
     detailTab: 'overview',
     showHistory: false,
     clubSearch: '',
-    clubStatusFilter: 'all'
+    clubStatusFilter: 'all',
+    role: 'admin'
   },
   clubPlayers: [
-    { id: 'p1', name: 'Nikolaj', contact: '+371 20000001', level: 'Intermediate', status: 'Approved', createdAt: '2026-03-01T10:00:00Z' },
+    { id: 'p1', name: 'Nikolaj', contact: '+371 20000001', level: 'Intermediate', status: 'Pending', createdAt: '2026-03-01T10:00:00Z' },
     { id: 'p2', name: 'Eriks', contact: '+371 20000002', level: 'Advanced', status: 'Approved', createdAt: '2026-03-02T10:00:00Z' },
     { id: 'p3', name: 'Alina', contact: '+371 20000003', level: 'Intermediate', status: 'Approved', createdAt: '2026-03-03T10:00:00Z' },
     { id: 'p4', name: 'Valerija', contact: '+371 20000004', level: 'Intermediate', status: 'Approved', createdAt: '2026-03-04T10:00:00Z' },
@@ -488,7 +489,8 @@ const els = {
   modalCard: document.getElementById('modalCard'),
   toastStack: document.getElementById('toastStack'),
   newTournamentBtn: document.getElementById('newTournamentBtn'),
-  addClubPlayerBtn: document.getElementById('addClubPlayerBtn')
+  addClubPlayerBtn: document.getElementById('addClubPlayerBtn'),
+  roleSwitcher: document.getElementById('roleSwitcher')
 };
 
 bindEvents();
@@ -527,12 +529,39 @@ function saveState() {
 
 function ensureStateShape() {
   state.ui ??= structuredClone(initialState.ui);
+  state.ui.role ??= 'admin';
   state.clubPlayers ??= [];
   state.tournaments ??= [];
 }
 
 function uid(prefix = 'id') {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function getCurrentRole() {
+  return state.ui?.role || 'admin';
+}
+
+function canEditClub() {
+  return getCurrentRole() === 'admin';
+}
+
+function canManageTournaments() {
+  return ['admin', 'operator'].includes(getCurrentRole());
+}
+
+function canEnterResults() {
+  return ['admin', 'operator'].includes(getCurrentRole());
+}
+
+function guardPermission(check, message = 'This action is not allowed for the current role.') {
+  if (check()) return true;
+  toast(message, 'error');
+  return false;
+}
+
+function capitalize(value) {
+  return String(value || '').charAt(0).toUpperCase() + String(value || '').slice(1);
 }
 
 function bindEvents() {
@@ -564,6 +593,15 @@ function bindEvents() {
 
   els.newTournamentBtn?.addEventListener('click', () => openTournamentModal());
   els.addClubPlayerBtn?.addEventListener('click', openClubPlayerModal);
+
+  els.roleSwitcher?.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-role]');
+    if (!btn) return;
+    state.ui.role = btn.dataset.role;
+    closeModal();
+    saveAndRender();
+    toast(`Role: ${capitalize(state.ui.role)}`, 'success');
+  });
 
   els.clubSearchInput.addEventListener('input', () => {
     state.ui.clubSearch = els.clubSearchInput.value;
@@ -644,12 +682,13 @@ function render() {
     renderScreens();
     renderGlobalTabs();
     renderTournamentList();
+    renderRoleControls();
     renderTournamentDetails();
     renderClubPlayers();
     applyTemporaryTooltips();
   } catch (error) {
     console.error('Render error:', error);
-    els.selectedTournamentHero.innerHTML = '<div class="empty">Temporary rendering issue. Use Reset or Load demo to restore local data.</div>';
+    els.selectedTournamentHero.innerHTML = '<div class="empty">Rendering issue. Reload the page.</div>';
   }
 }
 
@@ -668,6 +707,21 @@ function renderGlobalTabs() {
   DETAIL_TABS.forEach(tab => {
     document.getElementById(`${tab}Tab`).classList.toggle('is-active', tab === state.ui.detailTab);
   });
+}
+
+function renderRoleControls() {
+  els.roleSwitcher?.querySelectorAll('[data-role]').forEach(btn => {
+    btn.classList.toggle('is-active', btn.dataset.role === getCurrentRole());
+  });
+
+  const clubLocked = !canEditClub();
+  const tournamentLocked = !canManageTournaments();
+
+  els.addClubPlayerBtn?.classList.toggle('is-disabled', clubLocked);
+  if (els.addClubPlayerBtn) els.addClubPlayerBtn.disabled = clubLocked;
+
+  els.newTournamentBtn?.classList.toggle('is-disabled', tournamentLocked);
+  if (els.newTournamentBtn) els.newTournamentBtn.disabled = tournamentLocked;
 }
 
 function renderTournamentList() {
@@ -736,9 +790,12 @@ function renderTournamentDetails() {
       </div>
       <div class="hero-actions">
         <span class="status-badge status-${tournament.status.toLowerCase()}">${escapeHtml(tournament.status)}</span>
-        <button class="btn ghost" id="editTournamentBtn">Edit</button>
-        <button class="btn secondary" id="joinFromClubBtn">Add from Club</button>
-        <button class="btn primary" id="generateBtn">Generate</button>
+        <span class="role-badge">${capitalize(getCurrentRole())}</span>
+        ${canManageTournaments()
+          ? `<button class="btn ghost" id="editTournamentBtn">Edit</button>
+             <button class="btn secondary" id="joinFromClubBtn">Add from Club</button>
+             <button class="btn primary" id="generateBtn">Generate</button>`
+          : `<span class="readonly-note">Read only access</span>`}
       </div>
     </div>
     <div class="metrics-grid">
@@ -752,9 +809,11 @@ function renderTournamentDetails() {
     </div>
   `;
 
-  document.getElementById('joinFromClubBtn').addEventListener('click', () => openAddFromClubModal(tournament.id));
-  document.getElementById('generateBtn').addEventListener('click', () => generateTournament(tournament.id));
-  document.getElementById('editTournamentBtn').addEventListener('click', () => openTournamentModal(tournament));
+  if (canManageTournaments()) {
+    document.getElementById('joinFromClubBtn')?.addEventListener('click', () => openAddFromClubModal(tournament.id));
+    document.getElementById('generateBtn')?.addEventListener('click', () => generateTournament(tournament.id));
+    document.getElementById('editTournamentBtn')?.addEventListener('click', () => openTournamentModal(tournament));
+  }
 
   renderOverview(tournament, derived, leader);
   renderPlayersTab(tournament, derived);
@@ -828,10 +887,11 @@ function renderPlayersTab(tournament, derived) {
 }
 
 function playerRowHtml(player, bucket, tournamentId) {
+  const canManage = canManageTournaments();
   const map = {
-    Joined: { badge: 'badge-main', action: `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Move out</button>` },
-    Waitlist: { badge: 'badge-wait', action: `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Withdraw</button>` },
-    Withdrawn: { badge: 'badge-withdrawn', action: `<button class="btn ghost" data-restore-player="${player.id}" data-tournament="${tournamentId}">Restore</button>` }
+    Joined: { badge: 'badge-main', action: canManage ? `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Move out</button>` : '' },
+    Waitlist: { badge: 'badge-wait', action: canManage ? `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Withdraw</button>` : '' },
+    Withdrawn: { badge: 'badge-withdrawn', action: canManage ? `<button class="btn ghost" data-restore-player="${player.id}" data-tournament="${tournamentId}">Restore</button>` : '' }
   };
   const cfg = map[bucket];
   return `
@@ -910,7 +970,7 @@ function resultCardHtml(match) {
       </div>
       <div class="result-card-side">
         <div class="score-chip ${match.status === 'Completed' ? 'is-complete' : ''}">${score}${updatedBy}</div>
-        <button class="btn primary" type="button" data-open-result="${match.id}">${match.status === 'Completed' ? 'Edit result' : 'Enter result'}</button>
+        ${canEnterResults() ? `<button class="btn primary" type="button" data-open-result="${match.id}">${match.status === 'Completed' ? 'Edit result' : 'Enter result'}</button>` : ''}
       </div>
     </div>
   `;
@@ -967,7 +1027,7 @@ function renderClubPlayers() {
 
   els.clubPlayersTable.innerHTML = `
     <div class="club-toolbar club-toolbar-top">
-      <button class="btn secondary" id="importClubBtn">Import players</button>
+      ${canEditClub() ? `<button class="btn secondary" id="importClubBtn">Import players</button>` : ''}
       <button class="btn ghost" id="exportClubBtn">Export JSON</button>
     </div>
     <div class="club-table-header">
@@ -983,9 +1043,10 @@ function renderClubPlayers() {
           <div>${escapeHtml(player.level)}</div>
           <div><span class="badge badge-${player.status.toLowerCase()}">${escapeHtml(player.status)}</span></div>
           <div class="actions-row">
-            ${player.status !== 'Approved' ? `<button class="btn secondary" data-set-status="Approved" data-player-id="${player.id}">Approve</button>` : ''}
-            ${player.status !== 'Blocked' ? `<button class="btn ghost" data-set-status="Blocked" data-player-id="${player.id}">Block</button>` : ''}
-            ${player.status !== 'Pending' ? `<button class="btn ghost" data-set-status="Pending" data-player-id="${player.id}">Pending</button>` : ''}
+            ${canEditClub() && player.status !== 'Approved' ? `<button class="btn secondary" data-set-status="Approved" data-player-id="${player.id}">Approve</button>` : ''}
+            ${canEditClub() && player.status !== 'Blocked' ? `<button class="btn ghost" data-set-status="Blocked" data-player-id="${player.id}">Block</button>` : ''}
+            ${canEditClub() && player.status !== 'Pending' ? `<button class="btn ghost" data-set-status="Pending" data-player-id="${player.id}">Reset</button>` : ''}
+            ${!canEditClub() ? `<span class="readonly-note compact">Read only</span>` : ''}
           </div>
         </div>
       `).join('') : '<div class="empty">No players found.</div>'}
@@ -1000,6 +1061,7 @@ function renderClubPlayers() {
 }
 
 function openTournamentModal(tournament = null) {
+  if (!guardPermission(canManageTournaments, 'Only Admin or Operator can manage tournaments.')) return;
   const isEdit = Boolean(tournament);
   openModal(`
     <div class="modal-head">
@@ -1093,11 +1155,12 @@ function openTournamentModal(tournament = null) {
 }
 
 function openClubPlayerModal() {
+  if (!guardPermission(canEditClub, 'Only Admin can manage club players.')) return;
   openModal(`
     <div class="modal-head">
       <div>
         <div class="modal-title">Add club player</div>
-        <div class="section-subtitle">Player will be approved by default in MVP</div>
+        <div class="section-subtitle">New players enter the club as Pending and need approval</div>
       </div>
       <button class="btn ghost" data-close-modal>Close</button>
     </div>
@@ -1134,7 +1197,7 @@ function openClubPlayerModal() {
         name,
         contact,
         level: String(fd.get('level')),
-        status: 'Approved'
+        status: 'Pending'
       });
       state.clubPlayers.unshift(createdPlayer);
       closeModal();
@@ -1148,6 +1211,7 @@ function openClubPlayerModal() {
 }
 
 function openImportPlayersModal() {
+  if (!guardPermission(canEditClub, 'Only Admin can import club players.')) return;
   openModal(`
     <div class="modal-head">
       <div>
@@ -1181,26 +1245,32 @@ function openImportPlayersModal() {
 
     let imported = 0;
     let skipped = 0;
-    rows.forEach((row, index) => {
+
+    for (const [index, row] of rows.entries()) {
       const parts = row.split(/[;,\t]/).map(x => x.trim()).filter(Boolean);
-      if (!parts.length) return;
-      if (index === 0 && /name/i.test(parts[0])) return;
-      const [name, contact = '', level = 'Intermediate', status = 'Approved'] = parts;
+      if (!parts.length) continue;
+      if (index === 0 && /name/i.test(parts[0])) continue;
+      const [name, contact = '', level = 'Intermediate', status = 'Pending'] = parts;
       if (!name || !contact || isDuplicateClubPlayer(name, contact)) {
         skipped += 1;
-        return;
+        continue;
       }
-      const normalizedStatus = ['Approved', 'Pending', 'Blocked'].includes(status) ? status : 'Approved';
-      state.clubPlayers.push({
-        id: uid('p'),
-        name,
-        contact,
-        level: ['Beginner', 'Intermediate', 'Advanced'].includes(level) ? level : 'Intermediate',
-        status: normalizedStatus,
-        createdAt: new Date().toISOString()
-      });
-      imported += 1;
-    });
+
+      const normalizedStatus = ['Approved', 'Pending', 'Blocked'].includes(status) ? status : 'Pending';
+      try {
+        const createdPlayer = await createClubPlayerInSupabase({
+          name,
+          contact,
+          level: ['Beginner', 'Intermediate', 'Advanced'].includes(level) ? level : 'Intermediate',
+          status: normalizedStatus
+        });
+        state.clubPlayers.push(createdPlayer);
+        imported += 1;
+      } catch (error) {
+        console.error('Club player import error:', error);
+        skipped += 1;
+      }
+    }
 
     state.tournaments.forEach(normalizeTournamentRegistrations);
     closeModal();
@@ -1210,6 +1280,7 @@ function openImportPlayersModal() {
 }
 
 function openAddFromClubModal(tournamentId) {
+  if (!guardPermission(canManageTournaments, 'Only Admin or Operator can manage tournament players.')) return;
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   const existingIds = new Set((tournament.registrations || []).map(r => r.playerId));
   const approved = state.clubPlayers.filter(p => p.status === 'Approved' && !existingIds.has(p.id));
@@ -1244,6 +1315,7 @@ function openAddFromClubModal(tournamentId) {
 }
 
 function openResultModal(tournamentId, matchId) {
+  if (!guardPermission(canEnterResults, 'Only Admin or Operator can enter results.')) return;
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   const match = tournament?.matches.find(m => m.id === matchId);
   if (!match) return;
@@ -1283,6 +1355,7 @@ function openResultModal(tournamentId, matchId) {
 }
 
 async function addPlayerToTournament(tournamentId, playerId) {
+  if (!guardPermission(canManageTournaments, 'Only Admin or Operator can add players to tournaments.')) return;
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   const player = getClubPlayer(playerId);
   if (!tournament || !player) return;
@@ -1325,6 +1398,7 @@ async function addPlayerToTournament(tournamentId, playerId) {
 }
 
 async function withdrawPlayer(tournamentId, playerId) {
+  if (!guardPermission(canManageTournaments, 'Only Admin or Operator can change participation status.')) return;
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   if (!tournament) return;
   const reg = (tournament.registrations || []).find(r => r.playerId === playerId);
@@ -1349,8 +1423,14 @@ async function withdrawPlayer(tournamentId, playerId) {
 }
 
 async function restorePlayer(tournamentId, playerId) {
+  if (!guardPermission(canManageTournaments, 'Only Admin or Operator can change participation status.')) return;
   const tournament = state.tournaments.find(t => t.id === tournamentId);
+  const player = getClubPlayer(playerId);
   if (!tournament) return;
+  if (!player || player.status !== 'Approved') {
+    toast('Only approved players can be restored to active tournament lists.', 'error');
+    return;
+  }
   const reg = (tournament.registrations || []).find(r => r.playerId === playerId);
   if (!reg?.id) return;
 
@@ -1383,22 +1463,52 @@ async function restorePlayer(tournamentId, playerId) {
 }
 
 async function setClubPlayerStatus(playerId, newStatus) {
+  if (!guardPermission(canEditClub, 'Only Admin can change club player status.')) return;
   const player = getClubPlayer(playerId);
   if (!player) return;
 
   try {
     const updatedPlayer = await updateClubPlayerStatusInSupabase(playerId, newStatus);
     Object.assign(player, updatedPlayer);
-    state.tournaments.forEach(normalizeTournamentRegistrations);
+
+    let removedFromTournaments = 0;
+
+    if (newStatus !== 'Approved') {
+      for (const tournament of state.tournaments) {
+        const registration = (tournament.registrations || []).find(reg => reg.playerId === playerId && reg.status !== 'Withdrawn');
+        if (!registration?.id) continue;
+
+        const updatedRegistration = await updateRegistrationInSupabase(registration.id, { status: 'Withdrawn' });
+        registration.status = updatedRegistration.status;
+        registration.joinedAt = updatedRegistration.joinedAt;
+        removedFromTournaments += 1;
+
+        normalizeTournamentRegistrations(tournament);
+
+        if (tournament.matches?.length) {
+          clearTournamentRuntime(tournament);
+          await saveTournamentRuntimeToSupabase(tournament);
+        }
+      }
+    } else {
+      state.tournaments.forEach(normalizeTournamentRegistrations);
+    }
+
     saveAndRender();
-    toast(`Player status: ${newStatus}`, 'success');
+
+    if (removedFromTournaments > 0) {
+      toast(`Player status: ${newStatus}. Removed from ${removedFromTournaments} tournament(s).`, 'success');
+    } else {
+      toast(`Player status: ${newStatus}`, 'success');
+    }
   } catch (error) {
     console.error('Club player status error:', error);
-    toast('Could not update player status.', 'error');
+    toast(getFriendlySupabaseError(error, 'Could not update player status.'), 'error');
   }
 }
 
 async function generateTournament(tournamentId) {
+  if (!guardPermission(canManageTournaments, 'Only Admin or Operator can generate the tournament.')) return;
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   if (!tournament) return;
   const derived = getTournamentDerived(tournament);
@@ -1522,6 +1632,7 @@ function buildRound(index, startTime, matchMinutes, transitionMinutes, matches) 
 }
 
 async function updateMatchResult(tournamentId, matchId, gamesA, gamesB, updatedBy) {
+  if (!guardPermission(canEnterResults, 'Only Admin or Operator can save results.')) return false;
   const tournament = state.tournaments.find(t => t.id === tournamentId);
   if (!tournament) return false;
   const match = tournament.matches.find(m => m.id === matchId);
@@ -1615,18 +1726,21 @@ function closeModal() {
 
 function applyTemporaryTooltips() {
   const tips = [
-    ['#newTournamentBtn', 'Временно: создать новый турнир.'],
-    ['#addClubPlayerBtn', 'Временно: добавить нового игрока в базу клуба.'],
-    ['#historyToggleBtn', 'Временно: показать или скрыть историю турниров.'],
-    ['#editTournamentBtn', 'Временно: редактировать параметры выбранного турнира.'],
-    ['#joinFromClubBtn', 'Временно: добавить в турнир игроков из базы клуба.'],
-    ['#generateBtn', 'Временно: автоматически сформировать пары, расписание и матчи турнира.'],
-    ['[data-screen="tournaments"]', 'Временно: открыть раздел управления турнирами.'],
-    ['[data-screen="club"]', 'Временно: открыть базу игроков клуба.'],
-    ['[data-detail-tab="overview"]', 'Временно: открыть краткий обзор турнира.'],
-    ['[data-detail-tab="players"]', 'Временно: открыть список участников турнира.'],
-    ['[data-detail-tab="schedule"]', 'Временно: открыть расписание матчей по времени и кортам.'],
-    ['[data-detail-tab="standings"]', 'Временно: открыть live-таблицу результатов.']
+    ['#newTournamentBtn', 'Create a new tournament.'],
+    ['#addClubPlayerBtn', 'Add a player to the club base.'],
+    ['#historyToggleBtn', 'Show or hide older tournaments.'],
+    ['#editTournamentBtn', 'Edit the selected tournament.'],
+    ['#joinFromClubBtn', 'Add approved club players to the tournament.'],
+    ['#generateBtn', 'Generate pairs, schedule and matches.'],
+    ['[data-screen="tournaments"]', 'Open tournaments.'],
+    ['[data-screen="club"]', 'Open club players.'],
+    ['[data-detail-tab="overview"]', 'Open overview.'],
+    ['[data-detail-tab="players"]', 'Open players.'],
+    ['[data-detail-tab="schedule"]', 'Open schedule.'],
+    ['[data-detail-tab="standings"]', 'Open standings.'],
+    ['[data-role="admin"]', 'Full access to club and tournaments.'],
+    ['[data-role="operator"]', 'Can manage tournaments and results.'],
+    ['[data-role="viewer"]', 'Read-only mode.']
   ];
 
   tips.forEach(([selector, text]) => {
