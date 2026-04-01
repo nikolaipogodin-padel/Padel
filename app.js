@@ -1,3 +1,30 @@
+const SUPABASE_URL = 'https://ybscycueqcnnettvahaa.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_yZs5Wnf9ceV0cS0tTyeXQg_WVstbQW5';
+
+const supabase = window.supabase?.createClient
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+async function testSupabaseConnection() {
+  if (!supabase) {
+    console.error('Supabase client was not created. Check CDN script loading.');
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('tournaments')
+    .select('*')
+    .limit(1);
+
+  if (error) {
+    console.error('Supabase connection error:', error);
+  } else {
+    console.log('Supabase connected successfully:', data);
+  }
+}
+
+testSupabaseConnection();
+
 const STORAGE_KEY = 'padel-club-v15_2';
 const DETAIL_TABS = ['overview', 'players', 'schedule', 'standings'];
 const DURATIONS = [1.5, 2, 3];
