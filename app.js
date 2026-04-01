@@ -169,11 +169,16 @@ function getClubPlayer(playerId) {
 }
 
 function getTournamentDerived(tournament) {
-  const joinedRegs = [...(tournament.registrations || [])]
-    .filter(r => r.status !== 'Withdrawn')
-    .sort((a, b) => new Date(a.joinedAt) - new Date(b.joinedAt));
+  const allRegs = [...(tournament.registrations || [])].sort((a, b) => new Date(a.joinedAt) - new Date(b.joinedAt));
 
-  const joinedPlayers = joinedRegs
+  const activeRegs = allRegs.filter(r => r.status !== 'Withdrawn');
+  const withdrawnRegs = allRegs.filter(r => r.status === 'Withdrawn');
+
+  const joinedPlayers = activeRegs
+    .map(reg => ({ ...getClubPlayer(reg.playerId), registrationStatus: reg.status, joinedAt: reg.joinedAt }))
+    .filter(Boolean);
+
+  const withdrawnPlayers = withdrawnRegs
     .map(reg => ({ ...getClubPlayer(reg.playerId), registrationStatus: reg.status, joinedAt: reg.joinedAt }))
     .filter(Boolean);
 
