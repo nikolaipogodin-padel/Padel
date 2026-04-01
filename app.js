@@ -29,6 +29,14 @@ const STORAGE_KEY = 'padel-club-v15_2';
 const UI_STORAGE_KEY = 'padel-club-ui-v1';
 const DETAIL_TABS = ['overview', 'players', 'schedule', 'standings'];
 const DURATIONS = [1.5, 2, 3];
+const REALTIME_DEBOUNCE_MS = 250;
+
+let realtimeChannel = null;
+let realtimeSyncTimer = null;
+let realtimeReady = false;
+let realtimeInitStarted = false;
+let realtimeSyncInFlight = false;
+let realtimeSyncQueued = false;
 
 const initialState = {
   ui: {
@@ -263,6 +271,78 @@ async function syncCoreDataFromSupabase() {
   saveState();
 }
 
+
+function queueRealtimeSync(reason = 'db_change') {
+  if (!sbClient) return;
+
+  if (realtimeSyncTimer) {
+    clearTimeout(realtimeSyncTimer);
+  }
+
+  realtimeSyncTimer = setTimeout(async () => {
+    if (realtimeSyncInFlight) {
+      realtimeSyncQueued = true;
+      return;
+    }
+
+    realtimeSyncInFlight = true;
+
+    try {
+      console.log('Realtime sync started:', reason);
+      await syncCoreDataFromSupabase();
+      render();
+    } catch (error) {
+      console.error('Realtime sync error:', error);
+    } finally {
+      realtimeSyncInFlight = false;
+      if (realtimeSyncQueued) {
+        realtimeSyncQueued = false;
+        queueRealtimeSync('queued_followup');
+      }
+    }
+  }, REALTIME_DEBOUNCE_MS);
+}
+
+function handleRealtimePayload(payload) {
+  console.log('Realtime change received:', payload);
+  queueRealtimeSync(payload?.table || payload?.eventType || 'unknown_change');
+}
+
+function initRealtime() {
+  if (!sbClient || realtimeInitStarted) return;
+  realtimeInitStarted = true;
+
+  realtimeChannel = sbClient
+    .channel('padel-club-core-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'clubplayers' }, handleRealtimePayload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tournaments' }, handleRealtimePayload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, handleRealtimePayload)
+    .subscribe((status) => {
+      console.log('Supabase realtime status:', status);
+      if (status === 'SUBSCRIBED') {
+        realtimeReady = true;
+        toast('Realtime connected.', 'success');
+      }
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        realtimeReady = false;
+      }
+    });
+}
+
+async function cleanupRealtime() {
+  if (!sbClient || !realtimeChannel) return;
+  try {
+    await sbClient.removeChannel(realtimeChannel);
+  } catch (error) {
+    console.warn('Realtime cleanup warning:', error);
+  } finally {
+    realtimeChannel = null;
+    realtimeReady = false;
+  }
+}
+
+window.addEventListener('beforeunload', cleanupRealtime);
+
 async function createTournamentInSupabase(payload) {
   const { data, error } = await sbClient
     .from('tournaments')
@@ -408,9 +488,7 @@ const els = {
   modalCard: document.getElementById('modalCard'),
   toastStack: document.getElementById('toastStack'),
   newTournamentBtn: document.getElementById('newTournamentBtn'),
-  addClubPlayerBtn: document.getElementById('addClubPlayerBtn'),
-  seedDemoBtn: document.getElementById('seedDemoBtn'),
-  resetAllBtn: document.getElementById('resetAllBtn')
+  addClubPlayerBtn: document.getElementById('addClubPlayerBtn')
 };
 
 bindEvents();
@@ -436,6 +514,7 @@ function loadState() {
 
 async function initApp() {
   await syncCoreDataFromSupabase();
+  initRealtime();
   render();
 }
 
@@ -483,10 +562,8 @@ function bindEvents() {
     saveAndRender();
   });
 
-  els.newTournamentBtn.addEventListener('click', () => openTournamentModal());
-  els.addClubPlayerBtn.addEventListener('click', openClubPlayerModal);
-  els.seedDemoBtn.addEventListener('click', seedDemo);
-  els.resetAllBtn.addEventListener('click', resetAll);
+  els.newTournamentBtn?.addEventListener('click', () => openTournamentModal());
+  els.addClubPlayerBtn?.addEventListener('click', openClubPlayerModal);
 
   els.clubSearchInput.addEventListener('input', () => {
     state.ui.clubSearch = els.clubSearchInput.value;
@@ -752,9 +829,9 @@ function renderPlayersTab(tournament, derived) {
 
 function playerRowHtml(player, bucket, tournamentId) {
   const map = {
-    Joined: { badge: 'badge-main', action: `<button class="btn ghost" type="button" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Move out</button>` },
-    Waitlist: { badge: 'badge-wait', action: `<button class="btn ghost" type="button" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Withdraw</button>` },
-    Withdrawn: { badge: 'badge-withdrawn', action: `<button class="btn ghost" type="button" data-restore-player="${player.id}" data-tournament="${tournamentId}">Restore</button>` }
+    Joined: { badge: 'badge-main', action: `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Move out</button>` },
+    Waitlist: { badge: 'badge-wait', action: `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Withdraw</button>` },
+    Withdrawn: { badge: 'badge-withdrawn', action: `<button class="btn ghost" data-restore-player="${player.id}" data-tournament="${tournamentId}">Restore</button>` }
   };
   const cfg = map[bucket];
   return `
@@ -1263,12 +1340,11 @@ async function withdrawPlayer(tournamentId, playerId) {
       await saveTournamentRuntimeToSupabase(tournament);
     }
 
-    await syncCoreDataFromSupabase();
-    render();
+    saveAndRender();
     toast('Player moved to withdrawn.', 'success');
   } catch (error) {
     console.error('Registration withdraw error:', error);
-    toast(getFriendlySupabaseError(error, 'Could not update registration.'), 'error');
+    toast('Could not update registration.', 'error');
   }
 }
 
@@ -1298,12 +1374,11 @@ async function restorePlayer(tournamentId, playerId) {
       joinedAt: item.joinedAt
     })));
 
-    await syncCoreDataFromSupabase();
-    render();
+    saveAndRender();
     toast('Player restored to active list.', 'success');
   } catch (error) {
     console.error('Registration restore error:', error);
-    toast(getFriendlySupabaseError(error, 'Could not restore registration.'), 'error');
+    toast('Could not restore registration.', 'error');
   }
 }
 
@@ -1540,8 +1615,6 @@ function closeModal() {
 
 function applyTemporaryTooltips() {
   const tips = [
-    ['#seedDemoBtn', 'Временно: загрузить демонстрационные данные для быстрого просмотра системы.'],
-    ['#resetAllBtn', 'Временно: полностью сбросить локальные данные приложения.'],
     ['#newTournamentBtn', 'Временно: создать новый турнир.'],
     ['#addClubPlayerBtn', 'Временно: добавить нового игрока в базу клуба.'],
     ['#historyToggleBtn', 'Временно: показать или скрыть историю турниров.'],
@@ -1563,39 +1636,6 @@ function applyTemporaryTooltips() {
       el.setAttribute('title', text);
     });
   });
-}
-
-function seedDemo() {
-  state = structuredClone(initialState);
-  const more = [
-    ['Aleksejs', 'Advanced'], ['Olga', 'Intermediate'], ['David', 'Advanced'], ['Simona', 'Intermediate'],
-    ['Nadja', 'Intermediate'], ['Emils', 'Intermediate'], ['Lena', 'Beginner'], ['Juris', 'Intermediate'],
-    ['Daina', 'Intermediate'], ['Liga', 'Beginner'], ['Marta', 'Advanced'], ['Andris', 'Intermediate']
-  ].map((row, idx) => ({
-    id: `dp${idx + 10}`,
-    name: row[0], contact: `+371 2999${String(idx).padStart(4, '0')}`,
-    level: row[1], status: 'Approved', createdAt: new Date().toISOString()
-  }));
-  state.clubPlayers.push(...more);
-  const t = state.tournaments[0];
-  state.clubPlayers.filter(p => p.status === 'Approved').slice(0, 14).forEach((player, idx) => {
-    t.registrations.push({ playerId: player.id, status: 'Joined', joinedAt: new Date(Date.now() + idx * 1000).toISOString() });
-  });
-  normalizeTournamentRegistrations(t);
-  state.ui.selectedTournamentId = t.id;
-  state.ui.screen = 'tournaments';
-  state.ui.detailTab = 'players';
-  saveAndRender();
-  toast('Demo data loaded.', 'success');
-}
-
-function resetAll() {
-  if (!confirm('Reset all local data?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(UI_STORAGE_KEY);
-  state = structuredClone(initialState);
-  saveAndRender();
-  toast('All data reset.', 'success');
 }
 
 function exportClubPlayers() {
