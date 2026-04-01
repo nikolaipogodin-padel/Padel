@@ -752,9 +752,9 @@ function renderPlayersTab(tournament, derived) {
 
 function playerRowHtml(player, bucket, tournamentId) {
   const map = {
-    Joined: { badge: 'badge-main', action: `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Move out</button>` },
-    Waitlist: { badge: 'badge-wait', action: `<button class="btn ghost" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Withdraw</button>` },
-    Withdrawn: { badge: 'badge-withdrawn', action: `<button class="btn ghost" data-restore-player="${player.id}" data-tournament="${tournamentId}">Restore</button>` }
+    Joined: { badge: 'badge-main', action: `<button class="btn ghost" type="button" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Move out</button>` },
+    Waitlist: { badge: 'badge-wait', action: `<button class="btn ghost" type="button" data-withdraw-player="${player.id}" data-tournament="${tournamentId}">Withdraw</button>` },
+    Withdrawn: { badge: 'badge-withdrawn', action: `<button class="btn ghost" type="button" data-restore-player="${player.id}" data-tournament="${tournamentId}">Restore</button>` }
   };
   const cfg = map[bucket];
   return `
@@ -1263,11 +1263,12 @@ async function withdrawPlayer(tournamentId, playerId) {
       await saveTournamentRuntimeToSupabase(tournament);
     }
 
-    saveAndRender();
+    await syncCoreDataFromSupabase();
+    render();
     toast('Player moved to withdrawn.', 'success');
   } catch (error) {
     console.error('Registration withdraw error:', error);
-    toast('Could not update registration.', 'error');
+    toast(getFriendlySupabaseError(error, 'Could not update registration.'), 'error');
   }
 }
 
@@ -1297,11 +1298,12 @@ async function restorePlayer(tournamentId, playerId) {
       joinedAt: item.joinedAt
     })));
 
-    saveAndRender();
+    await syncCoreDataFromSupabase();
+    render();
     toast('Player restored to active list.', 'success');
   } catch (error) {
     console.error('Registration restore error:', error);
-    toast('Could not restore registration.', 'error');
+    toast(getFriendlySupabaseError(error, 'Could not restore registration.'), 'error');
   }
 }
 
