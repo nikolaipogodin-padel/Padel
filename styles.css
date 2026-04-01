@@ -755,3 +755,132 @@ body{
 .auth-hint code{font-family:ui-monospace,SFMono-Regular,monospace;color:var(--text)}
 [hidden]{display:none !important}
 @media (max-width: 860px){.role-session{justify-content:flex-start}.auth-card{padding:22px}}
+
+/* v16.8 interface optimization */
+:root{
+  --radius-lg: 24px;
+  --radius-md: 16px;
+}
+body{font-size:15px;line-height:1.4}
+.container{width:min(1360px,calc(100% - 24px))}
+.topbar-inner{gap:16px}
+.panel{padding:18px}
+.section-title{font-size:28px;line-height:1.05}
+.section-subtitle,.hero-meta,.session-user-line,.name-cell span,.auth-subtitle{font-size:13px}
+.btn,.tab,.search-input,.select,.input{min-height:44px}
+.btn,.tab{padding:0 14px;font-size:14px}
+.btn.ghost{background:#f4f7fb}
+.hero-card{padding:20px 20px 16px}
+.hero-top-compact{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.hero-main{min-width:0;flex:1 1 auto}
+.hero-title{font-size:30px;line-height:1.05;margin-bottom:10px}
+.hero-meta-chips{display:flex;flex-wrap:wrap;gap:8px}
+.meta-chip{display:inline-flex;align-items:center;justify-content:center;height:32px;padding:0 10px;border-radius:999px;background:#f5f8fc;border:1px solid rgba(149,166,196,.2);color:#41506c;font-size:12px;font-weight:700;white-space:nowrap}
+.hero-actions-compact{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:480px}
+.role-badge{display:none}
+.metrics-grid-compact{grid-template-columns:repeat(7,minmax(90px,1fr));gap:10px;margin-top:16px}
+.metric{min-height:80px;padding:14px 14px 12px;border-radius:18px}
+.metric-label{font-size:12px;color:var(--muted)}
+.metric-value{font-size:18px;line-height:1.1;margin-top:10px}
+
+.tournaments-panel{position:sticky;top:90px;max-height:calc(100vh - 110px);overflow:auto;padding-right:8px}
+.tournaments-panel::-webkit-scrollbar{width:8px}
+.tournaments-panel::-webkit-scrollbar-thumb{background:rgba(149,166,196,.35);border-radius:999px}
+.panel-head{margin-bottom:14px}
+.panel-head > div{min-width:0}
+.panel-head .btn{flex:0 0 auto}
+.tournament-table-header{display:none}
+.tournament-list{gap:10px}
+.tournament-item-compact{display:block;width:100%;text-align:left;padding:14px 14px 12px;border-radius:18px}
+.tournament-item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.tournament-name-wrap{min-width:0}
+.tournament-name{display:block;font-size:16px;line-height:1.2;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tournament-place{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tournament-meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.status-badge,.badge{height:28px;padding:0 10px;font-size:12px;white-space:nowrap}
+.link-btn{padding:10px 4px 0}
+
+.detail-tabs,.sub-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 12px}
+.detail-tabs .tab,.sub-tabs .tab{height:40px;padding:0 12px;border-radius:12px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{padding:16px}
+.card h3{margin:0 0 12px;font-size:18px}
+.mini-item{min-height:56px;padding:10px 12px;border-radius:14px}
+.mini-item span{font-size:12px}
+.status-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.status-tile{padding:14px 14px 12px;border-radius:18px}
+.status-count{font-size:28px}
+.player-status-layout{gap:14px}
+.player-row,.club-row,.result-card,.round-match{min-height:auto;padding:12px 14px;border-radius:16px}
+.player-row strong,.club-row strong,.round-match strong{font-size:15px;line-height:1.25}
+.player-row small,.club-row small,.round-sub,.muted{font-size:12px;color:var(--muted)}
+.actions-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.actions-row .btn{height:38px;padding:0 12px;border-radius:12px}
+.actions-row-wrap .btn{min-width:88px}
+
+.club-table-header{display:grid;grid-template-columns:minmax(220px,1.5fr) .8fr .8fr 1fr;gap:12px;padding:0 8px 10px;color:var(--muted);font-size:12px;font-weight:800}
+.club-rows{display:grid;gap:10px}
+.club-row{display:grid;grid-template-columns:minmax(220px,1.5fr) .8fr .8fr 1fr;gap:12px;align-items:center}
+.club-main{display:grid;gap:4px;min-width:0}
+.club-cell{display:grid;gap:4px}
+.club-label{display:none;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+.schedule-grid-compact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.round-card{padding:16px}
+.round-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
+.round-title{font-size:18px}
+.round-body{display:grid;gap:10px}
+.round-match{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.court-pill{height:26px;padding:0 8px;font-size:11px}
+.schedule-results-card{margin-top:0}
+.results-list{display:grid;gap:10px}
+.result-card-clean{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.result-card-side{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.score-chip{height:34px;padding:0 10px;border-radius:999px;display:inline-flex;align-items:center;background:#f6f8fc;font-weight:800}
+
+@media (max-width: 1180px){
+  .layout-main{grid-template-columns:380px 1fr;gap:16px}
+  .metrics-grid-compact{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .schedule-grid-compact{grid-template-columns:1fr}
+}
+
+@media (max-width: 920px){
+  .layout-main{grid-template-columns:1fr}
+  .tournaments-panel{position:static;max-height:none;overflow:visible;padding-right:0}
+  .hero-top-compact{flex-direction:column}
+  .hero-actions-compact{justify-content:flex-start;max-width:none}
+  .grid-2,.status-strip,.player-status-layout{grid-template-columns:1fr}
+  .club-table-header{display:none}
+  .club-row{grid-template-columns:1fr;gap:10px}
+  .club-label{display:block}
+  .actions-row{justify-content:flex-start}
+}
+
+@media (max-width: 760px){
+  .container{width:min(100%,calc(100% - 16px))}
+  .topbar-inner{padding:12px 0}
+  .global-tabs{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .global-tabs .tab{width:100%;justify-content:center}
+  .role-session{width:100%;padding:10px 12px;border:1px solid rgba(149,166,196,.18);border-radius:16px;background:rgba(255,255,255,.88)}
+  .session-actions{width:100%}
+  .session-actions .btn{flex:1 1 0}
+  .panel,.hero-card,.card,.round-card,.status-tile{border-radius:18px}
+  .section-title{font-size:24px}
+  .panel-head{align-items:flex-start;flex-direction:column}
+  .panel-head .btn{width:100%}
+  .tournament-item-compact{padding:12px}
+  .tournament-item-top{align-items:flex-start}
+  .tournament-name{font-size:15px;white-space:normal}
+  .hero-title{font-size:24px}
+  .hero-actions-compact .btn,.hero-actions-compact .readonly-note,.hero-actions-compact .status-badge{flex:1 1 calc(50% - 6px);justify-content:center}
+  .metrics-grid-compact{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric{min-height:72px;padding:12px}
+  .metric-value{font-size:16px}
+  .detail-tabs,.sub-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .detail-tabs .tab,.sub-tabs .tab{width:100%}
+  .player-row,.result-card-clean,.round-match{flex-direction:column;align-items:flex-start}
+  .result-card-side{justify-content:flex-start;width:100%}
+  .result-card-side .btn{width:100%}
+  .actions-row-wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .actions-row-wrap .btn,.actions-row-wrap .readonly-note{width:100%;justify-content:center}
+}

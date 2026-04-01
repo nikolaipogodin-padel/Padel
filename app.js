@@ -49,6 +49,7 @@ const initialState = {
     screen: 'tournaments',
     selectedTournamentId: 't1',
     detailTab: 'overview',
+    scheduleView: 'rounds',
     showHistory: false,
     clubSearch: '',
     clubStatusFilter: 'all',
@@ -567,6 +568,7 @@ function ensureStateShape() {
   state.ui.auth.isAuthenticated ??= false;
   state.ui.auth.username ??= '';
   state.ui.auth.role ??= state.ui.role || 'viewer';
+  state.ui.scheduleView ??= 'rounds';
   state.clubPlayers ??= [];
   state.tournaments ??= [];
   enforceRoleUi();
@@ -596,6 +598,9 @@ function enforceRoleUi() {
   }
   if (role === 'viewer' && state.ui.detailTab === 'players') {
     state.ui.detailTab = 'overview';
+  }
+  if (!['rounds','results'].includes(state.ui.scheduleView)) {
+    state.ui.scheduleView = 'rounds';
   }
 }
 
@@ -866,26 +871,29 @@ function renderTournamentList() {
     state.ui.selectedTournamentId = state.tournaments[0].id;
   }
 
-  const visible = state.ui.showHistory ? state.tournaments : state.tournaments.slice(0, 3);
+  const visible = state.ui.showHistory ? state.tournaments : state.tournaments.slice(0, 6);
   els.tournamentRows.innerHTML = visible.map(t => {
     const active = t.id === state.ui.selectedTournamentId ? 'is-active' : '';
     const statusClass = `status-${(t.status || 'open').toLowerCase()}`;
     return `
-      <button class="tournament-item tournament-row ${active}" data-select-tournament="${t.id}">
-        <div class="name-cell">
-          <strong>${escapeHtml(t.name)}</strong>
-          <span>${escapeHtml(t.location)}</span>
+      <button class="tournament-item tournament-item-compact ${active}" type="button" data-select-tournament="${t.id}">
+        <div class="tournament-item-top">
+          <div class="tournament-name-wrap">
+            <strong class="tournament-name">${escapeHtml(t.name)}</strong>
+            <span class="tournament-place">${escapeHtml(t.location)}</span>
+          </div>
+          <span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span>
         </div>
-        <div>${formatDate(t.date)}</div>
-        <div>${escapeHtml(t.location)}</div>
-        <div>${escapeHtml(t.startTime)}</div>
-        <div>${t.durationHours}h</div>
-        <div><span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span></div>
+        <div class="tournament-meta-row">
+          <span class="meta-chip">${formatDate(t.date)}</span>
+          <span class="meta-chip">${escapeHtml(t.startTime)}</span>
+          <span class="meta-chip">${t.durationHours}h</span>
+        </div>
       </button>
     `;
   }).join('');
 
-  els.historyToggleBtn.textContent = state.ui.showHistory ? 'Hide history' : 'Show history';
+  els.historyToggleBtn.textContent = state.ui.showHistory ? 'Show less' : 'Show all';
 
   els.tournamentRows.querySelectorAll('[data-select-tournament]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -907,30 +915,26 @@ function renderTournamentDetails() {
   const leader = computeStandings(tournament)[0] || null;
 
   els.selectedTournamentHero.innerHTML = `
-    <div class="hero-top">
-      <div>
+    <div class="hero-top hero-top-compact">
+      <div class="hero-main">
         <div class="hero-title">${escapeHtml(tournament.name)}</div>
-        <div class="hero-meta">
-          <span>${formatDate(tournament.date)}</span>
-          <span>•</span>
-          <span>${escapeHtml(tournament.location)}</span>
-          <span>•</span>
-          <span>${escapeHtml(tournament.startTime)}</span>
-          <span>•</span>
-          <span>${tournament.durationHours}h</span>
+        <div class="hero-meta hero-meta-chips">
+          <span class="meta-chip">${formatDate(tournament.date)}</span>
+          <span class="meta-chip">${escapeHtml(tournament.location)}</span>
+          <span class="meta-chip">${escapeHtml(tournament.startTime)}</span>
+          <span class="meta-chip">${tournament.durationHours}h</span>
         </div>
       </div>
-      <div class="hero-actions">
+      <div class="hero-actions hero-actions-compact">
         <span class="status-badge status-${tournament.status.toLowerCase()}">${escapeHtml(tournament.status)}</span>
-        <span class="role-badge">${capitalize(getCurrentRole())}</span>
         ${canManageTournaments()
-          ? `<button class="btn ghost" id="editTournamentBtn">Edit</button>
-             <button class="btn secondary" id="joinFromClubBtn">Add from Club</button>
-             <button class="btn primary" id="generateBtn">Generate</button>`
-          : `<span class="readonly-note">Read only access</span>`}
+          ? `<button class="btn ghost" type="button" id="editTournamentBtn">Edit</button>
+             <button class="btn secondary" type="button" id="joinFromClubBtn">Add players</button>
+             <button class="btn primary" type="button" id="generateBtn">Generate</button>`
+          : `<span class="readonly-note">Read only</span>`}
       </div>
     </div>
-    <div class="metrics-grid">
+    <div class="metrics-grid metrics-grid-compact">
       <div class="metric"><div class="metric-label">Joined</div><div class="metric-value">${derived.joinedPlayers.length}</div></div>
       <div class="metric"><div class="metric-label">Main draw</div><div class="metric-value">${derived.mainDrawPlayers.length}</div></div>
       <div class="metric"><div class="metric-label">Waitlist</div><div class="metric-value">${derived.waitlistPlayers.length}</div></div>
@@ -1046,8 +1050,9 @@ function renderScheduleTab(tournament) {
     return;
   }
 
-  els.scheduleTab.innerHTML = `
-    <div class="schedule-grid">
+  const scheduleView = state.ui.scheduleView || 'rounds';
+  const roundsHtml = `
+    <div class="schedule-grid schedule-grid-compact">
       ${tournament.rounds.map((round, index) => `
         <div class="round-card">
           <div class="round-head">
@@ -1072,19 +1077,35 @@ function renderScheduleTab(tournament) {
           </div>
         </div>
       `).join('')}
-    </div>
-    <div class="card" style="margin-top:16px;">
+    </div>`;
+
+  const resultsHtml = `
+    <div class="card schedule-results-card">
       <div class="results-toolbar">
         <div>
           <h3 style="margin:0;">Results</h3>
-          <div class="section-subtitle">Open result editor for a clean modal workflow</div>
+          <div class="section-subtitle">Compact result list. Open a match only when needed.</div>
         </div>
       </div>
       <div class="results-list">
         ${tournament.matches.map(match => resultCardHtml(match)).join('')}
       </div>
+    </div>`;
+
+  els.scheduleTab.innerHTML = `
+    <div class="sub-tabs" id="scheduleSubTabs">
+      <button class="tab ${scheduleView === 'rounds' ? 'is-active' : ''}" type="button" data-schedule-view="rounds">Rounds</button>
+      <button class="tab ${scheduleView === 'results' ? 'is-active' : ''}" type="button" data-schedule-view="results">Results</button>
     </div>
+    ${scheduleView === 'rounds' ? roundsHtml : resultsHtml}
   `;
+
+  els.scheduleTab.querySelectorAll('[data-schedule-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.ui.scheduleView = btn.dataset.scheduleView;
+      saveAndRender();
+    });
+  });
 
   els.scheduleTab.querySelectorAll('[data-open-result]').forEach(btn => {
     btn.addEventListener('click', () => openResultModal(tournament.id, btn.dataset.openResult));
@@ -1159,8 +1180,8 @@ function renderClubPlayers() {
 
   els.clubPlayersTable.innerHTML = `
     <div class="club-toolbar club-toolbar-top">
-      ${canEditClub() ? `<button class="btn secondary" id="importClubBtn">Import players</button>` : ''}
-      <button class="btn ghost" id="exportClubBtn">Export JSON</button>
+      ${canEditClub() ? `<button class="btn secondary" type="button" id="importClubBtn">Import players</button>` : ''}
+      <button class="btn ghost" type="button" id="exportClubBtn">Export JSON</button>
     </div>
     <div class="club-table-header">
       <div>Player</div>
@@ -1171,13 +1192,16 @@ function renderClubPlayers() {
     <div class="club-rows">
       ${players.length ? players.map(player => `
         <div class="club-row">
-          <div><strong>${escapeHtml(player.name)}</strong><br><small>${escapeHtml(player.contact)}</small></div>
-          <div>${escapeHtml(player.level)}</div>
-          <div><span class="badge badge-${player.status.toLowerCase()}">${escapeHtml(player.status)}</span></div>
-          <div class="actions-row">
-            ${canEditClub() && player.status !== 'Approved' ? `<button class="btn secondary" data-set-status="Approved" data-player-id="${player.id}">Approve</button>` : ''}
-            ${canEditClub() && player.status !== 'Blocked' ? `<button class="btn ghost" data-set-status="Blocked" data-player-id="${player.id}">Block</button>` : ''}
-            ${canEditClub() && player.status !== 'Pending' ? `<button class="btn ghost" data-set-status="Pending" data-player-id="${player.id}">Reset</button>` : ''}
+          <div class="club-main">
+            <strong>${escapeHtml(player.name)}</strong>
+            <small>${escapeHtml(player.contact)}</small>
+          </div>
+          <div class="club-cell club-level"><span class="club-label">Level</span>${escapeHtml(player.level)}</div>
+          <div class="club-cell club-status"><span class="club-label">Status</span><span class="badge badge-${player.status.toLowerCase()}">${escapeHtml(player.status)}</span></div>
+          <div class="actions-row actions-row-wrap">
+            ${canEditClub() && player.status !== 'Approved' ? `<button class="btn secondary" type="button" data-set-status="Approved" data-player-id="${player.id}">Approve</button>` : ''}
+            ${canEditClub() && player.status !== 'Blocked' ? `<button class="btn ghost" type="button" data-set-status="Blocked" data-player-id="${player.id}">Block</button>` : ''}
+            ${canEditClub() && player.status !== 'Pending' ? `<button class="btn ghost" type="button" data-set-status="Pending" data-player-id="${player.id}">Reset</button>` : ''}
             ${!canEditClub() ? `<span class="readonly-note compact">Read only</span>` : ''}
           </div>
         </div>
