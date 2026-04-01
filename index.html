@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Padel Club — v16.8</title>
-  <link rel="stylesheet" href="styles.css?v=16.8" />
+  <title>Padel Club — v16.9</title>
+  <link rel="stylesheet" href="styles.css?v=16.9" />
 </head>
 <body>
   <header class="topbar">
@@ -40,25 +40,29 @@
     <section id="screenTournaments" class="screen is-active">
       <div class="layout-main">
         <aside class="panel tournaments-panel">
-          <div class="panel-head">
+          <div class="panel-head panel-head-tight">
             <div>
               <div class="section-title">Tournaments</div>
-              <div class="section-subtitle">First 3 shown by default</div>
+              <div class="section-subtitle">Compact control center for live events</div>
             </div>
-            <button class="btn secondary" id="newTournamentBtn">New tournament</button>
+            <button class="btn secondary icon-btn" id="newTournamentBtn" aria-label="Create tournament">
+              <span class="icon-plus">+</span>
+              <span>New</span>
+            </button>
           </div>
 
-          <div class="tournament-table-header tournament-row">
-            <div>Name</div>
-            <div>Date</div>
-            <div>Place</div>
-            <div>Start</div>
-            <div>Duration</div>
-            <div>Status</div>
+          <div class="toolbar-row tournament-toolbar">
+            <input id="tournamentSearchInput" class="search-input" type="text" placeholder="Search tournament" />
+            <select id="tournamentStatusFilter" class="select compact">
+              <option value="all">All statuses</option>
+              <option value="Open">Open</option>
+              <option value="Live">Live</option>
+              <option value="Finished">Finished</option>
+            </select>
           </div>
 
-          <div id="tournamentRows" class="tournament-list"></div>
-          <button class="link-btn" id="historyToggleBtn">Show history</button>
+          <div id="tournamentRows" class="tournament-list tournament-list-compact"></div>
+          <button class="link-btn" id="historyToggleBtn">Show more</button>
         </aside>
 
         <section class="details-panel">
@@ -132,6 +136,6 @@
   <div class="toast-stack" id="toastStack"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=16.8"></script>
+  <script src="app.js?v=16.9"></script>
 </body>
 </html>

@@ -483,6 +483,8 @@ const els = {
   screenClub: document.getElementById('screenClub'),
   globalTabs: document.getElementById('globalTabs'),
   tournamentRows: document.getElementById('tournamentRows'),
+  tournamentSearchInput: document.getElementById('tournamentSearchInput'),
+  tournamentStatusFilter: document.getElementById('tournamentStatusFilter'),
   historyToggleBtn: document.getElementById('historyToggleBtn'),
   selectedTournamentHero: document.getElementById('selectedTournamentHero'),
   detailTabs: document.getElementById('detailTabs'),
@@ -569,6 +571,8 @@ function ensureStateShape() {
   state.ui.auth.username ??= '';
   state.ui.auth.role ??= state.ui.role || 'viewer';
   state.ui.scheduleView ??= 'rounds';
+  state.ui.tournamentSearch ??= '';
+  state.ui.tournamentStatusFilter ??= 'all';
   state.clubPlayers ??= [];
   state.tournaments ??= [];
   enforceRoleUi();
@@ -719,6 +723,16 @@ function bindEvents() {
     saveAndRender();
   });
 
+  els.tournamentSearchInput?.addEventListener('input', () => {
+    state.ui.tournamentSearch = els.tournamentSearchInput.value;
+    saveAndRender(false);
+  });
+
+  els.tournamentStatusFilter?.addEventListener('change', () => {
+    state.ui.tournamentStatusFilter = els.tournamentStatusFilter.value;
+    saveAndRender(false);
+  });
+
   els.historyToggleBtn.addEventListener('click', () => {
     state.ui.showHistory = !state.ui.showHistory;
     saveAndRender();
@@ -862,38 +876,63 @@ function renderRoleControls() {
 }
 
 function renderTournamentList() {
-  if (!state.tournaments.length) {
-    els.tournamentRows.innerHTML = '<div class="empty">No tournaments yet.</div>';
+  const search = String(state.ui.tournamentSearch || '').trim().toLowerCase();
+  const statusFilter = state.ui.tournamentStatusFilter || 'all';
+
+  if (els.tournamentSearchInput && els.tournamentSearchInput.value !== state.ui.tournamentSearch) {
+    els.tournamentSearchInput.value = state.ui.tournamentSearch || '';
+  }
+  if (els.tournamentStatusFilter) {
+    els.tournamentStatusFilter.value = statusFilter;
+  }
+
+  let items = [...state.tournaments];
+  if (statusFilter !== 'all') {
+    items = items.filter(t => t.status === statusFilter);
+  }
+  if (search) {
+    items = items.filter(t => `${t.name} ${t.location} ${t.date}`.toLowerCase().includes(search));
+  }
+
+  if (!items.length) {
+    els.tournamentRows.innerHTML = '<div class="empty">No tournaments match the current filters.</div>';
+    els.historyToggleBtn.hidden = false;
+    els.historyToggleBtn.textContent = state.ui.showHistory ? 'Show less' : 'Show more';
     return;
   }
 
-  if (!state.tournaments.some(t => t.id === state.ui.selectedTournamentId)) {
-    state.ui.selectedTournamentId = state.tournaments[0].id;
+  if (!items.some(t => t.id === state.ui.selectedTournamentId)) {
+    state.ui.selectedTournamentId = items[0].id;
   }
 
-  const visible = state.ui.showHistory ? state.tournaments : state.tournaments.slice(0, 6);
+  const visible = state.ui.showHistory ? items : items.slice(0, 8);
   els.tournamentRows.innerHTML = visible.map(t => {
     const active = t.id === state.ui.selectedTournamentId ? 'is-active' : '';
     const statusClass = `status-${(t.status || 'open').toLowerCase()}`;
+    const isLive = t.status === 'Live';
     return `
       <button class="tournament-item tournament-item-compact ${active}" type="button" data-select-tournament="${t.id}">
-        <div class="tournament-item-top">
-          <div class="tournament-name-wrap">
-            <strong class="tournament-name">${escapeHtml(t.name)}</strong>
-            <span class="tournament-place">${escapeHtml(t.location)}</span>
+        <div class="tournament-item-main">
+          <div class="tournament-item-top">
+            <div class="tournament-name-wrap">
+              <strong class="tournament-name">${escapeHtml(t.name)}</strong>
+              <span class="tournament-place">${escapeHtml(t.location)}</span>
+            </div>
+            <span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span>
           </div>
-          <span class="status-badge ${statusClass}">${escapeHtml(t.status)}</span>
-        </div>
-        <div class="tournament-meta-row">
-          <span class="meta-chip">${formatDate(t.date)}</span>
-          <span class="meta-chip">${escapeHtml(t.startTime)}</span>
-          <span class="meta-chip">${t.durationHours}h</span>
+          <div class="tournament-meta-row compact">
+            <span class="meta-chip">${formatDate(t.date)}</span>
+            <span class="meta-chip">${escapeHtml(t.startTime)}</span>
+            <span class="meta-chip">${t.durationHours}h</span>
+            ${isLive ? '<span class="meta-chip accent">Live now</span>' : ''}
+          </div>
         </div>
       </button>
     `;
   }).join('');
 
-  els.historyToggleBtn.textContent = state.ui.showHistory ? 'Show less' : 'Show all';
+  els.historyToggleBtn.hidden = items.length <= 8;
+  els.historyToggleBtn.textContent = state.ui.showHistory ? 'Show less' : `Show more (${items.length - Math.min(items.length, 8)})`;
 
   els.tournamentRows.querySelectorAll('[data-select-tournament]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -913,35 +952,45 @@ function renderTournamentDetails() {
 
   const derived = getTournamentDerived(tournament);
   const leader = computeStandings(tournament)[0] || null;
+  const progress = derived.joinedPlayers.length ? Math.round((derived.mainDrawPlayers.length / derived.joinedPlayers.length) * 100) : 0;
 
   els.selectedTournamentHero.innerHTML = `
-    <div class="hero-top hero-top-compact">
-      <div class="hero-main">
-        <div class="hero-title">${escapeHtml(tournament.name)}</div>
-        <div class="hero-meta hero-meta-chips">
-          <span class="meta-chip">${formatDate(tournament.date)}</span>
-          <span class="meta-chip">${escapeHtml(tournament.location)}</span>
-          <span class="meta-chip">${escapeHtml(tournament.startTime)}</span>
-          <span class="meta-chip">${tournament.durationHours}h</span>
+    <div class="hero-shell">
+      <div class="hero-main-block">
+        <div class="hero-title-row">
+          <div>
+            <div class="hero-title">${escapeHtml(tournament.name)}</div>
+            <div class="hero-subline">${formatDate(tournament.date)} · ${escapeHtml(tournament.location)} · ${escapeHtml(tournament.startTime)} · ${tournament.durationHours}h</div>
+          </div>
+          <span class="status-badge status-${tournament.status.toLowerCase()}">${escapeHtml(tournament.status)}</span>
+        </div>
+        <div class="hero-inline-stats">
+          <div class="inline-stat"><span>Players</span><strong>${derived.joinedPlayers.length}</strong></div>
+          <div class="inline-stat"><span>Main draw</span><strong>${derived.mainDrawPlayers.length}</strong></div>
+          <div class="inline-stat"><span>Courts</span><strong>${derived.courts}</strong></div>
+          <div class="inline-stat"><span>Match time</span><strong>${derived.matchMinutes || '—'} min</strong></div>
+        </div>
+        <div class="hero-progress-card">
+          <div>
+            <div class="hero-progress-label">Readiness</div>
+            <div class="hero-progress-value">${progress}% scheduled</div>
+          </div>
+          <div class="progress-bar"><span style="width:${Math.min(progress,100)}%"></span></div>
         </div>
       </div>
-      <div class="hero-actions hero-actions-compact">
-        <span class="status-badge status-${tournament.status.toLowerCase()}">${escapeHtml(tournament.status)}</span>
+      <div class="hero-side-block">
         ${canManageTournaments()
           ? `<button class="btn ghost" type="button" id="editTournamentBtn">Edit</button>
              <button class="btn secondary" type="button" id="joinFromClubBtn">Add players</button>
              <button class="btn primary" type="button" id="generateBtn">Generate</button>`
-          : `<span class="readonly-note">Read only</span>`}
+          : `<div class="readonly-note-block"><div class="readonly-note">Viewer mode</div><div class="section-subtitle">Overview, schedule and standings only</div></div>`}
       </div>
     </div>
-    <div class="metrics-grid metrics-grid-compact">
-      <div class="metric"><div class="metric-label">Joined</div><div class="metric-value">${derived.joinedPlayers.length}</div></div>
-      <div class="metric"><div class="metric-label">Main draw</div><div class="metric-value">${derived.mainDrawPlayers.length}</div></div>
-      <div class="metric"><div class="metric-label">Waitlist</div><div class="metric-value">${derived.waitlistPlayers.length}</div></div>
-      <div class="metric"><div class="metric-label">Withdrawn</div><div class="metric-value">${derived.withdrawnPlayers.length}</div></div>
-      <div class="metric"><div class="metric-label">Courts</div><div class="metric-value">${derived.courts}</div></div>
-      <div class="metric"><div class="metric-label">Teams</div><div class="metric-value">${derived.activeTeams}</div></div>
-      <div class="metric"><div class="metric-label">Match time</div><div class="metric-value">${derived.matchMinutes || '—'} min</div></div>
+    <div class="metrics-grid metrics-grid-emphasis">
+      <div class="metric emphasis"><div class="metric-label">Joined</div><div class="metric-value">${derived.joinedPlayers.length}</div><div class="metric-note">Confirmed registrations</div></div>
+      <div class="metric"><div class="metric-label">Waitlist</div><div class="metric-value">${derived.waitlistPlayers.length}</div><div class="metric-note">Overflow after main draw</div></div>
+      <div class="metric"><div class="metric-label">Teams</div><div class="metric-value">${derived.activeTeams}</div><div class="metric-note">Auto-generated pairs</div></div>
+      <div class="metric"><div class="metric-label">Matches</div><div class="metric-value">${derived.totalMatches}</div><div class="metric-note">Total planned games</div></div>
     </div>
   `;
 
@@ -958,29 +1007,40 @@ function renderTournamentDetails() {
 }
 
 function renderOverview(tournament, derived, leader) {
+  const completion = tournament.matches?.length
+    ? tournament.matches.filter(match => match.status === 'Completed').length
+    : 0;
+
   els.overviewTab.innerHTML = `
-    <div class="grid-2">
-      <div class="card">
-        <h3>Tournament summary</h3>
-        <div class="roster-list">
-          <div class="mini-item"><span>Date</span><strong>${formatDate(tournament.date)}</strong></div>
-          <div class="mini-item"><span>Location</span><strong>${escapeHtml(tournament.location)}</strong></div>
-          <div class="mini-item"><span>Start</span><strong>${escapeHtml(tournament.startTime)}</strong></div>
-          <div class="mini-item"><span>Duration</span><strong>${tournament.durationHours} hours</strong></div>
-          <div class="mini-item"><span>Match time</span><strong>${derived.matchMinutes || '—'} min</strong></div>
-          <div class="mini-item"><span>Total matches</span><strong>${derived.totalMatches}</strong></div>
+    <div class="info-grid">
+      <div class="card info-card primary-info-card">
+        <div class="card-kicker">Tournament snapshot</div>
+        <h3>Event information</h3>
+        <div class="info-list compact-info-list">
+          <div class="info-row"><span>Date</span><strong>${formatDate(tournament.date)}</strong></div>
+          <div class="info-row"><span>Venue</span><strong>${escapeHtml(tournament.location)}</strong></div>
+          <div class="info-row"><span>Start time</span><strong>${escapeHtml(tournament.startTime)}</strong></div>
+          <div class="info-row"><span>Duration</span><strong>${tournament.durationHours} hours</strong></div>
         </div>
       </div>
-      <div class="card">
+      <div class="card info-card">
+        <div class="card-kicker">Operations</div>
         <h3>Readiness</h3>
-        <div class="roster-list">
-          <div class="mini-item"><span>Joined players</span><strong>${derived.joinedPlayers.length}</strong></div>
-          <div class="mini-item"><span>Main draw</span><strong>${derived.mainDrawPlayers.length}</strong></div>
-          <div class="mini-item"><span>Waitlist</span><strong>${derived.waitlistPlayers.length}</strong></div>
-          <div class="mini-item"><span>Withdrawn</span><strong>${derived.withdrawnPlayers.length}</strong></div>
-          <div class="mini-item"><span>Courts used</span><strong>${derived.courts}</strong></div>
-          <div class="mini-item"><span>Schedule generated</span><strong>${tournament.rounds?.length ? 'Yes' : 'No'}</strong></div>
-          <div class="mini-item"><span>Current leader</span><strong>${leader ? leader.teamName : '—'}</strong></div>
+        <div class="info-list compact-info-list">
+          <div class="info-row"><span>Main draw ready</span><strong>${derived.mainDrawPlayers.length} / ${derived.joinedPlayers.length}</strong></div>
+          <div class="info-row"><span>Schedule generated</span><strong>${tournament.rounds?.length ? 'Yes' : 'No'}</strong></div>
+          <div class="info-row"><span>Results entered</span><strong>${completion} / ${derived.totalMatches}</strong></div>
+          <div class="info-row"><span>Leader</span><strong>${leader ? escapeHtml(leader.teamName) : '—'}</strong></div>
+        </div>
+      </div>
+      <div class="card info-card accent-card">
+        <div class="card-kicker">Format</div>
+        <h3>Auto-calculation</h3>
+        <div class="pill-cloud">
+          <span class="meta-chip">${derived.courts} courts</span>
+          <span class="meta-chip">${derived.activeTeams} teams</span>
+          <span class="meta-chip">${derived.rounds} rounds</span>
+          <span class="meta-chip">${derived.matchMinutes || '—'} min / match</span>
         </div>
       </div>
     </div>
@@ -1051,50 +1111,49 @@ function renderScheduleTab(tournament) {
   }
 
   const scheduleView = state.ui.scheduleView || 'rounds';
+  const completedMatches = tournament.matches.filter(match => match.status === 'Completed').length;
+
   const roundsHtml = `
-    <div class="schedule-grid schedule-grid-compact">
+    <div class="schedule-summary-bar card">
+      <div class="summary-pill"><span>Rounds</span><strong>${tournament.rounds.length}</strong></div>
+      <div class="summary-pill"><span>Matches</span><strong>${tournament.matches.length}</strong></div>
+      <div class="summary-pill"><span>Completed</span><strong>${completedMatches}</strong></div>
+    </div>
+    <div class="rounds-accordion">
       ${tournament.rounds.map((round, index) => `
-        <div class="round-card">
-          <div class="round-head">
+        <details class="round-accordion-item" ${index === 0 ? 'open' : ''}>
+          <summary>
             <div>
               <div class="round-title">Round ${index + 1}</div>
               <div class="round-sub">${round.startTime} – ${round.endTime}</div>
             </div>
             <span class="badge">${round.matches.length} matches</span>
-          </div>
-          <div class="round-body">
+          </summary>
+          <div class="round-body compact-round-body">
             ${round.matches.map(match => `
-              <div class="round-match">
-                <div>
-                  <div><span class="court-pill">Court ${match.court}</span></div>
+              <div class="round-match compact-round-match">
+                <div class="round-match-main">
+                  <span class="court-pill">Court ${match.court}</span>
                   <strong>${escapeHtml(match.teamA.name)} vs ${escapeHtml(match.teamB.name)}</strong>
                 </div>
-                <div>
-                  <span class="status-badge status-${match.status.toLowerCase() === 'completed' ? 'finished' : 'open'}">${escapeHtml(match.status)}</span>
-                </div>
+                <span class="status-badge status-${match.status.toLowerCase() === 'completed' ? 'finished' : 'open'}">${escapeHtml(match.status)}</span>
               </div>
             `).join('')}
           </div>
-        </div>
+        </details>
       `).join('')}
     </div>`;
 
   const resultsHtml = `
     <div class="card schedule-results-card">
-      <div class="results-toolbar">
-        <div>
-          <h3 style="margin:0;">Results</h3>
-          <div class="section-subtitle">Compact result list. Open a match only when needed.</div>
-        </div>
-      </div>
-      <div class="results-list">
+      <div class="results-list compact-results-list">
         ${tournament.matches.map(match => resultCardHtml(match)).join('')}
       </div>
     </div>`;
 
   els.scheduleTab.innerHTML = `
-    <div class="sub-tabs" id="scheduleSubTabs">
-      <button class="tab ${scheduleView === 'rounds' ? 'is-active' : ''}" type="button" data-schedule-view="rounds">Rounds</button>
+    <div class="sub-tabs sticky-sub-tabs" id="scheduleSubTabs">
+      <button class="tab ${scheduleView === 'rounds' ? 'is-active' : ''}" type="button" data-schedule-view="rounds">Timeline</button>
       <button class="tab ${scheduleView === 'results' ? 'is-active' : ''}" type="button" data-schedule-view="results">Results</button>
     </div>
     ${scheduleView === 'rounds' ? roundsHtml : resultsHtml}
@@ -1114,16 +1173,16 @@ function renderScheduleTab(tournament) {
 
 function resultCardHtml(match) {
   const score = match.status === 'Completed' ? `${match.gamesA} : ${match.gamesB}` : 'Not entered';
-  const updatedBy = match.lastUpdatedBy ? ` • by ${escapeHtml(match.lastUpdatedBy)}` : '';
+  const updatedBy = match.lastUpdatedBy ? ` · ${escapeHtml(match.lastUpdatedBy)}` : '';
   return `
-    <div class="result-card result-card-clean">
-      <div>
+    <div class="result-card result-card-compact">
+      <div class="result-card-main">
         <strong>${escapeHtml(match.teamA.name)} vs ${escapeHtml(match.teamB.name)}</strong>
-        <div class="muted">Court ${match.court} • ${match.roundTime}</div>
+        <div class="muted">Round ${escapeHtml(String(match.round || '').replace('Round ', '') || '—')} · Court ${match.court} · ${match.roundTime}${updatedBy}</div>
       </div>
-      <div class="result-card-side">
-        <div class="score-chip ${match.status === 'Completed' ? 'is-complete' : ''}">${score}${updatedBy}</div>
-        ${canEnterResults() ? `<button class="btn primary" type="button" data-open-result="${match.id}">${match.status === 'Completed' ? 'Edit result' : 'Enter result'}</button>` : ''}
+      <div class="result-card-side compact-side">
+        <div class="score-chip ${match.status === 'Completed' ? 'is-complete' : ''}">${score}</div>
+        ${canEnterResults() ? `<button class="btn secondary" type="button" data-open-result="${match.id}">${match.status === 'Completed' ? 'Edit' : 'Enter'}</button>` : ''}
       </div>
     </div>
   `;
