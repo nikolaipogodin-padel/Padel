@@ -336,6 +336,26 @@ async function updateRegistrationInSupabase(registrationId, patch) {
   return mapSupabaseRegistration(data);
 }
 
+
+function getFriendlySupabaseError(error, fallbackMessage = 'Supabase error') {
+  const rawMessage = String(error?.message || error?.details || error?.hint || fallbackMessage).trim();
+  const lower = rawMessage.toLowerCase();
+
+  if (lower.includes('row-level security') || lower.includes('new row violates row-level security policy') || lower.includes('permission denied')) {
+    return 'Supabase blocks write access. Most likely RLS/policies are not configured yet.';
+  }
+
+  if (lower.includes('invalid input syntax')) {
+    return `Supabase rejected the data format: ${rawMessage}`;
+  }
+
+  if (lower.includes('violates check constraint')) {
+    return `Supabase rejected one of the status values: ${rawMessage}`;
+  }
+
+  return rawMessage || fallbackMessage;
+}
+
 const els = {
   screenTournaments: document.getElementById('screenTournaments'),
   screenClub: document.getElementById('screenClub'),
@@ -944,7 +964,7 @@ function openTournamentModal(tournament = null) {
       saveAndRender();
     } catch (error) {
       console.error('Tournament save error:', error);
-      toast('Could not save tournament to Supabase.', 'error');
+      toast(getFriendlySupabaseError(error, 'Could not save tournament to Supabase.'), 'error');
     }
   });
 
@@ -959,7 +979,7 @@ function openTournamentModal(tournament = null) {
       toast('Tournament deleted.', 'success');
     } catch (error) {
       console.error('Tournament delete error:', error);
-      toast('Could not delete tournament from Supabase.', 'error');
+      toast(getFriendlySupabaseError(error, 'Could not delete tournament from Supabase.'), 'error');
     }
   });
 }
@@ -1014,7 +1034,7 @@ function openClubPlayerModal() {
       toast('Club player added.', 'success');
     } catch (error) {
       console.error('Club player save error:', error);
-      toast('Could not save player to Supabase.', 'error');
+      toast(getFriendlySupabaseError(error, 'Could not save player to Supabase.'), 'error');
     }
   });
 }
