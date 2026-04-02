@@ -1,0 +1,15 @@
+Upload ONLY these files to the GitHub Pages publish folder:
+- index.html
+- 404.html
+- .nojekyll
+
+Recommended GitHub Pages structure:
+/Padel/
+  index.html
+  404.html
+  .nojekyll
+
+Important:
+- Do not upload docs, image-reference, or older builds.
+- Replace the existing publish folder contents completely.
+- After upload, open: https://nikolaipogodin-padel.github.io/Padel/?v=7
