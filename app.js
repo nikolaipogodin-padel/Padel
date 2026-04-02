@@ -1,1 +1,1 @@
-// Intentionally empty for the static mockup screen.
+// Static component-based screen matching the approved visual direction.
