@@ -2396,15 +2396,70 @@ async function fetchPlayerMatches(playerId) {
   return data || [];
 }
 
+function pad2(value) {
+  return String(value).padStart(2, '0');
+}
+
+function parseMatchDateTime(dateValue, timeValue) {
+  if (!dateValue) return null;
+  const dateString = String(dateValue).trim();
+  if (!dateString) return null;
+  const timeString = String(timeValue || '00:00').trim();
+  const normalizedTime = /^\d{1,2}:\d{2}/.test(timeString) ? timeString.slice(0, 5) : '00:00';
+  const parsed = new Date(`${dateString}T${normalizedTime}:00`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getPlayerMatchKind(matchDate, hasResult) {
+  if (hasResult) return 'completed';
+  const eventDate = parseMatchDateTime(matchDate.date, matchDate.time);
+  if (!eventDate) return 'upcoming';
+  const now = new Date();
+  const diffMinutes = (eventDate.getTime() - now.getTime()) / 60000;
+  if (diffMinutes <= 90 && diffMinutes >= -120) return 'live';
+  return 'upcoming';
+}
+
+function formatMatchMeta(dateValue, timeValue) {
+  const eventDate = parseMatchDateTime(dateValue, timeValue);
+  if (!eventDate) {
+    return {
+      dayLabel: dateValue || 'Date TBD',
+      timeLabel: timeValue || 'Time TBD'
+    };
+  }
+  const today = new Date();
+  const sameYear = today.getFullYear() === eventDate.getFullYear();
+  const sameDay = today.getFullYear() === eventDate.getFullYear() && today.getMonth() === eventDate.getMonth() && today.getDate() === eventDate.getDate();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const isTomorrow = tomorrow.getFullYear() === eventDate.getFullYear() && tomorrow.getMonth() === eventDate.getMonth() && tomorrow.getDate() === eventDate.getDate();
+  const dayLabel = sameDay
+    ? 'Today'
+    : isTomorrow
+      ? 'Tomorrow'
+      : eventDate.toLocaleDateString([], { month: 'short', day: 'numeric', ...(sameYear ? {} : { year: 'numeric' }) });
+  return {
+    dayLabel,
+    timeLabel: `${pad2(eventDate.getHours())}:${pad2(eventDate.getMinutes())}`
+  };
+}
+
 function normalizePlayerMatch(row) {
   const hasResult = row.team_a_score != null && row.team_b_score != null;
   const submittedBy = row.submitted_by_name || row.result_submitted_by_name || row.result_author_name || '';
+  const base = {
+    date: row.match_date || row.date || '',
+    time: row.match_time || row.time || ''
+  };
+  const kind = getPlayerMatchKind(base, hasResult);
+  const meta = formatMatchMeta(base.date, base.time);
   return {
     id: row.match_id || row.id,
     tournamentName: row.tournament_name || 'Tournament',
     stageName: row.stage_name || row.round_name || row.phase_name || 'Match',
-    date: row.match_date || row.date || '',
-    time: row.match_time || row.time || '',
+    date: base.date,
+    time: base.time,
     court: row.court_name || row.court || '',
     partnerName: row.partner_name || row.partner || 'TBD',
     opponents: [row.opponent_1_name, row.opponent_2_name].filter(Boolean),
@@ -2412,6 +2467,10 @@ function normalizePlayerMatch(row) {
     teamBScore: row.team_b_score,
     status: hasResult ? 'Completed' : 'Ready for result',
     submittedBy,
+    kind,
+    dayLabel: meta.dayLabel,
+    timeLabel: meta.timeLabel,
+    sortTs: parseMatchDateTime(base.date, base.time)?.getTime() || Number.MAX_SAFE_INTEGER,
     raw: row
   };
 }
@@ -2449,38 +2508,64 @@ async function refreshPlayerMatches() {
 function renderPlayerSummary() {
   if (!els.playerSummary) return;
   const player = getSelectedPlayer();
-  const matches = state.ui.playerMatches || [];
-  const completed = matches.filter(m => m.teamAScore != null && m.teamBScore != null).length;
-  const pending = matches.length - completed;
-  const submitted = matches.filter(m => m.submittedBy).length;
+  const matches = [...(state.ui.playerMatches || [])].sort((a, b) => a.sortTs - b.sortTs);
+  const completed = matches.filter(m => m.kind === 'completed').length;
+  const live = matches.filter(m => m.kind === 'live').length;
+  const pending = matches.filter(m => m.kind !== 'completed').length;
+  const focusMatch = matches.find(m => m.kind === 'live') || matches.find(m => m.kind === 'upcoming') || matches[0] || null;
+  const focusResult = focusMatch && focusMatch.teamAScore != null && focusMatch.teamBScore != null ? `${focusMatch.teamAScore} : ${focusMatch.teamBScore}` : 'Result pending';
+  const focusCta = focusMatch ? (focusMatch.kind === 'completed' ? 'Result saved' : 'Enter result') : 'Select player';
+  const focusTone = focusMatch?.kind === 'live' ? 'is-live' : (focusMatch?.kind === 'completed' ? 'is-complete' : 'is-next');
   const cards = [
-    ['Identity', player?.name || 'No player', player?.level || 'Approved club player'],
-    ['Matches', String(matches.length), 'Loaded from v2_my_match_cards'],
-    ['Pending', String(pending), pending ? 'Need result submission' : 'Everything is up to date'],
-    ['Submitted', String(submitted), 'Cards with known author']
+    `<article class="player-summary-card player-summary-card--focus ${focusTone}">
+      <div class="player-summary-header">
+        <span class="player-summary-kicker">${escapeHtml(player?.name || 'Player view')}</span>
+        <span class="player-status-pill ${focusMatch?.kind || 'idle'}">${escapeHtml(focusMatch?.kind === 'live' ? 'Live now' : focusMatch?.kind === 'completed' ? 'Latest result' : 'Next action')}</span>
+      </div>
+      <div class="player-focus-title">${escapeHtml(focusMatch ? focusMatch.stageName : 'Choose a player to load matches')}</div>
+      <div class="player-focus-meta">${escapeHtml(focusMatch ? `${focusMatch.dayLabel} · ${focusMatch.timeLabel} · ${focusMatch.court || 'Court TBD'}` : 'Only approved club players appear in the selector.')}</div>
+      <div class="player-focus-teams">You + ${escapeHtml(focusMatch?.partnerName || 'Partner TBD')} <span>vs</span> ${escapeHtml((focusMatch?.opponents || []).join(' / ') || 'Opponents TBD')}</div>
+      <div class="player-focus-footer">
+        <div>
+          <div class="player-focus-caption">${escapeHtml(focusMatch?.tournamentName || 'Tournament')}</div>
+          <strong>${escapeHtml(focusResult)}</strong>
+        </div>
+        ${focusMatch && focusMatch.kind !== 'completed' ? `<button class="btn-neon" type="button" data-submit-player-result="${escapeHtml(focusMatch.id)}">${escapeHtml(focusCta)}</button>` : `<div class="player-focus-note">${escapeHtml(focusMatch?.submittedBy ? `Submitted by ${focusMatch.submittedBy}` : focusCta)}</div>`}
+      </div>
+    </article>`,
   ];
-  els.playerSummary.innerHTML = cards.map(([label, value, note]) => `
-    <article class="player-summary-card">
-      <span class="player-summary-label">${escapeHtml(label)}</span>
-      <div class="player-summary-value">${escapeHtml(value)}</div>
-      <div class="player-summary-note">${escapeHtml(note)}</div>
-    </article>
-  `).join('');
+  [
+    ['Live', String(live), live ? 'Action right now' : 'No live matches'],
+    ['Pending', String(pending), pending ? 'Need your attention' : 'Everything is clear'],
+    ['Completed', String(completed), completed ? 'Saved with audit trail' : 'No finished matches yet']
+  ].forEach(([label, value, note]) => {
+    cards.push(`
+      <article class="player-summary-card">
+        <span class="player-summary-label">${escapeHtml(label)}</span>
+        <div class="player-summary-value">${escapeHtml(value)}</div>
+        <div class="player-summary-note">${escapeHtml(note)}</div>
+      </article>
+    `);
+  });
+  els.playerSummary.innerHTML = cards.join('');
+  els.playerSummary.querySelectorAll('[data-submit-player-result]').forEach(btn => {
+    btn.addEventListener('click', () => openPlayerResultModal(btn.dataset.submitPlayerResult));
+  });
 }
 
 function renderPlayerState() {
   if (!els.playerMatchesState) return;
   const role = getCurrentRole();
   if (role !== 'player') {
-    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Player mode is hidden.</strong><div>Choose the Player role in the access overlay to use this screen.</div></div>`;
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Player mode is hidden.</strong><div>Choose the Player role in the access overlay to open My Matches.</div></div>`;
     return;
   }
   if (!state.ui.playerSelectedId) {
-    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Select a player.</strong><div>Only approved club players appear in the selector.</div></div>`;
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Select a player.</strong><div>This screen becomes the player home once identity is selected.</div></div>`;
     return;
   }
   if (state.ui.playerMatchesLoading) {
-    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Loading matches…</strong><div>Requesting rows from v2_my_match_cards.</div></div>`;
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>Loading your match feed…</strong><div>Requesting rows from v2_my_match_cards.</div></div>`;
     return;
   }
   if (state.ui.playerMatchesError) {
@@ -2488,52 +2573,74 @@ function renderPlayerState() {
     return;
   }
   if (!(state.ui.playerMatches || []).length) {
-    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>No matches yet.</strong><div>Only the matches linked to the selected player are shown here.</div></div>`;
+    els.playerMatchesState.innerHTML = `<div class="player-state-card"><strong>No matches yet.</strong><div>Once a tournament creates your matches, they will appear here as your main player feed.</div></div>`;
     return;
   }
-  els.playerMatchesState.innerHTML = '';
+  els.playerMatchesState.innerHTML = `<div class="player-state-inline">Your player home is sorted by urgency: live, next, then completed history.</div>`;
 }
 
 function renderPlayerMatchesList() {
   if (!els.playerMatchesList) return;
-  const matches = state.ui.playerMatches || [];
+  const matches = [...(state.ui.playerMatches || [])].sort((a, b) => a.sortTs - b.sortTs);
   if (!matches.length || state.ui.playerMatchesLoading || state.ui.playerMatchesError || !canUsePlayerView()) {
     els.playerMatchesList.innerHTML = '';
     return;
   }
-  els.playerMatchesList.innerHTML = matches.map(match => {
-    const hasResult = match.teamAScore != null && match.teamBScore != null;
+
+  const groups = [
+    { key: 'live', title: 'Live / immediate', note: 'Matches that need attention right now.' },
+    { key: 'upcoming', title: 'Next matches', note: 'Your upcoming schedule in one flow.' },
+    { key: 'completed', title: 'Results history', note: 'Completed matches with saved author.' }
+  ];
+
+  const sectionHtml = groups.map(group => {
+    const items = matches.filter(match => match.kind === group.key);
+    if (!items.length) return '';
     return `
-      <article class="player-match-card">
-        <div class="player-match-top">
+      <section class="player-feed-section player-feed-section--${group.key}">
+        <div class="player-feed-head">
           <div>
-            <div class="player-match-kicker">${escapeHtml(match.tournamentName)}</div>
-            <div class="player-match-title">${escapeHtml(match.stageName)}</div>
+            <div class="player-feed-title">${escapeHtml(group.title)}</div>
+            <div class="player-feed-note">${escapeHtml(group.note)}</div>
           </div>
-          <div class="player-match-status ${hasResult ? 'completed' : ''}">${escapeHtml(match.status)}</div>
+          <div class="player-feed-count">${items.length}</div>
         </div>
-        <div class="player-match-meta">
-          <span class="player-chip">${escapeHtml(match.date || 'TBD')}</span>
-          <span class="player-chip">${escapeHtml(match.time || 'TBD')}</span>
-          <span class="player-chip">${escapeHtml(match.court || 'Court TBD')}</span>
+        <div class="player-feed-grid">
+          ${items.map(match => {
+            const hasResult = match.teamAScore != null && match.teamBScore != null;
+            const statusLabel = match.kind === 'live' ? 'LIVE NOW' : hasResult ? 'DONE' : 'UP NEXT';
+            return `
+              <article class="player-match-card player-match-card--${match.kind}">
+                <div class="player-match-topbar">
+                  <span class="player-status-pill ${match.kind}">${escapeHtml(statusLabel)}</span>
+                  <span class="player-match-club">${escapeHtml(match.tournamentName)}</span>
+                </div>
+                <div class="player-match-main">
+                  <div class="player-match-title-row">
+                    <div>
+                      <div class="player-match-stage">${escapeHtml(match.stageName)}</div>
+                      <div class="player-match-meta-row">${escapeHtml(match.dayLabel)} · ${escapeHtml(match.timeLabel)} · ${escapeHtml(match.court || 'Court TBD')}</div>
+                    </div>
+                    <div class="player-score-pill ${hasResult ? '' : 'is-empty'}">${hasResult ? `${escapeHtml(match.teamAScore)} : ${escapeHtml(match.teamBScore)}` : 'Pending'}</div>
+                  </div>
+                  <div class="player-team-block">
+                    <div class="player-team-row"><span class="label">Partner</span><strong>${escapeHtml(match.partnerName)}</strong></div>
+                    <div class="player-team-row"><span class="label">Opponents</span><strong>${escapeHtml(match.opponents.join(' / ') || 'TBD')}</strong></div>
+                  </div>
+                </div>
+                <div class="player-match-footer">
+                  <div class="player-submit-meta">${escapeHtml(match.submittedBy ? `Submitted by ${match.submittedBy}` : 'No result submitted yet')}</div>
+                  ${hasResult ? '<span class="player-card-done">Saved</span>' : `<button class="btn-neon" type="button" data-submit-player-result="${escapeHtml(match.id)}">Enter result</button>`}
+                </div>
+              </article>
+            `;
+          }).join('')}
         </div>
-        <div class="player-opponents">
-          <div class="player-line"><span>Partner</span><span>${escapeHtml(match.partnerName)}</span></div>
-          <div class="player-line"><span>Opponents</span><span>${escapeHtml(match.opponents.join(' / ') || 'TBD')}</span></div>
-        </div>
-        <div class="player-score">
-          <div class="player-score-pill ${hasResult ? '' : 'player-score-empty'}">${hasResult ? `${escapeHtml(match.teamAScore)} : ${escapeHtml(match.teamBScore)}` : 'No result yet'}</div>
-        </div>
-        <div class="player-submitted">
-          <div class="player-line"><span>Submitted by</span><span>${escapeHtml(match.submittedBy || 'Not submitted')}</span></div>
-        </div>
-        <div class="player-card-actions">
-          ${hasResult ? '' : `<button class="btn-neon" type="button" data-submit-player-result="${escapeHtml(match.id)}">Submit Result</button>`}
-        </div>
-      </article>
+      </section>
     `;
   }).join('');
 
+  els.playerMatchesList.innerHTML = sectionHtml;
   els.playerMatchesList.querySelectorAll('[data-submit-player-result]').forEach(btn => {
     btn.addEventListener('click', () => openPlayerResultModal(btn.dataset.submitPlayerResult));
   });
@@ -2550,26 +2657,40 @@ function renderPlayerView() {
 function openPlayerResultModal(matchId) {
   const match = (state.ui.playerMatches || []).find(item => String(item.id) === String(matchId));
   if (!match || !els.playerResultModal || !els.playerResultModalCard) return;
+  const hasResult = match.teamAScore != null && match.teamBScore != null;
   els.playerResultModalCard.innerHTML = `
-    <div class="modal-head">
+    <div class="modal-head player-modal-head">
       <div>
-        <div class="modal-title">Submit result</div>
+        <div class="modal-title">Enter match result</div>
         <div class="section-subtitle">${escapeHtml(match.tournamentName)} · ${escapeHtml(match.stageName)}</div>
       </div>
       <button class="btn ghost" type="button" data-close-player-result>Close</button>
     </div>
-    <form id="playerResultForm" class="player-result-form">
+    <div class="player-modal-teams">
+      <div class="player-modal-team">
+        <span class="player-modal-label">Team A</span>
+        <strong>You + ${escapeHtml(match.partnerName || 'Partner TBD')}</strong>
+      </div>
+      <div class="player-modal-vs">VS</div>
+      <div class="player-modal-team">
+        <span class="player-modal-label">Team B</span>
+        <strong>${escapeHtml((match.opponents || []).join(' / ') || 'Opponents TBD')}</strong>
+      </div>
+    </div>
+    <div class="player-modal-match-meta">${escapeHtml(match.dayLabel)} · ${escapeHtml(match.timeLabel)} · ${escapeHtml(match.court || 'Court TBD')}</div>
+    <form id="playerResultForm" class="player-result-form player-result-form--v2">
       <div class="player-result-grid">
-        <label>
-          <div class="section-subtitle">Team A</div>
-          <input class="input player-result-input" name="teamAScore" type="number" min="0" step="1" required placeholder="0" />
+        <label class="player-result-side">
+          <div class="section-subtitle">Your team score</div>
+          <input class="input player-result-input" name="teamAScore" type="number" min="0" step="1" required placeholder="0" value="${hasResult ? escapeHtml(String(match.teamAScore)) : ''}" />
         </label>
         <div class="player-result-vs">:</div>
-        <label>
-          <div class="section-subtitle">Team B</div>
-          <input class="input player-result-input" name="teamBScore" type="number" min="0" step="1" required placeholder="0" />
+        <label class="player-result-side">
+          <div class="section-subtitle">Opponent score</div>
+          <input class="input player-result-input" name="teamBScore" type="number" min="0" step="1" required placeholder="0" value="${hasResult ? escapeHtml(String(match.teamBScore)) : ''}" />
         </label>
       </div>
+      <div class="player-modal-note">Author is recorded automatically. Any of the 4 players or a club admin can submit the result.</div>
       <div class="player-card-actions">
         <button class="btn-neon alt" type="button" data-close-player-result>Cancel</button>
         <button class="btn-neon" type="submit">${state.ui.playerSubmitBusy ? 'Saving…' : 'Save result'}</button>
