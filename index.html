@@ -1,62 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Tournament OS — My Tournaments</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padel – My Tournaments</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app-bg"></div>
-  <main class="app-shell">
-    <header class="screen-header">
-      <h1>My Tournaments</h1>
+  <div class="phone-shell">
+    <header class="statusbar">
+      <div class="status-left">12:02 ▲</div>
+      <div class="status-right">▮▮▮ ))) ▭</div>
     </header>
 
-    <section class="board-card board-card--hero" aria-label="My tournaments section">
-      <div class="board-head">
-        <div class="racket-badge" aria-hidden="true">
-          <div class="racket"></div>
-          <div class="ball"></div>
-        </div>
-        <div class="board-title-wrap">
-          <div class="board-title">MY TOURNAMENTS</div>
-          <div class="board-line"></div>
-        </div>
+    <section class="brandbar">
+      <div class="brand-logo" aria-hidden="true">
+        <span class="ball"></span>
+        <span class="swoosh"></span>
       </div>
-      <div id="myTournamentList" class="card-stack"></div>
+      <div class="brand-title">PADEL</div>
+      <div class="mail-icon" aria-label="notifications">
+        ✉
+        <span class="badge">5</span>
+      </div>
     </section>
 
-    <section class="section-band" aria-hidden="true">
-      <span></span>
-      <strong>AVAILABLE TOURNAMENTS</strong>
-      <span></span>
-    </section>
+    <main class="content">
+      <h1 class="page-title">My Tournaments</h1>
 
-    <section class="board-card board-card--list" aria-label="Available tournaments section">
-      <div id="availableTournamentList" class="card-stack"></div>
-    </section>
-  </main>
+      <section class="glass-panel home-panel">
+        <div class="section-ribbon my-ribbon">
+          <div class="section-ribbon__icon racket-mark racket-mark--large" aria-hidden="true">
+            <span></span><span></span>
+          </div>
+          <div class="section-ribbon__title">MY TOURNAMENTS</div>
+        </div>
 
-  <nav class="bottom-nav" aria-label="Bottom navigation">
-    <a class="nav-item" href="new-tournaments.html">
-      <span class="nav-icon calendar"></span>
-      <span class="nav-label">New Tournaments</span>
-    </a>
-    <a class="nav-item" href="history.html">
-      <span class="nav-icon history"></span>
-      <span class="nav-label">My History</span>
-    </a>
-    <a class="nav-item" href="profile.html">
-      <span class="nav-icon profile"></span>
-      <span class="nav-label">My Profile</span>
-    </a>
-  </nav>
+        <article class="tournament-card clickable">
+          <div class="card-icon racket-mark"><span></span><span></span></div>
+          <div class="card-body">
+            <h2>Padel Cup Weekend</h2>
+            <div class="meta club">Padel Club Riga</div>
+            <div class="meta">Starts: Today · 18:30</div>
+            <div class="chips">
+              <span class="chip chip-green">In Progress</span>
+              <span class="chip chip-orange">Group Stage</span>
+            </div>
+            <div class="meta bottom">Team: Dynamic Duo</div>
+          </div>
+        </article>
 
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+        <article class="tournament-card clickable">
+          <div class="card-icon racket-mark"><span></span><span></span></div>
+          <div class="card-body">
+            <h2>City Night Padel</h2>
+            <div class="meta club">Sky Padel Arena</div>
+            <div class="meta">Starts: Sat · May 3 · 20:00</div>
+            <div class="chips">
+              <span class="chip chip-green">Joined</span>
+              <span class="chip chip-orange">Joined</span>
+            </div>
+            <div class="meta bottom">Format: Americano</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section-ribbon section-ribbon--standalone available-ribbon">
+        <div class="section-ribbon__title section-ribbon__title--center">AVAILABLE TOURNAMENTS</div>
+      </section>
+
+      <section class="glass-panel available-panel">
+        <article class="tournament-card clickable">
+          <div class="card-icon trophy-mark" aria-hidden="true"></div>
+          <div class="card-body">
+            <h2>Weekly Padel Challenge</h2>
+            <div class="meta club">Moonlight Club</div>
+            <div class="meta">Starts: Tomorrow · 19:00</div>
+            <div class="chips">
+              <span class="chip chip-green">Open</span>
+              <span class="chip chip-orange">Join available</span>
+            </div>
+            <div class="meta bottom">Mixed Doubles · 8 spots left</div>
+          </div>
+        </article>
+
+        <article class="tournament-card clickable">
+          <div class="card-icon trophy-mark" aria-hidden="true"></div>
+          <div class="card-body">
+            <h2>Weekend Mix Cup</h2>
+            <div class="meta club">Sun Padel Club</div>
+            <div class="meta">Starts: May 10 · 14:00</div>
+            <div class="chips">
+              <span class="chip chip-green">Open</span>
+              <span class="chip chip-orange">Join available</span>
+            </div>
+            <div class="meta bottom">Fast4 · 12 players</div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🗓</span>
+        <span class="nav-label">New Tournaments</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">My History</span>
+      </a>
+      <a href="#" class="nav-item active">
+        <span class="nav-icon">◉</span>
+        <span class="nav-label">My Profile</span>
+      </a>
+    </nav>
+  </div>
 </body>
 </html>

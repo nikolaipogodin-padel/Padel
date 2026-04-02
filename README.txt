@@ -1,9 +1,14 @@
-Fixed player home package.
+Tournament OS – Player Home screen
 
-Changes:
-- removed alert popup on tournament card tap
-- added real bottom navigation with one My Profile item
-- enabled full page scroll on mobile
-- home screen shows only My Tournaments and Available Tournaments
-- finished tournaments moved to My History
-- each card opens tournament.html instead of a browser alert
+Files:
+- index.html
+- styles.css
+- app.js
+
+Notes:
+- Static demo screen based on the approved visual direction.
+- Full-card click style is visual only in this mockup.
+- Bottom navigation is fixed and visible.
+- Main screen shows only:
+  * My Tournaments
+  * Available Tournaments
