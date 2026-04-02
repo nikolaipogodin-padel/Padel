@@ -1,16 +1,15 @@
-Padel Club v19 prod debug neon
+Tournament OS — Player Home mock
 
-Included:
-- darker, more readable neon theme based on uploaded design
-- Player role and Player Matches screen
-- Debug layer (floating Debug button)
-- Player match loading from v2_my_match_cards
-- Submit result via v2_submit_match_result with fallback payload attempts
+Files:
+- index.html
+- styles.css
+- app.js
 
-Notes:
-- Use Debug button to inspect role, selected player, rows loaded, and RPC errors.
-- If RPC signature differs, debug panel will show each failed payload.
+Open index.html in a browser.
 
-v21: cyber glass reframe closer to reference.
-
-v22: card-first / mobile-product-like refit.
+This build contains:
+- My Tournaments block (live + joined only)
+- Available Tournaments block
+- Bottom navigation: New Tournaments / My History / My Profile
+- Clickable cards
+- Finished tournaments removed from the home screen and moved to History
