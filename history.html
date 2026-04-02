@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Tournament OS — My Tournaments</title>
+  <title>Tournament OS — My History</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,41 +12,17 @@
 <body>
   <div class="app-bg"></div>
   <main class="app-shell">
-    <header class="screen-header">
-      <h1>My Tournaments</h1>
-    </header>
-
-    <section class="board-card board-card--hero" aria-label="My tournaments section">
-      <div class="board-head">
-        <div class="racket-badge" aria-hidden="true">
-          <div class="racket"></div>
-          <div class="ball"></div>
-        </div>
-        <div class="board-title-wrap">
-          <div class="board-title">MY TOURNAMENTS</div>
-          <div class="board-line"></div>
-        </div>
-      </div>
-      <div id="myTournamentList" class="card-stack"></div>
-    </section>
-
-    <section class="section-band" aria-hidden="true">
-      <span></span>
-      <strong>AVAILABLE TOURNAMENTS</strong>
-      <span></span>
-    </section>
-
-    <section class="board-card board-card--list" aria-label="Available tournaments section">
-      <div id="availableTournamentList" class="card-stack"></div>
+    <header class="screen-header"><h1>My History</h1></header>
+    <section class="board-card board-card--list">
+      <div id="historyTournamentList" class="card-stack"></div>
     </section>
   </main>
-
   <nav class="bottom-nav" aria-label="Bottom navigation">
     <a class="nav-item" href="new-tournaments.html">
       <span class="nav-icon calendar"></span>
       <span class="nav-label">New Tournaments</span>
     </a>
-    <a class="nav-item" href="history.html">
+    <a class="nav-item is-active" href="history.html">
       <span class="nav-icon history"></span>
       <span class="nav-label">My History</span>
     </a>
@@ -55,7 +31,6 @@
       <span class="nav-label">My Profile</span>
     </a>
   </nav>
-
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tournament OS — Tournament</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-bg"></div>
+  <main class="app-shell">
+    <a class="back-link" href="index.html">Back to My Tournaments</a>
+    <header class="screen-header"><h1 id="detailTitle">Tournament</h1></header>
+    <section class="board-card detail-card">
+      <div class="detail-row"><div class="detail-label">Club</div><div class="detail-value" id="detailClub"></div></div>
+      <div class="detail-row"><div class="detail-label">Start</div><div class="detail-value" id="detailDate"></div></div>
+      <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value" id="detailStatus"></div></div>
+      <div class="detail-row"><div class="detail-label">Details</div><div class="detail-value" id="detailMeta"></div></div>
+      <div class="detail-row"><div class="detail-label">Note</div><div class="detail-value" id="detailDescription"></div></div>
+    </section>
+  </main>
+  <script src="data.js"></script>
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      const all = [...window.TOURNAMENT_DATA.my, ...window.TOURNAMENT_DATA.available, ...window.TOURNAMENT_DATA.history];
+      const item = all.find(x => x.id === id) || all[0];
+      document.getElementById('detailTitle').textContent = item.name;
+      document.getElementById('detailClub').textContent = item.club;
+      document.getElementById('detailDate').textContent = item.dateLabel;
+      document.getElementById('detailStatus').textContent = item.status;
+      document.getElementById('detailMeta').textContent = item.meta;
+      document.getElementById('detailDescription').textContent = item.description;
+    })();
+  </script>
+</body>
+</html>
