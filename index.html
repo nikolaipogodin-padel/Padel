@@ -1,725 +1,543 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tournament OS — v8</title>
+  <title>Tournament OS</title>
   <style>
     :root{
-      --bg-1:#16314f;
-      --bg-2:#234d76;
-      --bg-3:#24563a;
-      --panel:rgba(17,35,56,.78);
-      --panel-strong:rgba(22,42,66,.92);
-      --panel-soft:rgba(255,255,255,.08);
-      --line:rgba(255,255,255,.12);
-      --line-strong:rgba(255,255,255,.18);
-      --text:#ffffff;
-      --muted:#c9d4e0;
-      --muted-2:#9eb2c6;
+      --bg:#07131b;
+      --panel: rgba(10, 24, 33, 0.58);
+      --panel-strong: rgba(11, 24, 33, 0.72);
+      --line: rgba(255,255,255,.10);
+      --line-soft: rgba(255,255,255,.06);
+      --text:#f5f7fa;
+      --muted:#c5d0d9;
+      --soft:#95a9b7;
       --green:#39d353;
-      --green-soft:rgba(57,211,83,.14);
+      --green-soft:rgba(57,211,83,.16);
       --orange:#ff8c1a;
       --orange-soft:rgba(255,140,26,.14);
-      --blue:#62b0ff;
-      --shadow:0 18px 60px rgba(0,0,0,.35);
-      --radius-xl:28px;
-      --radius-lg:22px;
-      --radius-md:18px;
-      --radius-sm:14px;
-      --screen:390px;
+      --shadow: 0 18px 54px rgba(0,0,0,.34);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --nav-h: 84px;
+      --max: 390px;
+      --blur: blur(18px) saturate(140%);
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:
-      radial-gradient(circle at 10% 0%, rgba(255,255,255,.08), transparent 26%),
-      radial-gradient(circle at 100% 0%, rgba(93, 176, 255, .12), transparent 30%),
-      linear-gradient(180deg, #2e4e7e 0%, #20496f 42%, #22482f 100%);
-      overflow-x:hidden}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: #03080d;
+      -webkit-font-smoothing:antialiased;
+      overflow:hidden;
+    }
     body::before{
       content:"";
       position:fixed; inset:0;
       background:
-        radial-gradient(circle at center, rgba(255,255,255,.06) 0 1px, transparent 1px 100%),
-        linear-gradient(120deg, rgba(255,255,255,.03), rgba(255,255,255,0));
-      background-size:24px 24px, auto;
-      opacity:.22;
-      pointer-events:none;
-      mix-blend-mode:screen;
+        radial-gradient(80% 60% at 50% 0%, rgba(92,116,255,.18), transparent 60%),
+        radial-gradient(60% 45% at 50% 100%, rgba(57,211,83,.14), transparent 55%),
+        linear-gradient(180deg, rgba(3,8,13,.25), rgba(3,8,13,.72)),
+        url('assets/background.jpg') center/cover no-repeat;
+      filter:saturate(108%);
+      transform:scale(1.03);
     }
     body::after{
       content:"";
       position:fixed; inset:0;
       background:
-        radial-gradient(circle at 50% 115%, rgba(95, 193, 124, .18), transparent 32%),
-        radial-gradient(circle at 18% 10%, rgba(120, 180, 255, .16), transparent 24%);
+        linear-gradient(180deg, rgba(1,4,8,.28) 0%, rgba(1,4,8,.54) 34%, rgba(1,4,8,.84) 100%),
+        radial-gradient(circle at 50% 75%, transparent 0%, rgba(0,0,0,.16) 58%, rgba(0,0,0,.44) 100%);
       pointer-events:none;
     }
-    a{color:inherit;text-decoration:none}
-    button{font:inherit}
     .app{
-      max-width:var(--screen);
-      margin:0 auto;
-      min-height:100vh;
       position:relative;
-      padding:18px 16px 110px;
+      z-index:2;
+      width:100%; height:100%;
+      display:flex; justify-content:center;
+      padding:0;
     }
-    .top-glass{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; margin-bottom:18px;
+    .phone{
+      position:relative;
+      width:100%; max-width:var(--max); height:100%;
+      display:flex; flex-direction:column;
+      margin:0 auto;
     }
+    .screen{
+      flex:1; overflow:auto; padding:18px 16px calc(var(--nav-h) + 16px);
+      scrollbar-width:none;
+    }
+    .screen::-webkit-scrollbar{display:none}
+    .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding-top:2px}
     .brand{
       display:flex; align-items:center; gap:12px;
-      min-width:0;
-      cursor:pointer;
+      background:rgba(255,255,255,.05); border:1px solid var(--line-soft); padding:10px 12px; border-radius:18px;
+      backdrop-filter:var(--blur); box-shadow:var(--shadow);
     }
     .brand-mark{
-      width:48px; height:48px; border-radius:18px;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.05)),
-        linear-gradient(145deg, #1c4268, #2d6f48);
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow:0 12px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.16);
-      display:grid; place-items:center; flex:0 0 auto;
+      width:36px; height:36px; border-radius:12px;
+      background:linear-gradient(135deg, rgba(57,211,83,.28), rgba(255,255,255,.08));
+      display:grid; place-items:center; border:1px solid rgba(255,255,255,.08);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.15);
+      color:var(--green);
     }
-    .brand-mark::before{
-      content:"";
-      width:20px; height:20px; border-radius:999px;
-      border:2px solid rgba(255,255,255,.95);
-      box-shadow:0 0 0 5px rgba(255,255,255,.08);
-      transform:translateY(-1px);
-    }
-    .brand-copy{min-width:0}
-    .eyebrow{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted-2); margin-bottom:4px}
-    .brand-title{font-size:22px; font-weight:800; line-height:1; letter-spacing:-.02em}
-    .icon-btn{
-      width:44px; height:44px; border-radius:16px; border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08); color:var(--text); cursor:pointer;
-      display:grid; place-items:center; box-shadow:var(--shadow);
-      backdrop-filter: blur(18px);
+    .brand small{display:block; color:var(--soft); font-size:11px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:2px}
+    .brand strong{font-size:15px; font-weight:700}
+    .ghost-btn{
+      width:42px; height:42px; border-radius:14px; border:1px solid var(--line-soft); background:rgba(255,255,255,.05);
+      color:var(--text); display:grid; place-items:center; backdrop-filter:var(--blur); box-shadow:var(--shadow); cursor:pointer;
     }
     .hero{
-      position:relative; overflow:hidden;
-      border-radius:30px; padding:22px;
-      background:
-        linear-gradient(145deg, rgba(18,35,55,.86), rgba(20,48,72,.74)),
-        radial-gradient(circle at 100% 0%, rgba(98,176,255,.18), transparent 34%);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow: var(--shadow);
+      position:relative;
+      border-radius:30px;
+      padding:22px 20px 18px;
+      background:linear-gradient(180deg, rgba(12,26,37,.64), rgba(11,20,29,.78));
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.12);
+      backdrop-filter:blur(22px) saturate(140%);
+      overflow:hidden;
       margin-bottom:18px;
-      backdrop-filter: blur(18px);
     }
     .hero::before{
-      content:"";
-      position:absolute; right:-22px; top:-28px; width:150px; height:150px;
-      border-radius:999px;
-      background:radial-gradient(circle, rgba(57,211,83,.18), rgba(57,211,83,0));
-      filter:blur(10px);
+      content:""; position:absolute; inset:auto -12% 52% auto; width:180px; height:180px; border-radius:50%;
+      background:radial-gradient(circle, rgba(57,211,83,.22), transparent 64%);
+      filter:blur(4px);
     }
-    .hero-row{display:flex; justify-content:space-between; gap:16px; align-items:flex-start}
-    .hero h1{margin:2px 0 8px; font-size:32px; line-height:1; letter-spacing:-.04em}
-    .hero p{margin:0; color:var(--muted); font-size:14px; line-height:1.45; max-width:220px}
-    .hero-icon{
-      width:66px;height:66px;border-radius:22px;
-      background:linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.04));
-      border:1px solid rgba(255,255,255,.16); box-shadow:0 0 32px rgba(98,176,255,.16);
-      display:grid; place-items:center; flex:0 0 auto; margin-top:2px;
+    .eyebrow{color:#d4dde5; font-size:11px; text-transform:uppercase; letter-spacing:.18em; opacity:.8}
+    h1{margin:8px 0 10px; font-size:34px; line-height:1.02; letter-spacing:-.04em}
+    .hero p{margin:0 0 18px; color:var(--muted); font-size:14px; line-height:1.45; max-width:290px}
+    .hero-row{display:flex; gap:10px; flex-wrap:wrap}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px; min-height:30px; padding:7px 11px;
+      border-radius:999px; background:rgba(255,255,255,.06); border:1px solid var(--line-soft); color:#eef4f8; font-size:12px; font-weight:600;
     }
-    .hero-icon .court{
-      width:32px;height:32px;border-radius:999px;border:2px solid white; position:relative;
-    }
-    .hero-icon .court:before,.hero-icon .court:after{
-      content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      background:white;
-    }
-    .hero-icon .court:before{ width:2px; height:22px;}
-    .hero-icon .court:after{ width:22px; height:2px;}
-    .hero-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px}
-    .stat{
-      padding:12px 12px 11px; border-radius:18px; background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .stat-label{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-2)}
-    .stat-value{margin-top:6px; font-size:19px; font-weight:800; letter-spacing:-.03em}
-    .section-label{
-      height:34px; border-radius:999px; padding:0 14px; display:flex; align-items:center;
-      font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
-      color:white; margin:18px 0 12px;
-      background:linear-gradient(90deg, rgba(57,211,83,.92), rgba(51,160,84,.54));
-      box-shadow:0 8px 24px rgba(57,211,83,.18);
-    }
-    .card-list{display:flex; flex-direction:column; gap:12px}
-    .card{
-      position:relative; overflow:hidden;
-      background:rgba(36,63,94,.82);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:22px; padding:16px;
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(18px);
-      cursor:pointer;
-      transition:transform .18s ease, border-color .18s ease, background .18s ease;
-    }
-    .card:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.18)}
-    .card-head{display:flex; gap:14px; align-items:flex-start}
-    .card-icon{
-      width:56px; height:56px; border-radius:18px; flex:0 0 auto;
-      background:linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.04));
-      border:1px solid rgba(255,255,255,.14);
-      display:grid; place-items:center;
-      box-shadow:0 0 24px rgba(98,176,255,.14);
-    }
-    .emoji{font-size:26px; line-height:1}
-    .card-main{min-width:0; flex:1}
-    .card-title{font-size:21px; font-weight:800; letter-spacing:-.03em; line-height:1.05; margin:0 0 8px}
-    .card-meta{display:flex; flex-wrap:wrap; gap:6px 8px; margin-bottom:10px}
-    .meta-pill{
-      min-height:24px; padding:0 10px; border-radius:999px; display:inline-flex; align-items:center;
-      font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-      background:rgba(255,255,255,.08); color:var(--muted);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .badge{height:24px; padding:0 10px; border-radius:999px; display:inline-flex; align-items:center; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase}
-    .badge.green{background:var(--green-soft); color:#7ef18f; border:1px solid rgba(57,211,83,.24)}
-    .badge.orange{background:var(--orange-soft); color:#ffc175; border:1px solid rgba(255,140,26,.24)}
-    .badge.blue{background:rgba(98,176,255,.14); color:#9bc7ff; border:1px solid rgba(98,176,255,.24)}
-    .card-sub{color:var(--muted); font-size:14px; line-height:1.45}
-    .card-foot{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:14px}
-    .linkish{font-size:13px; color:#dbe8f5; font-weight:700}
-    .subtle{font-size:12px; color:var(--muted-2)}
-    .screen{display:none}
-    .screen.active{display:block}
-    .toolbar{
-      display:flex; align-items:center; gap:10px; margin-bottom:14px;
-    }
-    .back{
-      width:42px;height:42px;border:none;border-radius:14px; background:rgba(255,255,255,.08);
-      color:white; display:grid; place-items:center; cursor:pointer; border:1px solid rgba(255,255,255,.1)
-    }
-    .screen-title{font-size:28px; font-weight:800; letter-spacing:-.04em; margin:0}
-    .screen-sub{margin:4px 0 0; color:var(--muted); font-size:13px}
-    .detail-hero{padding:18px; border-radius:24px; background:rgba(16,31,49,.8); border:1px solid rgba(255,255,255,.1); box-shadow:var(--shadow);}
-    .detail-top{display:flex; gap:14px; align-items:flex-start}
-    .detail-hero h2{margin:0 0 8px; font-size:26px; letter-spacing:-.04em}
-    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
-    .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 0}
-    .tab{
-      border:none; min-height:42px; border-radius:15px; cursor:pointer;
-      background:rgba(255,255,255,.07); color:var(--muted); font-weight:700;
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .tab.active{background:rgba(255,255,255,.14); color:white; border-color:rgba(255,255,255,.16)}
-    .panel{
-      background:rgba(18,34,53,.78); border:1px solid rgba(255,255,255,.08); border-radius:22px; padding:16px; box-shadow:var(--shadow)
-    }
-    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    .info{
-      padding:12px; border-radius:16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07)
-    }
-    .info-label{font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.08em}
-    .info-value{margin-top:5px; font-size:16px; font-weight:800; letter-spacing:-.02em}
-    .stack{display:flex; flex-direction:column; gap:12px}
-    .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .btn-row{display:flex; gap:10px; margin-top:16px}
+    .chip.green{background:var(--green-soft); color:#bdf4c7; border-color:rgba(57,211,83,.22)}
+    .chip.orange{background:var(--orange-soft); color:#ffd2a6; border-color:rgba(255,140,26,.22)}
+    .hero-actions{display:flex; gap:10px; margin-top:18px}
     .btn{
-      min-height:48px; padding:0 16px; border-radius:16px; border:none; cursor:pointer; font-weight:800;
-      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      height:44px; border:none; border-radius:16px; padding:0 16px; font-weight:700; cursor:pointer;
+      display:inline-flex; align-items:center; gap:10px; font-size:14px;
     }
-    .btn.primary{background:linear-gradient(135deg, #4fd96b, #2cb24f); color:#09240f; box-shadow:0 12px 24px rgba(57,211,83,.25)}
-    .btn.secondary{background:rgba(255,255,255,.08); color:white; border:1px solid rgba(255,255,255,.1)}
-    .btn.warn{background:linear-gradient(135deg, #ffb35f, #ff8c1a); color:#301700}
-    .match-card,.player-row,.feed-row,.standing-row{
-      padding:14px; border-radius:18px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07)
+    .btn-primary{background:linear-gradient(180deg, #42dc5b, #2ec648); color:#04110a; box-shadow:0 12px 24px rgba(57,211,83,.24)}
+    .btn-secondary{background:rgba(255,255,255,.06); color:var(--text); border:1px solid var(--line-soft); backdrop-filter:var(--blur)}
+    .section-head{
+      margin:18px 0 12px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:8px;
     }
-    .match-score{font-size:20px; font-weight:900; letter-spacing:-.04em}
-    .smallcaps{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-2)}
-    .player-row,.standing-row,.feed-row{display:flex; align-items:center; justify-content:space-between; gap:12px}
-    .rank{width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-weight:800}
-    .avatar{
-      width:36px;height:36px;border-radius:13px;background:linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
-      border:1px solid rgba(255,255,255,.1); display:grid; place-items:center; font-weight:800; color:#dff1ff
+    .band{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px;
+      background:linear-gradient(90deg, rgba(57,211,83,.18), rgba(57,211,83,.06));
+      border:1px solid rgba(57,211,83,.16);
+      color:#dffbe4; font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:800;
     }
-    .person{display:flex; align-items:center; gap:10px; min-width:0}
-    .person-meta{min-width:0}
-    .name{font-weight:800; letter-spacing:-.02em}
-    .muted{color:var(--muted); font-size:13px}
+    .text-link{color:var(--muted); font-size:13px}
+    .stack{display:grid; gap:12px}
+    .card{
+      position:relative;
+      padding:16px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(11,22,30,.70), rgba(8,17,24,.76));
+      border:1px solid rgba(255,255,255,.09);
+      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+      backdrop-filter:var(--blur);
+      cursor:pointer;
+      overflow:hidden;
+    }
+    .card::after{
+      content:""; position:absolute; inset:-40% auto auto 62%; width:140px; height:140px; border-radius:50%;
+      background:radial-gradient(circle, rgba(255,255,255,.08), transparent 62%);
+      pointer-events:none;
+    }
+    .card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px}
+    .icon-badge{
+      width:46px; height:46px; border-radius:15px; flex:0 0 auto;
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.08);
+      display:grid; place-items:center; color:var(--green);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+    }
+    .card-title{font-size:21px; line-height:1.08; font-weight:800; letter-spacing:-.03em; margin:2px 0 4px}
+    .card-sub{font-size:13px; color:var(--muted)}
+    .meta-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
+    .meta-box{padding:10px 12px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid var(--line-soft)}
+    .meta-box .k{font-size:11px; color:var(--soft); text-transform:uppercase; letter-spacing:.12em; margin-bottom:4px}
+    .meta-box .v{font-size:13px; font-weight:700}
+    .match-card .meta-grid{grid-template-columns:1fr 1fr}
+    .status-row{display:flex; gap:8px; flex-wrap:wrap}
+    .split{display:flex; gap:12px; align-items:center}
+    .grow{flex:1}
+    .mini{font-size:12px; color:var(--muted)}
+    .detail-header{
+      display:flex; flex-direction:column; gap:14px; margin-bottom:16px;
+    }
+    .backline{display:flex; align-items:center; gap:10px}
+    .tabs{display:flex; gap:8px; overflow:auto; padding-bottom:2px; scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{
+      white-space:nowrap;
+      height:38px; padding:0 14px; border-radius:999px; border:1px solid var(--line-soft);
+      background:rgba(255,255,255,.05); color:var(--muted); font-weight:700; cursor:pointer;
+    }
+    .tab.active{background:rgba(57,211,83,.16); color:#daf8df; border-color:rgba(57,211,83,.22)}
+    .list-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line-soft)}
+    .list-row:last-child{border-bottom:none}
+    .rank{width:28px; height:28px; border-radius:10px; background:rgba(255,255,255,.05); border:1px solid var(--line-soft); display:grid; place-items:center; font-weight:800; color:#f9fbfd; font-size:13px}
+    .activity{display:grid; gap:10px}
+    .activity-item{padding:12px 14px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid var(--line-soft)}
+    .activity-item strong{display:block; font-size:13px; margin-bottom:3px}
+    .activity-item span{display:block; color:var(--muted); font-size:12px}
+    .profile-card{text-align:center; padding:22px 16px}
+    .avatar{width:78px; height:78px; border-radius:24px; margin:0 auto 12px; background:linear-gradient(180deg, rgba(57,211,83,.22), rgba(255,255,255,.06)); border:1px solid rgba(255,255,255,.08); display:grid; place-items:center; font-size:28px; font-weight:900; color:#dffbe4}
     .nav{
-      position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
-      width:min(calc(100vw - 24px), 390px);
+      position:absolute; left:12px; right:12px; bottom:12px;
       display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
-      padding:10px; border-radius:26px;
-      background:rgba(15,28,44,.82);
-      border:1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(18px);
-      box-shadow:0 20px 50px rgba(0,0,0,.35);
-      z-index:20;
+      padding:10px;
+      border-radius:24px;
+      background:rgba(8,17,24,.72);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.10);
+      backdrop-filter:blur(24px) saturate(150%);
     }
     .nav-btn{
-      min-height:58px; border:none; border-radius:18px; background:transparent; color:var(--muted); cursor:pointer;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+      min-height:58px; border:none; border-radius:18px; background:transparent; color:var(--soft);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; font-size:11px; font-weight:700;
     }
-    .nav-btn.active{background:rgba(255,255,255,.09); color:white}
-    .nav-ico{font-size:18px; line-height:1}
-    .toast{
-      position:fixed; left:50%; top:18px; transform:translateX(-50%) translateY(-14px); opacity:0;
-      padding:12px 16px; border-radius:16px; background:rgba(11,23,36,.94); color:white; border:1px solid rgba(255,255,255,.12);
-      box-shadow:var(--shadow); pointer-events:none; transition:.2s ease; z-index:30;
-    }
-    .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
-    .empty{
-      padding:20px 16px; text-align:center; color:var(--muted); background:rgba(255,255,255,.05); border-radius:20px; border:1px dashed rgba(255,255,255,.14)
+    .nav-btn.active{background:rgba(255,255,255,.06); color:#f7fafc}
+    .hidden{display:none !important}
+    .muted{color:var(--muted)}
+    .row-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    .pill-score{padding:8px 10px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid var(--line-soft); font-weight:700; font-size:13px}
+    .empty{padding:18px; border-radius:20px; background:rgba(255,255,255,.04); border:1px dashed rgba(255,255,255,.16); color:var(--muted); text-align:center}
+    @media (max-width:370px){
+      h1{font-size:31px}
+      .card-title{font-size:19px}
+      .meta-grid{grid-template-columns:1fr 1fr}
     }
   </style>
 </head>
 <body>
-  <div class="toast" id="toast"></div>
-  <div class="app">
-    <section id="home" class="screen active"></section>
-    <section id="matches" class="screen"></section>
-    <section id="history" class="screen"></section>
-    <section id="profile" class="screen"></section>
-    <section id="detail" class="screen"></section>
+<div class="app">
+  <div class="phone">
+    <div id="screen" class="screen"></div>
+    <nav class="nav" id="nav"></nav>
   </div>
-  <nav class="nav" id="nav"></nav>
-  <script>
-    const seed = {
-      currentProfileId: "p1",
-      profiles: [
-        { id:"p1", display_name:"Nikolajs P", level:"All-round", club_ids:["c1","c2"] },
-        { id:"p2", display_name:"Marek Z", level:"Control" },
-        { id:"p3", display_name:"Eriks V", level:"Aggressive" },
-        { id:"p4", display_name:"Atis K", level:"Balanced" },
-        { id:"p5", display_name:"Janis R", level:"Control" },
-        { id:"p6", display_name:"Deniss L", level:"All-round" }
+</div>
+<script>
+(() => {
+  const icons = {
+    court:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14M3 12h18"/></svg>`,
+    bell:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17h5l-1.4-1.4a2 2 0 0 1-.6-1.4V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>`,
+    home:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V21h14V9.8"/></svg>`,
+    matches:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5 4.5 9 15 19.5l4.5-4.5z"/><path d="m14 5 5 5"/></svg>`,
+    history:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>`,
+    profile:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg>`,
+    arrow:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
+    star:`<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 2.9 6 6.6.8-4.8 4.5 1.2 6.5-5.9-3.2-5.9 3.2 1.2-6.5L2.5 8.8l6.6-.8z"/></svg>`
+  };
+
+  const state = {
+    view:'home',
+    detailId:'t1',
+    detailTab:'overview',
+    me:'p1',
+    profiles:[
+      {id:'p1', name:'Nikolajs Pogodins', level:'Advanced', club:'Padel Riga'},
+      {id:'p2', name:'Andrey Zhdan'},
+      {id:'p3', name:'Mark Sokolov'},
+      {id:'p4', name:'Atis Berzins'},
+      {id:'p5', name:'Katrina Ozola'},
+      {id:'p6', name:'Eriks Jansons'},
+      {id:'p7', name:'Maksim Petrov'},
+      {id:'p8', name:'Deniss Volkovs'}
+    ],
+    tournaments:[
+      {id:'t1', name:'Evening League • Riga', club:'Padel Riga', date:'Today · 19:30', court:'Court 2', status:'live', format:'Americano', players:16, capacity:16, venue:'Arena Center', badge:'LIVE', accent:'green', description:'Fast evening round with live standings and self-submitted results.'},
+      {id:'t2', name:'Saturday Open • Jurmala', club:'Jurmala Padel', date:'Sat · 10:00', court:'Center', status:'joined', format:'Mexicano', players:12, capacity:16, venue:'Beach Dome', badge:'JOINED', accent:'green', description:'Weekend open with dynamic reseeding and simple match flow.'},
+      {id:'t3', name:'Spring Cup • Daugavpils', club:'Daugavpils Club', date:'Sun · 14:00', court:'Court 1', status:'available', format:'Group Stage', players:10, capacity:16, venue:'D-Padel Hall', badge:'OPEN', accent:'orange', description:'Open registration. Join now and get auto-scheduled matches.'},
+      {id:'t4', name:'Night Session • Riga', club:'Padel Riga', date:'Mon · 21:00', court:'Court 3', status:'available', format:'Americano', players:7, capacity:12, venue:'Arena Center', badge:'OPEN', accent:'orange', description:'Compact late evening session with premium pace and short rounds.'},
+      {id:'t5', name:'Winter Finals', club:'Padel Riga', date:'Finished', court:'Court 1', status:'finished', format:'Playoff', players:16, capacity:16, venue:'Arena Center', badge:'FINISHED', accent:'green', description:'Completed tournament archived in history.'}
+    ],
+    standings:{
+      t1:[
+        {player:'Nikolajs Pogodins', pts:9, diff:'+11'},
+        {player:'Mark Sokolov', pts:8, diff:'+7'},
+        {player:'Atis Berzins', pts:6, diff:'+2'},
+        {player:'Andrey Zhdan', pts:5, diff:'-1'}
       ],
-      clubs: [
-        { id:"c1", name:"Riga Padel Club", city:"Riga" },
-        { id:"c2", name:"Daugavpils Padel", city:"Daugavpils" }
-      ],
-      tournaments: [
-        { id:"t1", club_id:"c1", name:"Spring Open 250", format:"Americano", status:"live", start_at:"2026-04-05T10:00:00", venue:"Riga Padel Club", max_players:16, joined_count:12, description:"Fast Saturday event with rolling results and live standings." },
-        { id:"t2", club_id:"c2", name:"City League #3", format:"Group Stage", status:"open", start_at:"2026-04-09T19:00:00", venue:"Daugavpils Arena", max_players:24, joined_count:18, description:"Evening league round with standings points and flexible entry." },
-        { id:"t3", club_id:"c1", name:"Weekend Mix Cup", format:"Mexicano", status:"open", start_at:"2026-04-13T11:30:00", venue:"Riga Padel Club", max_players:20, joined_count:9, description:"Mixed pairs event with short rounds and card-first scheduling." },
-        { id:"t4", club_id:"c1", name:"Winter Finals", format:"Playoff", status:"finished", start_at:"2026-03-02T12:00:00", venue:"Riga Padel Club", max_players:8, joined_count:8, description:"Finished event stored in history." }
-      ],
-      tournament_players: [
-        { id:"tp1", tournament_id:"t1", profile_id:"p1", status:"joined" },
-        { id:"tp2", tournament_id:"t1", profile_id:"p2", status:"joined" },
-        { id:"tp3", tournament_id:"t1", profile_id:"p3", status:"joined" },
-        { id:"tp4", tournament_id:"t1", profile_id:"p4", status:"joined" },
-        { id:"tp5", tournament_id:"t1", profile_id:"p5", status:"joined" },
-        { id:"tp6", tournament_id:"t1", profile_id:"p6", status:"joined" },
-        { id:"tp7", tournament_id:"t2", profile_id:"p1", status:"joined" },
-        { id:"tp8", tournament_id:"t4", profile_id:"p1", status:"joined" }
-      ],
-      matches: [
-        { id:"m1", tournament_id:"t1", court:"Court 1", scheduled_at:"2026-04-05T10:30:00", status:"scheduled", team1:["p1","p2"], team2:["p3","p4"], score:null, submitted_by:null },
-        { id:"m2", tournament_id:"t1", court:"Court 2", scheduled_at:"2026-04-05T11:10:00", status:"completed", team1:["p1","p5"], team2:["p2","p6"], score:"6:3 4:6 10:8", submitted_by:"p2" },
-        { id:"m3", tournament_id:"t2", court:"Court A", scheduled_at:"2026-04-09T19:20:00", status:"scheduled", team1:["p1","p3"], team2:["p4","p6"], score:null, submitted_by:null }
-      ],
-      activity_log: [
-        { id:"a1", type:"result_submitted", text:"Marek submitted result in Spring Open 250", at:"2026-04-02T09:10:00" },
-        { id:"a2", type:"joined", text:"You joined City League #3", at:"2026-04-02T08:50:00" },
-        { id:"a3", type:"launch", text:"Spring Open 250 is now live", at:"2026-04-02T08:00:00" }
+      t2:[
+        {player:'Nikolajs Pogodins', pts:0, diff:'0'},
+        {player:'Katrina Ozola', pts:0, diff:'0'}
       ]
-    };
+    },
+    matches:[
+      {id:'m1', tid:'t1', title:'Round 3', time:'19:50', court:'Court 2', meTeam:['Nikolajs Pogodins','Mark Sokolov'], opp:['Atis Berzins','Andrey Zhdan'], submitted:false, score:null},
+      {id:'m2', tid:'t1', title:'Round 4', time:'20:20', court:'Court 1', meTeam:['Nikolajs Pogodins','Katrina Ozola'], opp:['Eriks Jansons','Deniss Volkovs'], submitted:true, score:'6:3 4:6 10:8'},
+      {id:'m3', tid:'t2', title:'Round 1', time:'Sat 10:20', court:'Center', meTeam:['Nikolajs Pogodins','Katrina Ozola'], opp:['Maksim Petrov','Deniss Volkovs'], submitted:false, score:null}
+    ],
+    activity:[
+      {id:'a1', title:'Result submitted', sub:'Round 4 • Evening League • 6:3 4:6 10:8'},
+      {id:'a2', title:'Joined tournament', sub:'Saturday Open • Jurmala'},
+      {id:'a3', title:'Tournament is live', sub:'Evening League • Riga'}
+    ]
+  };
 
-    const storeKey = "tournament-os-v8-singlefile";
-    let state = loadState();
+  const nav = [
+    {id:'home', label:'Home', icon:icons.home},
+    {id:'matches', label:'Matches', icon:icons.matches},
+    {id:'history', label:'History', icon:icons.history},
+    {id:'profile', label:'Profile', icon:icons.profile}
+  ];
 
-    function loadState(){
-      try{
-        const raw = localStorage.getItem(storeKey);
-        if(raw) return JSON.parse(raw);
-      }catch(e){}
-      return structuredClone(seed);
-    }
-    function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
+  const $screen = document.getElementById('screen');
+  const $nav = document.getElementById('nav');
 
-    const ui = {
-      screen:"home",
-      detailTournamentId:null,
-      detailTab:"overview"
-    };
-
-    const $ = (sel,root=document)=>root.querySelector(sel);
-
-    function showToast(text){
-      const t = $("#toast");
-      t.textContent = text;
-      t.classList.add("show");
-      clearTimeout(showToast._timer);
-      showToast._timer = setTimeout(()=>t.classList.remove("show"), 1800);
-    }
-
-    function initials(name){
-      return name.split(/\s+/).slice(0,2).map(p=>p[0]).join("").toUpperCase();
-    }
-    function profile(id){ return state.profiles.find(x=>x.id===id); }
-    function tournament(id){ return state.tournaments.find(x=>x.id===id); }
-    function club(id){ return state.clubs.find(x=>x.id===id); }
-    function membership(tid,pid=state.currentProfileId){
-      return state.tournament_players.find(x=>x.tournament_id===tid && x.profile_id===pid);
-    }
-    function isJoined(tid){ return !!membership(tid); }
-    function myTournamentCards(){
-      return state.tournaments
-        .filter(t => ["live","open"].includes(t.status) && isJoined(t.id))
-        .sort((a,b)=>new Date(a.start_at)-new Date(b.start_at));
-    }
-    function availableCards(){
-      return state.tournaments
-        .filter(t => ["live","open"].includes(t.status) && !isJoined(t.id))
-        .sort((a,b)=>new Date(a.start_at)-new Date(b.start_at));
-    }
-    function historyCards(){
-      return state.tournaments
-        .filter(t => t.status==="finished" && isJoined(t.id));
-    }
-    function myMatches(){
-      return state.matches.filter(m=>[...m.team1,...m.team2].includes(state.currentProfileId))
-        .sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
-    }
-    function standingsForTournament(tid){
-      const players = state.tournament_players.filter(tp=>tp.tournament_id===tid && tp.status==="joined");
-      const rows = players.map(tp => ({ profile_id:tp.profile_id, played:0, won:0, lost:0, points:0, diff:0 }));
-      const byId = Object.fromEntries(rows.map(r=>[r.profile_id,r]));
-      state.matches.filter(m=>m.tournament_id===tid && m.status==="completed" && m.score).forEach(m=>{
-        const t1 = scoreWinner(m.score)===1, t2 = scoreWinner(m.score)===2;
-        [...m.team1,...m.team2].forEach(pid => { if(byId[pid]) byId[pid].played += 1; });
-        m.team1.forEach(pid => { if(!byId[pid]) return; byId[pid].won += t1?1:0; byId[pid].lost += t2?1:0; byId[pid].points += t1?3:0; byId[pid].diff += matchDiff(m.score,1); });
-        m.team2.forEach(pid => { if(!byId[pid]) return; byId[pid].won += t2?1:0; byId[pid].lost += t1?1:0; byId[pid].points += t2?3:0; byId[pid].diff += matchDiff(m.score,2); });
-      });
-      return rows.sort((a,b)=>b.points-a.points || b.diff-a.diff || profile(a.profile_id).display_name.localeCompare(profile(b.profile_id).display_name))
-        .map((r,i)=>({...r, rank:i+1}));
-    }
-    function scoreWinner(score){
-      const nums = score.match(/\d+/g)?.map(Number) || [];
-      if(nums.length < 2) return 0;
-      const t1 = nums[nums.length-2], t2 = nums[nums.length-1];
-      return t1>t2?1:2;
-    }
-    function matchDiff(score, team){
-      const nums = score.match(/\d+/g)?.map(Number) || [];
-      if(nums.length < 2) return 0;
-      const a = nums[nums.length-2], b = nums[nums.length-1];
-      return team===1 ? a-b : b-a;
-    }
-    function joinedCount(tid){
-      return state.tournament_players.filter(x=>x.tournament_id===tid && x.status==="joined").length;
-    }
-
-    function joinTournament(tid){
-      if(isJoined(tid)) return showToast("Already joined");
-      state.tournament_players.push({ id:"tp"+Math.random().toString(36).slice(2,8), tournament_id:tid, profile_id:state.currentProfileId, status:"joined" });
-      state.activity_log.unshift({ id:"a"+Date.now(), type:"joined", text:`You joined ${tournament(tid).name}`, at:new Date().toISOString() });
-      saveState(); render(); showToast("Joined tournament");
-    }
-    function withdrawTournament(tid){
-      state.tournament_players = state.tournament_players.filter(x=>!(x.tournament_id===tid && x.profile_id===state.currentProfileId));
-      state.activity_log.unshift({ id:"a"+Date.now(), type:"withdrawn", text:`You withdrew from ${tournament(tid).name}`, at:new Date().toISOString() });
-      saveState(); render(); showToast("Withdrawn");
-    }
-    function submitResult(matchId){
-      const match = state.matches.find(m=>m.id===matchId);
-      if(!match) return;
-      match.status = "completed";
-      match.score = "6:4 6:3";
-      match.submitted_by = state.currentProfileId;
-      state.activity_log.unshift({ id:"a"+Date.now(), type:"result_submitted", text:`You submitted result in ${tournament(match.tournament_id).name}`, at:new Date().toISOString() });
-      saveState(); render(); showToast("Result submitted");
-    }
-
-    function formatDate(dt){
-      const d = new Date(dt);
-      return d.toLocaleString("en-GB", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
-    }
-    function iconForTournament(t){
-      if(t.status==="live") return "🎾";
-      if(t.format==="Group Stage") return "🏟️";
-      if(t.format==="Mexicano") return "⚡";
-      return "🏆";
-    }
-    function renderCard(t){
-      const membershipStatus = membership(t.id)?.status;
-      const statusBadge = t.status==="live"
-        ? `<span class="badge green">Live</span>`
-        : `<span class="badge orange">Open</span>`;
-      return `
-      <article class="card" data-open="${t.id}">
-        <div class="card-head">
-          <div class="card-icon"><div class="emoji">${iconForTournament(t)}</div></div>
-          <div class="card-main">
-            <h3 class="card-title">${t.name}</h3>
-            <div class="card-meta">
-              ${statusBadge}
-              <span class="meta-pill">${t.format}</span>
-              <span class="meta-pill">${formatDate(t.start_at)}</span>
-            </div>
-            <div class="card-sub">${club(t.club_id).name} · ${t.venue}</div>
-            <div class="card-foot">
-              <div class="subtle">${joinedCount(t.id)}/${t.max_players} players</div>
-              <div class="linkish">${membershipStatus ? "Open tournament" : "View details"}</div>
+  function pill(text, cls='') { return `<span class="chip ${cls}">${text}</span>`; }
+  function iconBadge(svg){ return `<div class="icon-badge">${svg}</div>`; }
+  function btn(label, cls, action, extra=''){ return `<button class="btn ${cls}" data-action="${action}" ${extra}>${label}</button>`; }
+  function getTournament(id){ return state.tournaments.find(t=>t.id===id); }
+  function activeTournaments(){ return state.tournaments.filter(t=>['live','joined'].includes(t.status)); }
+  function availableTournaments(){ return state.tournaments.filter(t=>t.status==='available'); }
+  function historyTournaments(){ return state.tournaments.filter(t=>t.status==='finished'); }
+  function renderTop(title='Tournament OS', sub='Player home', action=true){
+    return `
+      <div class="topbar">
+        <button class="brand" data-action="go-home">
+          <div class="brand-mark">${icons.star}</div>
+          <div><small>${sub}</small><strong>${title}</strong></div>
+        </button>
+        ${action ? `<button class="ghost-btn" data-action="noop">${icons.bell}</button>` : `<div style="width:42px"></div>`}
+      </div>`;
+  }
+  function renderHero(){
+    return `
+      <section class="hero">
+        <div class="eyebrow">Player-first tournament flow</div>
+        <h1>Play.<br>Track.<br>Submit.</h1>
+        <p>Premium mobile home for live padel tournaments across clubs. Your next court, next match and next action — in one place.</p>
+        <div class="hero-row">
+          ${pill('2 active tournaments','green')}
+          ${pill('1 result pending')}
+          ${pill('Premium minimal UI')}
+        </div>
+        <div class="hero-actions">
+          ${btn('My matches','btn-primary','view-matches')}
+          ${btn('Browse new','btn-secondary','browse-new')}
+        </div>
+      </section>`;
+  }
+  function tournamentCard(t){
+    const statusClass = t.accent === 'orange' ? 'orange' : 'green';
+    return `
+      <article class="card" data-action="open-detail" data-id="${t.id}">
+        <div class="card-top">
+          <div class="split grow">
+            ${iconBadge(icons.court)}
+            <div class="grow">
+              <div class="card-title">${t.name}</div>
+              <div class="card-sub">${t.club} · ${t.format}</div>
             </div>
           </div>
+          ${pill(t.badge, statusClass)}
+        </div>
+        <div class="status-row">
+          ${pill(t.date)}
+          ${pill(t.venue)}
+        </div>
+        <div class="meta-grid">
+          <div class="meta-box"><div class="k">Players</div><div class="v">${t.players}/${t.capacity}</div></div>
+          <div class="meta-box"><div class="k">Court</div><div class="v">${t.court}</div></div>
+          <div class="meta-box"><div class="k">Status</div><div class="v">${t.badge}</div></div>
         </div>
       </article>`;
-    }
-
-    function renderHome(){
-      const my = myTournamentCards();
-      const avail = availableCards();
-      $("#home").innerHTML = `
-        <div class="top-glass">
-          <div class="brand" data-home>
-            <div class="brand-mark"></div>
-            <div class="brand-copy">
-              <div class="eyebrow">Tournament OS</div>
-              <div class="brand-title">Player Home</div>
-            </div>
+  }
+  function matchCard(m){
+    const t = getTournament(m.tid);
+    return `
+      <article class="card match-card" data-action="open-detail" data-id="${m.tid}">
+        <div class="card-top">
+          <div>
+            <div class="card-title">${m.title}</div>
+            <div class="card-sub">${t.name} · ${m.time} · ${m.court}</div>
           </div>
-          <button class="icon-btn" title="Reset demo data" id="resetBtn">↺</button>
+          ${m.submitted ? pill('RESULT IN','green') : pill('PENDING','orange')}
         </div>
-        <section class="hero">
+        <div class="meta-grid">
+          <div class="meta-box"><div class="k">Your team</div><div class="v">${m.meTeam.join(' / ')}</div></div>
+          <div class="meta-box"><div class="k">Opponents</div><div class="v">${m.opp.join(' / ')}</div></div>
+        </div>
+        <div class="row-actions">
+          ${m.score ? `<span class="pill-score">${m.score}</span>` : ''}
+          ${m.submitted ? '' : btn('Submit result','btn-primary','submit-result',`data-id="${m.id}"`)}
+        </div>
+      </article>`;
+  }
+  function renderHome(){
+    return `
+      ${renderTop('Tournament OS','Player home')}
+      ${renderHero()}
+      <div class="section-head"><div class="band">My tournaments</div><div class="text-link">Active now</div></div>
+      <div class="stack">${activeTournaments().map(tournamentCard).join('')}</div>
+      <div class="section-head"><div class="band">Available tournaments</div><div class="text-link">Open registration</div></div>
+      <div class="stack">${availableTournaments().map(tournamentCard).join('')}</div>
+      <div class="section-head"><div class="band">Recent activity</div><div class="text-link">Latest actions</div></div>
+      <div class="activity">${state.activity.map(a=>`<div class="activity-item"><strong>${a.title}</strong><span>${a.sub}</span></div>`).join('')}</div>
+    `;
+  }
+  function renderMatches(){
+    return `
+      ${renderTop('My Matches','Player view')}
+      <section class="hero" style="padding-bottom:16px">
+        <div class="eyebrow">Ready to play</div>
+        <h1 style="font-size:30px">Only your own match feed.</h1>
+        <p>Partner, opponents, court, time and score submission. No clutter and no extra admin noise.</p>
+      </section>
+      <div class="section-head"><div class="band">Upcoming & live</div><div class="text-link">${state.matches.length} match cards</div></div>
+      <div class="stack">${state.matches.map(matchCard).join('')}</div>
+    `;
+  }
+  function renderHistory(){
+    const items = historyTournaments();
+    return `
+      ${renderTop('History','Archive')}
+      <section class="hero" style="padding-bottom:16px">
+        <div class="eyebrow">Finished tournaments</div>
+        <h1 style="font-size:30px">Past events stay out of Home.</h1>
+        <p>History is separated from active play, so the main screen stays clean and useful.</p>
+      </section>
+      <div class="stack">${items.length ? items.map(tournamentCard).join('') : `<div class="empty">No finished tournaments yet.</div>`}</div>
+    `;
+  }
+  function renderProfile(){
+    const me = state.profiles.find(p=>p.id===state.me);
+    return `
+      ${renderTop('Profile','Player account')}
+      <article class="card profile-card">
+        <div class="avatar">NP</div>
+        <div class="card-title" style="margin-bottom:6px">${me.name}</div>
+        <div class="card-sub">${me.club} · ${me.level}</div>
+        <div class="meta-grid" style="margin-top:18px">
+          <div class="meta-box"><div class="k">Active</div><div class="v">2</div></div>
+          <div class="meta-box"><div class="k">Matches</div><div class="v">3</div></div>
+          <div class="meta-box"><div class="k">Results</div><div class="v">1</div></div>
+        </div>
+      </article>
+      <div class="section-head"><div class="band">Preferences</div><div class="text-link">UI baseline</div></div>
+      <div class="activity">
+        <div class="activity-item"><strong>Style</strong><span>Clean premium / minimalism</span></div>
+        <div class="activity-item"><strong>Accent</strong><span>Green retained as primary action color</span></div>
+        <div class="activity-item"><strong>Architecture</strong><span>Single-file / GitHub-safe runtime</span></div>
+      </div>
+    `;
+  }
+  function renderDetail(){
+    const t = getTournament(state.detailId);
+    const standings = state.standings[t.id] || [];
+    const tourMatches = state.matches.filter(m=>m.tid===t.id);
+    return `
+      <div class="detail-header">
+        <div class="backline">
+          <button class="ghost-btn" data-action="go-back">${icons.arrow}</button>
+          <div class="brand" data-action="go-home"><div class="brand-mark">${icons.star}</div><div><small>${t.club}</small><strong>${t.name}</strong></div></div>
+        </div>
+        <section class="hero" style="margin-bottom:0">
+          <div class="eyebrow">${t.badge} · ${t.format}</div>
+          <h1 style="font-size:31px">${t.name}</h1>
+          <p>${t.description}</p>
           <div class="hero-row">
-            <div>
-              <div class="eyebrow">Live across clubs</div>
-              <h1>Padel now.</h1>
-              <p>See active tournaments, join in seconds, open your matches, and report results without admin friction.</p>
-            </div>
-            <div class="hero-icon"><div class="court"></div></div>
+            ${pill(t.date)}
+            ${pill(t.venue)}
+            ${pill(`${t.players}/${t.capacity} players`, t.status === 'available' ? 'orange' : 'green')}
           </div>
-          <div class="hero-stats">
-            <div class="stat"><div class="stat-label">My Tournaments</div><div class="stat-value">${my.length}</div></div>
-            <div class="stat"><div class="stat-label">My Matches</div><div class="stat-value">${myMatches().length}</div></div>
-            <div class="stat"><div class="stat-label">Live Clubs</div><div class="stat-value">${new Set(state.tournaments.filter(t=>t.status!=="finished").map(t=>t.club_id)).size}</div></div>
+          <div class="hero-actions">
+            ${t.status === 'available' ? btn('Join tournament','btn-primary','join',`data-id="${t.id}"`) : ''}
+            ${['joined','live'].includes(t.status) ? btn('Withdraw','btn-secondary','withdraw',`data-id="${t.id}"`) : ''}
           </div>
         </section>
-        <div class="section-label">My Tournaments</div>
-        <div class="card-list">${my.length ? my.map(renderCard).join("") : `<div class="empty">You have no active tournaments yet.</div>`}</div>
-        <div class="section-label">Available Tournaments</div>
-        <div class="card-list">${avail.length ? avail.map(renderCard).join("") : `<div class="empty">No tournaments available right now.</div>`}</div>
-      `;
-      $("#resetBtn").onclick = ()=>{ state = structuredClone(seed); saveState(); render(); showToast("Demo reset"); };
-    }
-
-    function renderMatches(){
-      const matches = myMatches();
-      $("#matches").innerHTML = `
-        <div class="toolbar">
-          <button class="back" data-go="home">‹</button>
-          <div><h2 class="screen-title">My Matches</h2><p class="screen-sub">Only your relevant games.</p></div>
+        <div class="tabs">
+          ${['overview','matches','standings','players'].map(tab=>`<button class="tab ${state.detailTab===tab?'active':''}" data-action="tab" data-tab="${tab}">${tab[0].toUpperCase()+tab.slice(1)}</button>`).join('')}
         </div>
+      </div>
+      ${state.detailTab==='overview' ? `
         <div class="stack">
-          ${matches.map(m=>{
-            const t = tournament(m.tournament_id);
-            const partner = profile((m.team1.includes(state.currentProfileId)?m.team1:m.team2).find(p=>p!==state.currentProfileId));
-            const opps = (m.team1.includes(state.currentProfileId)?m.team2:m.team1).map(profile).map(x=>x.display_name).join(" / ");
-            const ownTeam = m.team1.includes(state.currentProfileId)?1:2;
-            return `<div class="match-card">
-              <div class="row"><div class="smallcaps">${t.name}</div><span class="badge ${m.status==="completed"?"blue":"green"}">${m.status}</span></div>
-              <div style="font-size:18px;font-weight:800;margin:8px 0 6px">You + ${partner.display_name}</div>
-              <div class="muted">vs ${opps}</div>
-              <div class="row" style="margin-top:12px">
-                <div>
-                  <div class="muted">${formatDate(m.scheduled_at)}</div>
-                  <div class="subtle">${m.court}</div>
-                </div>
-                <div class="match-score">${m.score || "—"}</div>
-              </div>
-              <div class="btn-row">
-                <button class="btn secondary" data-open="${t.id}">Open tournament</button>
-                ${m.status==="completed" ? `<button class="btn secondary" disabled>Submitted</button>` : `<button class="btn primary" data-submit="${m.id}">Submit result</button>`}
-              </div>
-            </div>`;
-          }).join("")}
-        </div>
-      `;
-    }
-
-    function renderHistory(){
-      const hist = historyCards();
-      $("#history").innerHTML = `
-        <div class="toolbar">
-          <button class="back" data-go="home">‹</button>
-          <div><h2 class="screen-title">History</h2><p class="screen-sub">Finished tournaments are stored here.</p></div>
-        </div>
-        <div class="stack">
-          ${hist.length ? hist.map(t=>renderCard(t)).join("") : `<div class="empty">No finished tournaments yet.</div>`}
-        </div>
-      `;
-    }
-
-    function renderProfile(){
-      const me = profile(state.currentProfileId);
-      $("#profile").innerHTML = `
-        <div class="toolbar">
-          <button class="back" data-go="home">‹</button>
-          <div><h2 class="screen-title">Profile</h2><p class="screen-sub">Simple player-facing identity.</p></div>
-        </div>
-        <div class="panel">
-          <div class="person">
-            <div class="avatar" style="width:56px;height:56px;border-radius:18px">${initials(me.display_name)}</div>
-            <div class="person-meta">
-              <div class="name" style="font-size:22px">${me.display_name}</div>
-              <div class="muted">${me.level} player</div>
+          <article class="card">
+            <div class="card-title">Tournament snapshot</div>
+            <div class="meta-grid">
+              <div class="meta-box"><div class="k">Format</div><div class="v">${t.format}</div></div>
+              <div class="meta-box"><div class="k">Venue</div><div class="v">${t.venue}</div></div>
+              <div class="meta-box"><div class="k">Court</div><div class="v">${t.court}</div></div>
             </div>
-          </div>
-          <div class="grid2" style="margin-top:16px">
-            <div class="info"><div class="info-label">Clubs</div><div class="info-value">${(me.club_ids||[]).length || 2}</div></div>
-            <div class="info"><div class="info-label">Joined</div><div class="info-value">${state.tournament_players.filter(x=>x.profile_id===me.id).length}</div></div>
-          </div>
-        </div>
-        <div class="section-label">Recent Activity</div>
-        <div class="stack">
-          ${state.activity_log.slice(0,6).map(a=>`<div class="feed-row"><div><div class="name" style="font-size:14px">${a.text}</div><div class="muted">${formatDate(a.at)}</div></div><div class="badge blue">${a.type.replace("_"," ")}</div></div>`).join("")}
-        </div>
-      `;
-    }
+          </article>
+          <article class="card">
+            <div class="card-title">Recent activity</div>
+            <div class="activity">${state.activity.slice(0,2).map(a=>`<div class="activity-item"><strong>${a.title}</strong><span>${a.sub}</span></div>`).join('')}</div>
+          </article>
+        </div>` : ''}
+      ${state.detailTab==='matches' ? `<div class="stack">${tourMatches.length ? tourMatches.map(matchCard).join('') : `<div class="empty">No match cards yet.</div>`}</div>` : ''}
+      ${state.detailTab==='standings' ? `<article class="card"><div class="card-title" style="margin-bottom:10px">Current standings</div>${standings.map((row,i)=>`<div class="list-row"><div class="split"><div class="rank">${i+1}</div><div><div style="font-weight:700">${row.player}</div><div class="mini">Point diff ${row.diff}</div></div></div><div style="font-weight:800">${row.pts} pts</div></div>`).join('')}</article>` : ''}
+      ${state.detailTab==='players' ? `<article class="card"><div class="card-title" style="margin-bottom:10px">Registered players</div>${['Nikolajs Pogodins','Mark Sokolov','Atis Berzins','Andrey Zhdan','Katrina Ozola','Eriks Jansons'].map((name,i)=>`<div class="list-row"><div class="split"><div class="rank">${i+1}</div><div style="font-weight:700">${name}</div></div>${pill(i<4?'confirmed':'joined', i<4?'green':'')}</div>`).join('')}</article>` : ''}
+    `;
+  }
 
-    function renderDetail(){
-      const t = tournament(ui.detailTournamentId || myTournamentCards()[0]?.id || availableCards()[0]?.id);
-      if(!t){ $("#detail").innerHTML = `<div class="empty">No tournament selected.</div>`; return; }
-      ui.detailTournamentId = t.id;
-      const joined = isJoined(t.id);
-      const tabs = ["overview","matches","standings","players"];
-      const matches = state.matches.filter(m=>m.tournament_id===t.id);
-      const members = state.tournament_players.filter(tp=>tp.tournament_id===t.id && tp.status==="joined").map(tp=>profile(tp.profile_id));
-      const standings = standingsForTournament(t.id);
+  function renderNav(){
+    $nav.innerHTML = nav.map(item=>`
+      <button class="nav-btn ${state.view===item.id?'active':''}" data-action="navigate" data-view="${item.id}">
+        <span>${item.icon}</span><span>${item.label}</span>
+      </button>
+    `).join('');
+  }
+  function render(){
+    let html = '';
+    if(state.view==='home') html = renderHome();
+    if(state.view==='matches') html = renderMatches();
+    if(state.view==='history') html = renderHistory();
+    if(state.view==='profile') html = renderProfile();
+    if(state.view==='detail') html = renderDetail();
+    $screen.innerHTML = html;
+    renderNav();
+  }
+  function submitResult(id){
+    const m = state.matches.find(x=>x.id===id);
+    if(!m) return;
+    m.submitted = true;
+    m.score = '6:4 6:3';
+    state.activity.unshift({id:'a'+Date.now(), title:'Result submitted', sub:`${m.title} • ${getTournament(m.tid).name} • ${m.score}`});
+    if(state.standings[m.tid]) state.standings[m.tid][0].pts += 3;
+  }
 
-      let tabHtml = "";
-      if(ui.detailTab==="overview"){
-        tabHtml = `
-          <div class="panel stack">
-            <div class="grid2">
-              <div class="info"><div class="info-label">Club</div><div class="info-value">${club(t.club_id).name}</div></div>
-              <div class="info"><div class="info-label">Format</div><div class="info-value">${t.format}</div></div>
-              <div class="info"><div class="info-label">Start</div><div class="info-value">${formatDate(t.start_at)}</div></div>
-              <div class="info"><div class="info-label">Players</div><div class="info-value">${joinedCount(t.id)}/${t.max_players}</div></div>
-            </div>
-            <div class="match-card">
-              <div class="smallcaps">About</div>
-              <div style="margin-top:8px" class="muted">${t.description}</div>
-            </div>
-            <div class="btn-row">
-              ${joined ? `<button class="btn warn" data-withdraw="${t.id}">Withdraw</button>` : `<button class="btn primary" data-join="${t.id}">Join tournament</button>`}
-              <button class="btn secondary" data-go="matches">My matches</button>
-            </div>
-          </div>
-        `;
-      } else if(ui.detailTab==="matches"){
-        tabHtml = `<div class="stack">${matches.length ? matches.map(m=>`
-          <div class="match-card">
-            <div class="row"><div class="smallcaps">${m.court}</div><span class="badge ${m.status==="completed"?"blue":"green"}">${m.status}</span></div>
-            <div style="font-size:16px;font-weight:800;margin-top:8px">${m.team1.map(id=>profile(id).display_name).join(" / ")}</div>
-            <div class="muted" style="margin:4px 0">vs</div>
-            <div style="font-size:16px;font-weight:800">${m.team2.map(id=>profile(id).display_name).join(" / ")}</div>
-            <div class="row" style="margin-top:12px"><div class="muted">${formatDate(m.scheduled_at)}</div><div class="match-score">${m.score || "—"}</div></div>
-            ${[...m.team1,...m.team2].includes(state.currentProfileId) && m.status!=="completed" ? `<div class="btn-row"><button class="btn primary" data-submit="${m.id}">Submit result</button></div>` : ``}
-          </div>
-        `).join("") : `<div class="empty">No matches generated yet.</div>`}</div>`;
-      } else if(ui.detailTab==="standings"){
-        tabHtml = `<div class="stack">${standings.length ? standings.map(r=>`
-          <div class="standing-row">
-            <div class="person"><div class="rank">${r.rank}</div><div class="person-meta"><div class="name">${profile(r.profile_id).display_name}</div><div class="muted">${r.played} played · ${r.won} won</div></div></div>
-            <div style="text-align:right"><div class="name">${r.points} pts</div><div class="muted">diff ${r.diff>0?"+":""}${r.diff}</div></div>
-          </div>
-        `).join("") : `<div class="empty">Standings will appear after results.</div>`}</div>`;
-      } else {
-        tabHtml = `<div class="stack">${members.map(p=>`
-          <div class="player-row">
-            <div class="person"><div class="avatar">${initials(p.display_name)}</div><div class="person-meta"><div class="name">${p.display_name}</div><div class="muted">${p.level}</div></div></div>
-            <span class="badge blue">joined</span>
-          </div>
-        `).join("")}</div>`;
-      }
-
-      $("#detail").innerHTML = `
-        <div class="toolbar">
-          <button class="back" data-go="home">‹</button>
-          <div><h2 class="screen-title">Tournament</h2><p class="screen-sub">Player-first live detail.</p></div>
-        </div>
-        <div class="detail-hero">
-          <div class="detail-top">
-            <div class="card-icon" style="width:64px;height:64px;border-radius:20px"><div class="emoji">${iconForTournament(t)}</div></div>
-            <div style="min-width:0">
-              <h2>${t.name}</h2>
-              <div class="chips">
-                <span class="badge ${t.status==="live"?"green":"orange"}">${t.status}</span>
-                <span class="meta-pill">${t.format}</span>
-                <span class="meta-pill">${club(t.club_id).city}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="tabs">${tabs.map(tab=>`<button class="tab ${ui.detailTab===tab?"active":""}" data-tab="${tab}">${tab[0].toUpperCase()+tab.slice(1)}</button>`).join("")}</div>
-        ${tabHtml}
-      `;
-    }
-
-    function renderNav(){
-      const items = [
-        ["home","Home","⌂"],
-        ["matches","Matches","◎"],
-        ["history","History","◷"],
-        ["profile","Profile","◉"]
-      ];
-      $("#nav").innerHTML = items.map(([id,label,ico])=>`
-        <button class="nav-btn ${ui.screen===id?"active":""}" data-go="${id}">
-          <div class="nav-ico">${ico}</div><div>${label}</div>
-        </button>
-      `).join("");
-    }
-
-    function setScreen(id){
-      ui.screen = id;
-      document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active", s.id===id));
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-action]');
+    if(!el) return;
+    const action = el.dataset.action;
+    if(action==='navigate'){ state.view = el.dataset.view; render(); }
+    if(action==='go-home'){ state.view='home'; render(); }
+    if(action==='view-matches'){ state.view='matches'; render(); }
+    if(action==='browse-new'){ state.view='home'; setTimeout(()=>window.scrollTo({top:520,behavior:'smooth'}),20); }
+    if(action==='open-detail'){ state.detailId = el.dataset.id; state.view='detail'; state.detailTab='overview'; render(); }
+    if(action==='go-back'){ state.view='home'; render(); }
+    if(action==='tab'){ state.detailTab = el.dataset.tab; render(); }
+    if(action==='join'){
+      const t = getTournament(el.dataset.id); t.status='joined'; t.badge='JOINED'; t.accent='green'; t.players += 1;
+      state.activity.unshift({id:'a'+Date.now(), title:'Joined tournament', sub:t.name});
       render();
     }
-
-    function render(){
-      renderHome();
-      renderMatches();
-      renderHistory();
-      renderProfile();
-      renderDetail();
-      renderNav();
-      document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active", s.id===ui.screen));
-
-      document.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{
-        const target = el.getAttribute("data-go");
-        setScreen(target);
-      });
-      document.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>{
-        ui.detailTournamentId = el.getAttribute("data-open");
-        ui.detailTab = "overview";
-        setScreen("detail");
-      });
-      document.querySelectorAll("[data-join]").forEach(el=>el.onclick=()=>joinTournament(el.getAttribute("data-join")));
-      document.querySelectorAll("[data-withdraw]").forEach(el=>el.onclick=()=>withdrawTournament(el.getAttribute("data-withdraw")));
-      document.querySelectorAll("[data-submit]").forEach(el=>el.onclick=()=>submitResult(el.getAttribute("data-submit")));
-      document.querySelectorAll("[data-tab]").forEach(el=>el.onclick=()=>{
-        ui.detailTab = el.getAttribute("data-tab");
-        renderDetail();
-        renderNav();
-        document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active", s.id===ui.screen));
-        // rebind events after partial render
-        document.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{
-          const target = el.getAttribute("data-go");
-          setScreen(target);
-        });
-        document.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>{
-          ui.detailTournamentId = el.getAttribute("data-open");
-          ui.detailTab = "overview";
-          setScreen("detail");
-        });
-        document.querySelectorAll("[data-join]").forEach(el=>el.onclick=()=>joinTournament(el.getAttribute("data-join")));
-        document.querySelectorAll("[data-withdraw]").forEach(el=>el.onclick=()=>withdrawTournament(el.getAttribute("data-withdraw")));
-        document.querySelectorAll("[data-submit]").forEach(el=>el.onclick=()=>submitResult(el.getAttribute("data-submit")));
-        document.querySelectorAll("[data-tab]").forEach(el=>el.onclick=()=>{ ui.detailTab = el.getAttribute("data-tab"); render(); setScreen("detail"); });
-      });
-      document.querySelectorAll("[data-home]").forEach(el=>el.onclick=()=>setScreen("home"));
+    if(action==='withdraw'){
+      const t = getTournament(el.dataset.id); if(t.status==='live') { state.activity.unshift({id:'a'+Date.now(), title:'Withdraw blocked', sub:'Live tournament requires admin override'}); render(); return; }
+      t.status='available'; t.badge='OPEN'; t.accent='orange'; t.players = Math.max(0, t.players - 1);
+      state.activity.unshift({id:'a'+Date.now(), title:'Withdrawn', sub:t.name});
+      render();
     }
+    if(action==='submit-result'){ submitResult(el.dataset.id); render(); }
+  });
 
-    render();
-  </script>
+  render();
+})();
+</script>
 </body>
 </html>
