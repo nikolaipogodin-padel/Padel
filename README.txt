@@ -12,3 +12,5 @@ Notes:
 - If RPC signature differs, debug panel will show each failed payload.
 
 v21: cyber glass reframe closer to reference.
+
+v22: card-first / mobile-product-like refit.
