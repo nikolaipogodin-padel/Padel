@@ -1,204 +1,56 @@
+
 :root {
-  --bg-top: #3d67af;
-  --bg-mid: #2d466f;
-  --bg-bottom: #17331f;
-  --panel: rgba(18, 34, 61, 0.82);
-  --panel-2: rgba(18, 36, 57, 0.88);
-  --line: rgba(205, 223, 241, 0.18);
-  --line-soft: rgba(255,255,255,0.1);
-  --text: #eef5ff;
-  --muted: #b7c6d8;
-  --green-1: #7edc38;
-  --green-2: #2a8d1e;
-  --orange-1: #ffb21f;
-  --orange-2: #ea7b00;
-  --shadow: 0 14px 34px rgba(0,0,0,0.34);
-  --radius-lg: 26px;
-  --radius-md: 18px;
+  --phone-w: min(100vw, 827px);
+  --phone-h: min(100vh, 1792px);
 }
+
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0f2544;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 body {
-  font-family: Inter, Arial, Helvetica, sans-serif;
-  color: var(--text);
-  background:
-    radial-gradient(circle at 14% 8%, rgba(255,248,176,.85) 0 3%, transparent 4%),
-    radial-gradient(circle at 17% 9%, rgba(255,248,176,.85) 0 2.8%, transparent 3.8%),
-    radial-gradient(circle at 20% 10%, rgba(255,248,176,.85) 0 2.8%, transparent 3.8%),
-    radial-gradient(circle at 22% 12%, rgba(255,248,176,.85) 0 2.8%, transparent 3.8%),
-    radial-gradient(circle at 82% 13%, rgba(255,248,176,.85) 0 3%, transparent 4%),
-    radial-gradient(circle at 85% 11%, rgba(255,248,176,.85) 0 2.8%, transparent 3.8%),
-    radial-gradient(circle at 88% 10%, rgba(255,248,176,.85) 0 2.8%, transparent 3.8%),
-    radial-gradient(circle at 91% 8%, rgba(255,248,176,.85) 0 2.8%, transparent 3.8%),
-    linear-gradient(180deg, var(--bg-top) 0%, #486a9e 13%, var(--bg-mid) 44%, #264e4c 74%, var(--bg-bottom) 100%);
-  min-height: 100vh;
+  display: grid;
+  place-items: center;
 }
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0) 180px),
-    linear-gradient(transparent 0 72%, rgba(255,255,255,.06) 72.4%, transparent 72.8%),
-    linear-gradient(90deg, transparent 0 11%, rgba(255,255,255,.08) 11.3%, transparent 11.6%),
-    linear-gradient(90deg, transparent 0 89%, rgba(255,255,255,.08) 89.3%, transparent 89.6%),
-    repeating-linear-gradient(90deg, transparent 0 12px, rgba(255,255,255,0.04) 12px 13px),
-    repeating-linear-gradient(180deg, transparent 0 12px, rgba(255,255,255,0.04) 12px 13px);
-  opacity: .28;
-  pointer-events: none;
-}
-.phone-shell {
-  width: min(100%, 600px);
-  margin: 0 auto;
-  min-height: 100vh;
+.phone {
   position: relative;
-  display: flex;
-  flex-direction: column;
+  width: var(--phone-w);
+  height: calc(var(--phone-w) * 1792 / 827);
+  max-height: 100vh;
+  max-width: calc(100vh * 827 / 1792);
 }
-.statusbar, .brandbar { padding: 14px 22px 0; position: relative; z-index: 2; }
-.statusbar {
-  display: flex; justify-content: space-between; align-items: center;
-  color: rgba(255,255,255,0.95); font-weight: 700; font-size: 18px; letter-spacing: .02em;
+.screen-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
 }
-.brandbar {
-  margin-top: 10px;
-  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
-  border-top: 1px solid rgba(255,255,255,.15); border-bottom: 1px solid rgba(255,255,255,.15);
-  padding-bottom: 12px;
+.hotspot,
+.nav-hit {
+  position: absolute;
+  display: block;
+  border-radius: 20px;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
-.brand-logo {
-  width: 100px; height: 46px; position: relative; margin: 0 auto 0 0;
+.hotspot:hover,
+.hotspot:focus-visible,
+.nav-hit:hover,
+.nav-hit:focus-visible {
+  box-shadow: 0 0 0 2px rgba(255,255,255,.35), 0 0 24px rgba(134, 255, 118, .25);
 }
-.brand-logo .ball {
-  position: absolute; width: 54px; height: 54px; border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #e0ff65, #91dd18 65%, #5a9809 100%);
-  left: 18px; top: -4px; box-shadow: 0 0 18px rgba(181,255,62,.4);
-}
-.brand-logo .ball::before,
-.brand-logo .ball::after {
-  content: ""; position: absolute; inset: 8px; border: 2px solid rgba(18,34,61,.75); border-left-color: transparent; border-right-color: transparent; border-radius: 50%; transform: rotate(30deg);
-}
-.brand-logo .swoosh {
-  position: absolute; width: 60px; height: 14px; left: 0; top: 24px;
-  background: linear-gradient(90deg, transparent, #b5ff52 45%, #7ec40c 100%);
-  transform: skewX(-24deg); border-radius: 40px;
-}
-.brand-title {
-  font-size: clamp(34px, 5vw, 50px); font-weight: 900; letter-spacing: .04em;
-  text-shadow: 0 3px 10px rgba(0,0,0,.28);
-}
-.mail-icon {
-  justify-self: end; position: relative; font-size: 40px; line-height: 1; filter: drop-shadow(0 2px 5px rgba(0,0,0,.35));
-}
-.badge {
-  position: absolute; top: -6px; right: -7px; width: 24px; height: 24px; border-radius: 50%;
-  background: #d34a3f; display: grid; place-items: center; font-size: 14px; font-weight: 800;
-}
-.content {
-  flex: 1; padding: 18px 18px 110px; position: relative; z-index: 1;
-}
-.page-title {
-  text-align: center; font-size: clamp(42px, 7vw, 60px); line-height: 1.05; margin: 8px 0 20px; font-weight: 900; text-shadow: 0 4px 14px rgba(0,0,0,.32);
-}
-.glass-panel {
-  background: linear-gradient(180deg, rgba(17,36,65,.78), rgba(14,31,53,.82));
-  border: 1px solid rgba(255,255,255,.18); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(4px);
-}
-.home-panel { padding: 22px 12px 14px; }
-.available-panel { margin-top: 12px; padding: 12px; background: linear-gradient(180deg, rgba(14,44,60,.56), rgba(9,31,43,.64)); }
-.section-ribbon {
-  position: relative; min-height: 66px; display: flex; align-items: center;
-  background: linear-gradient(180deg, rgba(33,77,42,.85), rgba(48,112,34,.92));
-  border: 1px solid rgba(198,255,147,.28); border-radius: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 18px rgba(0,0,0,.22);
-}
-.my-ribbon { padding-left: 86px; margin: 0 4px 14px; background: linear-gradient(180deg, rgba(34,65,63,.92), rgba(43,87,48,.96)); }
-.section-ribbon--standalone { margin-top: 14px; margin-bottom: 12px; min-height: 58px; }
-.available-ribbon { justify-content: center; background: linear-gradient(180deg, #5d9720, #447f11); }
-.section-ribbon__title {
-  font-size: clamp(22px, 4.4vw, 34px); font-weight: 900; letter-spacing: .02em; color: #ebf7d0; text-shadow: 0 2px 7px rgba(0,0,0,.26);
-}
-.section-ribbon__title--center { text-align: center; width: 100%; }
-.section-ribbon__icon {
-  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-}
-.racket-mark, .racket-mark--large {
-  width: 58px; height: 58px; position: relative; border-radius: 18px;
-  background: radial-gradient(circle at 50% 45%, rgba(22,35,58,0.84), rgba(10,18,32,0.98));
-  box-shadow: inset 0 0 16px rgba(107,255,61,.08), 0 6px 16px rgba(0,0,0,.38);
-}
-.racket-mark--large { width: 72px; height: 72px; }
-.racket-mark::before, .racket-mark--large::before {
-  content: ""; position: absolute; width: 28px; height: 28px; border: 4px solid #87ff35; border-radius: 50%; left: 11px; top: 10px; box-shadow: 0 0 10px rgba(163,255,85,.25);
-}
-.racket-mark::after, .racket-mark--large::after {
-  content: ""; position: absolute; width: 8px; height: 20px; border-radius: 10px; background: linear-gradient(180deg, #163e25, #08141f); left: 22px; top: 31px; transform: rotate(35deg);
-}
-.racket-mark span, .racket-mark--large span {
-  position: absolute; display: block;
-}
-.racket-mark span:first-child, .racket-mark--large span:first-child {
-  width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #e7ff73, #99db2e 65%, #68921a 100%); right: 10px; bottom: 10px; box-shadow: 0 0 12px rgba(184,255,83,.22);
-}
-.racket-mark span:last-child, .racket-mark--large span:last-child {
-  width: 18px; height: 4px; background: #8aff46; border-radius: 10px; left: 14px; top: 19px; transform: rotate(-45deg);
-}
-.tournament-card {
-  display: grid; grid-template-columns: 68px 1fr; gap: 14px;
-  border: 1px solid var(--line); border-radius: 18px; padding: 16px 14px; margin: 12px 0;
-  background: linear-gradient(180deg, rgba(23,43,71,.56), rgba(17,36,59,.68));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-}
-.clickable { cursor: pointer; transition: transform .15s ease, border-color .15s ease, background .15s ease; }
-.clickable:hover {
-  transform: translateY(-1px); border-color: rgba(189,255,125,.34);
-  background: linear-gradient(180deg, rgba(28,51,83,.68), rgba(18,39,64,.82));
-}
-.card-icon { width: 56px; height: 56px; align-self: start; }
-.trophy-mark {
-  border-radius: 14px; background: radial-gradient(circle at 50% 35%, rgba(47,92,168,.4), rgba(10,22,35,.88)); position: relative; box-shadow: inset 0 0 16px rgba(106,160,255,.15), 0 6px 16px rgba(0,0,0,.38);
-}
-.trophy-mark::before {
-  content: ""; position: absolute; width: 30px; height: 22px; left: 13px; top: 12px;
-  border: 3px solid #68a7ff; border-bottom-width: 7px; border-radius: 0 0 12px 12px; background: linear-gradient(180deg, #72b4ff, #3c71c5);
-}
-.trophy-mark::after {
-  content: ""; position: absolute; width: 20px; height: 7px; left: 18px; bottom: 10px; background: linear-gradient(180deg, #dfe9f4, #a4b3c6); border-radius: 2px;
-}
-.card-body h2 {
-  margin: 0 0 2px; font-size: clamp(22px, 4.6vw, 42px); line-height: 1.04; font-weight: 900;
-}
-.meta { color: rgba(235,244,255,.86); font-size: clamp(14px, 2.8vw, 22px); margin-top: 4px; }
-.meta.club { color: #c7d4e4; }
-.meta.bottom { margin-top: 8px; color: #c1d2e5; }
-.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.chip {
-  display: inline-flex; align-items: center; min-height: 26px; padding: 0 12px;
-  border-radius: 999px; font-size: clamp(13px, 2.4vw, 19px); font-weight: 900; color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.18);
-}
-.chip-green { background: linear-gradient(180deg, var(--green-1), var(--green-2)); }
-.chip-orange { background: linear-gradient(180deg, var(--orange-1), var(--orange-2)); }
-.bottom-nav {
-  position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: min(100%, 600px);
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
-  background: linear-gradient(180deg, rgba(10,20,33,.9), rgba(8,17,28,.97)); border-top: 1px solid rgba(255,255,255,.16);
-  box-shadow: 0 -10px 24px rgba(0,0,0,.28); z-index: 30;
-}
-.nav-item {
-  min-height: 78px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  color: #dfe9f4; text-decoration: none; border-right: 1px solid rgba(255,255,255,.12); padding: 8px 4px;
-}
-.nav-item:last-child { border-right: none; }
-.nav-icon { font-size: 28px; line-height: 1; }
-.nav-label { font-size: clamp(12px, 2.3vw, 16px); font-weight: 700; text-align: center; }
-.nav-item.active .nav-icon, .nav-item.active .nav-label { color: #f1ecbe; }
-@media (max-width: 460px) {
-  .statusbar { font-size: 15px; }
-  .brand-title { font-size: 34px; }
-  .mail-icon { font-size: 34px; }
-  .page-title { font-size: 34px; }
-  .content { padding: 14px 12px 100px; }
-  .home-panel { padding: 16px 10px 12px; }
-  .tournament-card { grid-template-columns: 56px 1fr; gap: 10px; padding: 14px 12px; }
-  .section-ribbon__title { font-size: 18px; }
-}
+/* Coordinates based on the approved reference screenshot */
+.tournament-one { left: 7%; top: 28.8%; width: 86%; height: 20.7%; }
+.tournament-two { left: 7%; top: 55.2%; width: 86%; height: 16.9%; }
+
+.new-tournaments { left: 2.5%; bottom: 4.7%; width: 29%; height: 8.5%; }
+.my-history { left: 34.5%; bottom: 4.7%; width: 29%; height: 8.5%; }
+.my-profile { left: 67%; bottom: 4.7%; width: 29%; height: 8.5%; }

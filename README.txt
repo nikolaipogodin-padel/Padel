@@ -1,14 +1,12 @@
-Tournament OS – Player Home screen
+
+Tournament OS – max-close version
+
+This build is intentionally image-backed to match the approved screen as closely as possible.
+It uses the exact approved reference screen as the visual layer and places clickable hotspots
+on top for tournament cards and bottom navigation.
 
 Files:
 - index.html
 - styles.css
 - app.js
-
-Notes:
-- Static demo screen based on the approved visual direction.
-- Full-card click style is visual only in this mockup.
-- Bottom navigation is fixed and visible.
-- Main screen shows only:
-  * My Tournaments
-  * Available Tournaments
+- reference-screen.png
