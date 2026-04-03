@@ -84,49 +84,77 @@
 
     .topbar{
       position:sticky; top:10px; z-index:12;
-      display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px;
-      padding:12px 14px; border-radius:28px; margin-top:8px;
+      display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start;
+      padding:14px 14px 12px; border-radius:30px; margin-top:8px;
       background:
-        linear-gradient(180deg, rgba(17,39,31,.74), rgba(9,20,17,.88)),
+        linear-gradient(180deg, rgba(14,33,27,.82), rgba(8,19,16,.94)),
+        radial-gradient(circle at 12% 0%, rgba(125,255,175,.10), transparent 32%),
         linear-gradient(135deg, rgba(255,255,255,.05), transparent 35%);
-      border:1px solid rgba(180,255,217,.18);
-      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 1px rgba(124,255,170,.03);
+      border:1px solid rgba(180,255,217,.20);
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 1px rgba(124,255,170,.04);
+      overflow:hidden;
     }
     .topbar::after{
       content:""; position:absolute; left:18px; right:18px; bottom:0; height:1px; pointer-events:none;
       background:linear-gradient(90deg, transparent, rgba(122,255,173,.42), transparent);
       opacity:.85;
     }
+    .topbar-main{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; grid-column:1 / -1}
+    .topbar-left{min-width:0; display:grid; gap:10px}
     .brand{display:flex; align-items:center; gap:12px; min-width:0; text-decoration:none; color:inherit}
-    .brand-logo{width:52px; height:36px; filter:drop-shadow(0 0 16px rgba(98,255,152,.22))}
+    .brand-logo{width:54px; height:38px; filter:drop-shadow(0 0 18px rgba(98,255,152,.24))}
+    .brand-block{display:grid; gap:3px; min-width:0}
     .brand-name{
-      font-size:28px; font-weight:900; letter-spacing:.04em; font-style:italic;
+      font-size:28px; font-weight:900; letter-spacing:.05em; font-style:italic;
       color:#98ffb7;
-      text-shadow:0 0 20px rgba(66,255,138,.14), 0 1px 0 rgba(255,255,255,.14);
+      text-shadow:0 0 20px rgba(66,255,138,.16), 0 1px 0 rgba(255,255,255,.14);
+      line-height:.95;
     }
-    .route-indicator{min-width:0}
+    .brand-caption{font-size:10px; text-transform:uppercase; letter-spacing:.22em; color:rgba(214,242,224,.70); font-weight:800}
+    .route-indicator{
+      min-width:0;
+      padding:12px 14px;
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018)), rgba(7,17,14,.48);
+      border:1px solid rgba(180,255,216,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
     .route-label{
-      font-size:11px; text-transform:uppercase; letter-spacing:.18em; font-weight:800;
-      color:#b9d0c2; opacity:.9; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      font-size:10px; text-transform:uppercase; letter-spacing:.18em; font-weight:800;
+      color:#b9d0c2; opacity:.88; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .route-title{
-      font-size:17px; line-height:1.05; font-weight:820; letter-spacing:-.03em;
+      font-size:18px; line-height:1.05; font-weight:840; letter-spacing:-.03em;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .route-subtitle{
-      margin-top:3px; font-size:12px; color:var(--muted-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      margin-top:4px; font-size:12px; color:var(--muted-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
 
     .avatar-wrap{display:flex; align-items:center; gap:10px}
-    .topbar-actions{display:flex; align-items:center; gap:8px}
+    .topbar-actions{display:grid; gap:8px; justify-items:end}
     .top-chip{
-      min-width:44px; height:44px; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      min-width:52px; height:44px; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
       border-radius:16px; border:1px solid rgba(180,255,216,.13);
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), rgba(8,18,15,.58);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)), rgba(8,18,15,.62);
       color:#effff4; font-size:12px; font-weight:800; letter-spacing:.01em;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
     }
     .top-chip svg{width:18px; height:18px}
+    .top-menu-lane{
+      grid-column:1 / -1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:2px;
+    }
+    .menu-pill{
+      position:relative;
+      min-height:58px; padding:10px 12px 11px; border-radius:18px; overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018)), rgba(7,17,14,.52);
+      border:1px solid rgba(180,255,216,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .menu-pill::before{content:""; position:absolute; inset:0; background:linear-gradient(135deg, rgba(124,255,170,.08), transparent 58%); opacity:.9; pointer-events:none}
+    .menu-pill.kpi-blue::before{background:linear-gradient(135deg, rgba(125,208,255,.10), transparent 58%)}
+    .menu-pill-value{position:relative; z-index:1; font-size:20px; line-height:1; font-weight:840; letter-spacing:-.03em}
+    .menu-pill-label{position:relative; z-index:1; margin-top:5px; font-size:11px; line-height:1.15; color:var(--muted); font-weight:760}
     .avatar{
       width:52px; height:52px; border-radius:50%; overflow:hidden; flex:0 0 auto;
       border:1.5px solid rgba(124,255,168,.66);
@@ -407,15 +435,17 @@
     .back svg{width:20px;height:20px}
 
     .bottom-nav{
-      position:fixed; left:50%; transform:translateX(-50%); bottom:14px; z-index:10;
-      width:min(var(--page-max), calc(100vw - 16px));
-      padding:10px 10px calc(10px + env(safe-area-inset-bottom));
-      border-radius:32px;
+      position:fixed; left:50%; transform:translateX(-50%); bottom:12px; z-index:10;
+      width:min(var(--page-max), calc(100vw - 14px));
+      padding:8px 8px calc(10px + env(safe-area-inset-bottom));
+      border-radius:34px;
       background:
-        linear-gradient(180deg, rgba(9,20,17,.82), rgba(5,13,10,.94)),
+        linear-gradient(180deg, rgba(8,18,15,.90), rgba(4,10,8,.98)),
+        radial-gradient(circle at 50% 0%, rgba(125,255,175,.10), transparent 52%),
         linear-gradient(135deg, rgba(255,255,255,.04), transparent 36%);
-      border:1px solid rgba(180,255,216,.13);
-      box-shadow:0 22px 60px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04), 0 0 28px rgba(72,255,138,.08);
+      border:1px solid rgba(180,255,216,.14);
+      box-shadow:0 24px 70px rgba(0,0,0,.56), inset 0 1px 0 rgba(255,255,255,.05), 0 0 34px rgba(72,255,138,.08);
+      overflow:hidden;
     }
     .bottom-nav::before{
       content:""; position:absolute; left:10%; right:10%; top:0; height:1px;
@@ -424,40 +454,48 @@
     }
     .nav-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
     .nav-item{
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px;
-      min-height:80px; border-radius:24px; position:relative; text-decoration:none;
+      display:grid; justify-items:center; align-content:center; gap:6px;
+      min-height:82px; border-radius:26px; position:relative; text-decoration:none;
       color:#d8f4e0; transition:background .22s ease, transform .22s ease, color .22s ease, box-shadow .22s ease;
-      overflow:hidden;
+      overflow:hidden; padding:8px 6px 10px; isolation:isolate;
     }
     .nav-item::before{
-      content:""; position:absolute; inset:8px 12px 26px; border-radius:18px; opacity:0; transition:.22s ease;
-      background:linear-gradient(180deg, rgba(122,255,173,.18), rgba(43,224,113,.02));
+      content:""; position:absolute; inset:6px; border-radius:21px; opacity:0; transition:.22s ease;
+      background:linear-gradient(180deg, rgba(122,255,173,.16), rgba(43,224,113,.03));
       box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 0 20px rgba(76,255,140,.08);
     }
     .nav-item:hover{background:rgba(117,255,171,.05); transform:translateY(-1px)}
     .nav-item.active{
       color:#fff;
-      background:linear-gradient(180deg, rgba(17,40,30,.66), rgba(10,21,17,.54));
+      background:linear-gradient(180deg, rgba(17,40,30,.72), rgba(10,21,17,.56));
       box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
     }
     .nav-item.active::before{opacity:1}
     .nav-item.active::after{
-      content:""; position:absolute; bottom:6px; left:16%; right:16%; height:3px;
+      content:""; position:absolute; bottom:6px; left:18%; right:18%; height:3px;
       border-radius:999px;
       background:linear-gradient(90deg, transparent, rgba(117,255,171,.98), transparent);
       box-shadow:0 0 18px rgba(72,255,138,.48);
     }
     .nav-icon{
-      width:44px; height:44px; border-radius:15px; display:grid; place-items:center; position:relative; z-index:1;
+      width:46px; height:46px; border-radius:16px; display:grid; place-items:center; position:relative; z-index:1;
       background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.04);
     }
     .nav-item.active .nav-icon{
-      background:linear-gradient(180deg, rgba(120,255,172,.15), rgba(55,141,84,.05));
-      border-color:rgba(168,255,205,.20);
+      background:linear-gradient(180deg, rgba(120,255,172,.16), rgba(55,141,84,.05));
+      border-color:rgba(168,255,205,.22);
       box-shadow:0 0 20px rgba(72,255,138,.12);
     }
     .nav-item svg{width:24px; height:24px; opacity:.96}
-    .nav-item span{position:relative; z-index:1; font-size:12px; line-height:1.05; font-weight:750; text-align:center; letter-spacing:-.01em}
+    .nav-label{position:relative; z-index:1; font-size:12px; line-height:1.05; font-weight:780; text-align:center; letter-spacing:-.01em}
+    .nav-count{
+      position:absolute; top:12px; right:12px; z-index:2;
+      min-width:20px; height:20px; padding:0 6px; border-radius:999px; display:none; place-items:center;
+      font-size:11px; font-weight:820; line-height:1; color:#08130f;
+      background:linear-gradient(180deg, #dffff0, #8cffbb);
+      box-shadow:0 8px 18px rgba(72,255,138,.25);
+    }
+    .nav-count.show{display:grid}
 
     .toast{
       position:fixed; left:50%; top:18px; transform:translateX(-50%) translateY(-8px);
@@ -478,11 +516,18 @@
 
     @media (max-width:390px){
       .app{padding-inline:14px}
-      .topbar{grid-template-columns:auto 1fr auto; padding:12px 12px}
+      .topbar{padding:12px 12px 10px}
+      .topbar-main{grid-template-columns:minmax(0,1fr) auto; gap:10px}
       .brand-name{font-size:24px}
+      .brand-caption{font-size:9px}
+      .route-indicator{padding:10px 12px}
       .route-title{font-size:15px}
       .route-subtitle{font-size:11px}
       .top-chip{min-width:40px; height:40px; padding:0 10px; border-radius:14px}
+      .top-menu-lane{grid-template-columns:repeat(3,1fr); gap:7px}
+      .menu-pill{min-height:54px; padding:10px}
+      .menu-pill-value{font-size:18px}
+      .menu-pill-label{font-size:10px}
       .section-title{font-size:28px}
       .card{grid-template-columns:74px 1fr; gap:14px; padding:16px}
       .badge{grid-column:2; justify-self:start; margin-top:-2px}
@@ -494,7 +539,8 @@
       .hero-metrics,.kv{grid-template-columns:1fr}
       .standing-grid{grid-template-columns:34px 1fr repeat(2,auto)}
       .standing-grid .hide-m{display:none}
-      .nav-item span{font-size:11px}
+      .nav-label{font-size:11px}
+      .nav-count{top:10px; right:9px; min-width:18px; height:18px; font-size:10px}
     }
   </style>
 </head>
@@ -502,33 +548,54 @@
   <div class="toast" id="toast"></div>
   <main class="app">
     <header class="topbar">
-      <a class="brand" href="#home" data-route="home">
-        <svg class="brand-logo" viewBox="0 0 64 44" fill="none" aria-hidden="true">
-          <path d="M6 30.5C14.8 11.7 36.1 3.8 56 8.8C43.9 11.1 34.9 16.5 28.6 24.3C22.2 32.2 18.7 39.3 18 41H6.5C6.1 41 5.8 40.6 5.9 40.1L6 30.5Z" stroke="#72FF9A" stroke-width="3" stroke-linejoin="round"/>
-          <path d="M8 31.1C16.4 21.5 28.2 16.6 43.3 16.5C50.1 16.4 56.2 17.2 61 18.5" stroke="#72FF9A" stroke-width="3" stroke-linecap="round"/>
-          <path d="M6 31H30.3C42.4 31 52.4 24.7 58.7 14.7" stroke="#72FF9A" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-        <div class="brand-name">PADEL</div>
-      </a>
-      <div class="route-indicator">
-        <div class="route-label" id="routeLabel">Mobile product layer</div>
-        <div class="route-title" id="routeTitle">Tournaments</div>
-        <div class="route-subtitle" id="routeSubtitle">Live, joined and open events</div>
-      </div>
-      <div class="topbar-actions">
-        <div class="top-chip" id="liveChip" aria-label="Live tournaments">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M4.5 12a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".55"/><path d="M2 12a10 10 0 0 1 20 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".3"/></svg>
-          <span id="liveChipValue">1</span>
+      <div class="topbar-main">
+        <div class="topbar-left">
+          <a class="brand" href="#home" data-route="home">
+            <svg class="brand-logo" viewBox="0 0 64 44" fill="none" aria-hidden="true">
+              <path d="M6 30.5C14.8 11.7 36.1 3.8 56 8.8C43.9 11.1 34.9 16.5 28.6 24.3C22.2 32.2 18.7 39.3 18 41H6.5C6.1 41 5.8 40.6 5.9 40.1L6 30.5Z" stroke="#72FF9A" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M8 31.1C16.4 21.5 28.2 16.6 43.3 16.5C50.1 16.4 56.2 17.2 61 18.5" stroke="#72FF9A" stroke-width="3" stroke-linecap="round"/>
+              <path d="M6 31H30.3C42.4 31 52.4 24.7 58.7 14.7" stroke="#72FF9A" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div class="brand-block">
+              <div class="brand-name">PADEL</div>
+              <div class="brand-caption">Tournament OS</div>
+            </div>
+          </a>
+          <div class="route-indicator">
+            <div class="route-label" id="routeLabel">Mobile product layer</div>
+            <div class="route-title" id="routeTitle">Tournaments</div>
+            <div class="route-subtitle" id="routeSubtitle">Live, joined and open events</div>
+          </div>
         </div>
-        <div class="avatar-wrap">
-          <div class="avatar"><img alt="Player avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='%233f7f58'/><stop offset='1' stop-color='%2313211b'/></linearGradient></defs><rect width='100' height='100' fill='url(%23g)'/><circle cx='50' cy='38' r='18' fill='%23f0d4bf'/><path d='M20 94c5-18 18-28 30-28s25 10 30 28' fill='%23f0d4bf'/><path d='M33 42c2-11 9-19 18-19 9 0 16 8 18 19-2-2-6-5-10-6-5 7-17 9-26 6z' fill='%23291f1f'/></svg>" /></div>
-          <div class="status-dot" aria-hidden="true"></div>
+        <div class="topbar-actions">
+          <div class="top-chip" id="liveChip" aria-label="Live tournaments">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M4.5 12a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".55"/><path d="M2 12a10 10 0 0 1 20 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity=".3"/></svg>
+            <span id="liveChipValue">1</span>
+          </div>
+          <div class="avatar-wrap">
+            <div class="avatar"><img alt="Player avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='%233f7f58'/><stop offset='1' stop-color='%2313211b'/></linearGradient></defs><rect width='100' height='100' fill='url(%23g)'/><circle cx='50' cy='38' r='18' fill='%23f0d4bf'/><path d='M20 94c5-18 18-28 30-28s25 10 30 28' fill='%23f0d4bf'/><path d='M33 42c2-11 9-19 18-19 9 0 16 8 18 19-2-2-6-5-10-6-5 7-17 9-26 6z' fill='%23291f1f'/></svg>" /></div>
+            <div class="status-dot" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+      <div class="top-menu-lane" aria-label="Top navigation status">
+        <div class="menu-pill">
+          <div class="menu-pill-value" id="topLiveValue">1</div>
+          <div class="menu-pill-label">Live tournaments</div>
+        </div>
+        <div class="menu-pill kpi-blue">
+          <div class="menu-pill-value" id="topMatchValue">2</div>
+          <div class="menu-pill-label">My pending matches</div>
+        </div>
+        <div class="menu-pill">
+          <div class="menu-pill-value" id="topAvailableValue">1</div>
+          <div class="menu-pill-label">Open to join</div>
         </div>
       </div>
     </header>
 
     <section class="hero page active" data-page="home-hero">
-      <div class="eyebrow">Tournament OS • Player First</div>
+      <div class="eyebrow">Tournament OS • Premium nav</div>
       <h1>Find tournaments. Play matches. Submit results.</h1>
       <p>One clean place for your active tournaments, upcoming events, your match feed and standings.</p>
       <div class="hero-metrics">
@@ -603,19 +670,19 @@
     <div class="nav-grid">
       <a href="#home" data-route="home" class="nav-item active">
         <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7.5h16M6.5 3.5v4M17.5 3.5v4M5.5 20.5h13A1.5 1.5 0 0 0 20 19V7.5H4V19A1.5 1.5 0 0 0 5.5 20.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h3M13 12h3M8 16h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-        <span>Tournaments</span>
+        <span class="nav-label">Tournaments</span><span class="nav-count" id="navCountHome"></span>
       </a>
       <a href="#matches" data-route="matches" class="nav-item">
         <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4.5h10A1.5 1.5 0 0 1 18.5 6v14l-4-2-4 2-4-2-4 2V6A1.5 1.5 0 0 1 4 4.5h3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9h8M8 13h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-        <span>Matches</span>
+        <span class="nav-label">Matches</span><span class="nav-count" id="navCountMatches"></span>
       </a>
       <a href="#history" data-route="history" class="nav-item">
         <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4.5h12A1.5 1.5 0 0 1 19.5 6v12A1.5 1.5 0 0 1 18 19.5H6A1.5 1.5 0 0 1 4.5 18V6A1.5 1.5 0 0 1 6 4.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8.5h8M8 12h8M8 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-        <span>History</span>
+        <span class="nav-label">History</span><span class="nav-count" id="navCountHistory"></span>
       </a>
       <a href="#profile" data-route="profile" class="nav-item">
         <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 19c1.6-3 4-4.5 7-4.5s5.4 1.5 7 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-        <span>Profile</span>
+        <span class="nav-label">Profile</span>
       </a>
     </div>
   </nav>
@@ -662,7 +729,7 @@
     ]
   };
 
-  const STORAGE_KEY = 'padel-v12-4-state';
+  const STORAGE_KEY = 'padel-v12-6-state';
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 
@@ -695,6 +762,33 @@
     $('#routeSubtitle').textContent = meta.subtitle;
     $('#liveChipValue').textContent = String(liveCount);
   }
+  function updateNavCounts(){
+    const liveCount = state.tournaments.filter(t=>t.status==='live').length;
+    const openCount = state.tournaments.filter(t=>t.status==='open').length;
+    const myMatchCount = state.matches.filter(m=>m.teams.flat().includes(state.currentPlayerId) && m.status!=='completed').length;
+    const historyCount = state.tournaments.filter(t=>t.status==='finished').length;
+
+    $('#topLiveValue').textContent = String(liveCount);
+    $('#topMatchValue').textContent = String(myMatchCount);
+    $('#topAvailableValue').textContent = String(openCount);
+
+    const setCount = (id, value) => {
+      const el = $(id);
+      if(!el) return;
+      if(value > 0){
+        el.textContent = value > 9 ? '9+' : String(value);
+        el.classList.add('show');
+      }else{
+        el.textContent = '';
+        el.classList.remove('show');
+      }
+    };
+
+    setCount('#navCountHome', liveCount + openCount);
+    setCount('#navCountMatches', myMatchCount);
+    setCount('#navCountHistory', historyCount);
+  }
+
 
   function toast(msg){
     const el = $('#toast');
@@ -1012,6 +1106,7 @@
     }
     $$('.nav-item').forEach(a=>a.classList.toggle('active', a.dataset.route===route));
     updateTopbar(route);
+    updateNavCounts();
     if(route==='detail') renderDetail();
     if(route==='matches') renderMatches();
     if(route==='history') renderHistory();
