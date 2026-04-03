@@ -1,2 +1,0 @@
-Upload the contents of this folder to the GitHub Pages publish directory.
-Open with: https://nikolaipogodin-padel.github.io/Padel/?v=12_1
