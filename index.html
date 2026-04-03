@@ -1,45 +1,596 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Padel v13</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Padel Tournament OS v14.0</title>
+  <meta name="theme-color" content="#07110f" />
+  <style>
+    :root{
+      --bg:#07110f;
+      --panel:rgba(7,16,15,.58);
+      --panel-strong:rgba(8,20,18,.84);
+      --glass:rgba(255,255,255,.045);
+      --glass-2:rgba(255,255,255,.025);
+      --text:#f3fff8;
+      --muted:#a7beb2;
+      --muted-2:#7e968d;
+      --line:rgba(116,255,174,.18);
+      --line-blue:rgba(122,208,255,.22);
+      --green:#8cffb0;
+      --green-2:#42e676;
+      --blue:#79d8ff;
+      --blue-2:#2d9bff;
+      --lime:#d8ff7a;
+      --danger:#ff869b;
+      --radius-xl:28px;
+      --radius-lg:22px;
+      --radius-md:18px;
+      --radius-sm:14px;
+      --shadow-1:0 18px 50px rgba(0,0,0,.34);
+      --shadow-2:0 28px 80px rgba(0,0,0,.48);
+      --safe-bottom:max(16px, env(safe-area-inset-bottom));
+      --page-width:430px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 14% 10%, rgba(80,186,255,.12), transparent 24%),
+        radial-gradient(circle at 82% 16%, rgba(132,255,168,.10), transparent 26%),
+        linear-gradient(180deg, rgba(3,10,15,.18), rgba(3,11,10,.72) 42%, rgba(4,10,9,.90) 100%),
+        url('assets/background.jpg') center/cover fixed no-repeat;
+      overflow-x:hidden;
+      letter-spacing:-.01em;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        linear-gradient(180deg, rgba(3,8,12,.36), rgba(4,10,9,.16) 22%, rgba(4,9,8,.76) 72%, rgba(3,8,8,.94) 100%),
+        radial-gradient(circle at center, transparent 48%, rgba(0,0,0,.28));
+    }
+    body::after{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.08;
+      background-image:radial-gradient(rgba(255,255,255,.9) .65px, transparent .75px);
+      background-size:10px 10px;
+      mix-blend-mode:screen;
+    }
+    .app{position:relative; z-index:1; min-height:100%; max-width:var(--page-width); margin:0 auto; padding:16px 14px calc(114px + var(--safe-bottom));}
+    .glass{backdrop-filter:blur(18px) saturate(140%); -webkit-backdrop-filter:blur(18px) saturate(140%)}
+    .panel,.hero-card,.compact-card,.match-card,.detail-shell,.topbar,.bottom-nav,.segmented,.metric-card,.floating-cta{backdrop-filter:blur(18px) saturate(140%); -webkit-backdrop-filter:blur(18px) saturate(140%)}
+
+    .topbar{
+      position:sticky; top:10px; z-index:20; border-radius:26px; padding:14px 14px 12px;
+      background:linear-gradient(180deg, rgba(11,28,25,.82), rgba(7,18,16,.92));
+      border:1px solid rgba(130,255,183,.18); box-shadow:var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .topbar::before{content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 0%, rgba(122,255,175,.12), transparent 34%), radial-gradient(circle at 100% 0%, rgba(92,205,255,.14), transparent 30%);}
+    .topbar > *{position:relative; z-index:1}
+    .top-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:start}
+    .brand{display:flex; gap:12px; align-items:center; min-width:0; text-decoration:none; color:inherit}
+    .brand-logo{width:50px; height:50px; border-radius:16px; background:linear-gradient(180deg, rgba(122,216,255,.22), rgba(91,255,170,.12)); border:1px solid rgba(133,236,255,.45); display:grid; place-items:center; box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 0 26px rgba(97,223,255,.20), inset 0 1px 0 rgba(255,255,255,.16)}
+    .brand-logo span{font-weight:900; font-size:30px; line-height:1; color:#ebffff; text-shadow:0 0 18px rgba(132,231,255,.48)}
+    .brand-copy{min-width:0}
+    .eyebrow{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:rgba(214,240,229,.74); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .brand-title{margin-top:4px; font-size:18px; font-weight:860; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 0 14px rgba(128,255,193,.18)}
+    .session-box{min-width:110px; padding:8px 10px; border-radius:16px; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.018)), rgba(5,15,13,.55); border:1px solid rgba(153,255,202,.12)}
+    .session-box .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:800}
+    .session-box .v{margin-top:4px; font-size:14px; font-weight:760}
+
+    .segmented{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; padding:4px; border-radius:18px; background:rgba(3,10,9,.38); border:1px solid rgba(130,255,183,.10)}
+    .seg-btn{appearance:none; border:0; cursor:pointer; min-height:44px; border-radius:14px; background:transparent; color:var(--muted); font-size:13px; font-weight:760; letter-spacing:.01em}
+    .seg-btn.active{color:#edfff4; background:linear-gradient(180deg, rgba(101,240,160,.16), rgba(88,255,150,.06)); box-shadow:inset 0 0 0 1px rgba(126,255,181,.28), 0 0 22px rgba(112,255,169,.12)}
+
+    .hero-stack{margin-top:16px; display:grid; gap:12px}
+    .hero-card{
+      position:relative; overflow:hidden; border-radius:28px; padding:18px;
+      background:linear-gradient(180deg, rgba(9,25,22,.74), rgba(6,17,15,.88));
+      border:1px solid rgba(136,255,188,.20); box-shadow:var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.06), 0 0 42px rgba(122,255,175,.10);
+    }
+    .hero-card::before{content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(120deg, rgba(103,221,255,.22), transparent 28%, transparent 62%, rgba(195,255,110,.18) 100%); opacity:.45}
+    .hero-card::after{content:""; position:absolute; inset:1px; border-radius:27px; pointer-events:none; box-shadow:inset 0 0 0 1px rgba(130,255,183,.12), inset 0 0 34px rgba(112,255,172,.06)}
+    .hero-head{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:start}
+    .hero-title{margin:4px 0 0; font-size:34px; line-height:.96; letter-spacing:-.05em; font-weight:880; text-shadow:0 0 20px rgba(139,255,190,.12)}
+    .hero-meta{margin-top:10px; display:grid; gap:6px; color:#d9efe2}
+    .hero-meta span{display:block; font-size:15px; color:var(--muted)}
+    .status-pill{display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:32px; padding:0 12px; border-radius:999px; background:linear-gradient(180deg, rgba(220,255,130,.20), rgba(157,255,95,.10)); border:1px solid rgba(214,255,123,.36); color:#f4ffd0; font-size:13px; font-weight:800; box-shadow:0 0 18px rgba(202,255,104,.15), inset 0 0 14px rgba(201,255,120,.10)}
+    .status-pill::before{content:""; width:8px; height:8px; border-radius:50%; background:#ddff7f; box-shadow:0 0 12px rgba(220,255,127,.72)}
+    .hero-actions{display:grid; grid-template-columns:1fr auto; gap:10px; margin-top:14px}
+    .btn{appearance:none; cursor:pointer; border:0; min-height:48px; padding:0 16px; border-radius:16px; font-weight:820; font-size:14px; color:#07110f; background:linear-gradient(180deg, #cbff7f, #83ffb6); box-shadow:0 10px 22px rgba(118,255,163,.26), inset 0 1px 0 rgba(255,255,255,.36)}
+    .btn.secondary{color:#eafff1; background:linear-gradient(180deg, rgba(124,216,255,.16), rgba(124,216,255,.06)), rgba(7,18,16,.66); border:1px solid rgba(121,216,255,.28); box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(90,203,255,.10)}
+    .btn.ghost{color:#eafff1; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)), rgba(7,17,15,.50); border:1px solid rgba(161,255,204,.12); box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+    .btn.danger{color:#fff3f6; background:linear-gradient(180deg, rgba(255,112,140,.20), rgba(255,112,140,.08)), rgba(18,6,10,.72); border:1px solid rgba(255,143,168,.28)}
+
+    .metric-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+    .metric-card{position:relative; padding:12px; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), rgba(7,16,15,.58); border:1px solid rgba(122,255,176,.12); box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+    .metric-card.blue{border-color:rgba(122,208,255,.18)}
+    .metric-card .v{font-size:28px; line-height:1; font-weight:860}
+    .metric-card .l{margin-top:6px; font-size:11px; line-height:1.2; color:var(--muted)}
+
+    .section{margin-top:20px}
+    .section-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+    .section-title{font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:#d7f0e3; font-weight:800}
+    .section-sub{font-size:12px; color:var(--muted-2)}
+    .stack{display:grid; gap:12px}
+
+    .compact-card,.panel,.detail-shell,.match-card{
+      position:relative; overflow:hidden; border-radius:22px; padding:16px; background:linear-gradient(180deg, rgba(10,24,21,.68), rgba(6,16,15,.84));
+      border:1px solid rgba(130,255,183,.12); box-shadow:var(--shadow-1), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .compact-card.blue,.panel.blue{border-color:rgba(122,208,255,.16)}
+    .compact-card::before,.detail-shell::before,.panel::before,.match-card::before{content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(120deg, rgba(121,216,255,.08), transparent 30%, transparent 70%, rgba(194,255,120,.06));}
+    .compact-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center}
+    .compact-title{font-size:23px; line-height:1.02; font-weight:840; margin:0}
+    .compact-meta{margin-top:8px; display:grid; gap:4px; font-size:13px; color:var(--muted)}
+    .compact-kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-top:14px; border-radius:18px; overflow:hidden; border:1px solid rgba(122,255,176,.10); background:rgba(255,255,255,.02)}
+    .compact-kpi .item{padding:10px 8px; text-align:center; border-right:1px solid rgba(255,255,255,.06)}
+    .compact-kpi .item:last-child{border-right:0}
+    .compact-kpi .n{font-size:10px; text-transform:uppercase; color:var(--muted-2); letter-spacing:.12em}
+    .compact-kpi .v{margin-top:4px; font-size:15px; font-weight:820}
+    .pill{display:inline-flex; align-items:center; justify-content:center; padding:0 10px; min-height:30px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); color:#eefef4; font-size:12px; font-weight:760}
+    .pill.live{background:linear-gradient(180deg, rgba(220,255,130,.20), rgba(157,255,95,.10)); border-color:rgba(214,255,123,.32); color:#efffcb}
+    .pill.open{background:linear-gradient(180deg, rgba(122,208,255,.18), rgba(122,208,255,.08)); border-color:rgba(122,208,255,.24); color:#dcf6ff}
+    .pill.finished{background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); color:#c7d4ce}
+
+    .floating-cta{display:none; margin-top:10px; min-height:54px; border-radius:20px; align-items:center; justify-content:center; font-weight:860; letter-spacing:.01em; color:#06110f; background:linear-gradient(180deg, #cbff7f, #81ffb9); box-shadow:0 18px 40px rgba(136,255,168,.22)}
+
+    .page{display:none; animation:fade .22s ease}
+    .page.active{display:block}
+    @keyframes fade{from{opacity:.55; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{appearance:none; border:1px solid rgba(128,255,183,.14); background:rgba(6,16,14,.60); color:var(--muted); border-radius:999px; min-height:36px; padding:0 14px; font-size:13px; font-weight:760}
+    .chip.active{color:#ecfff3; background:linear-gradient(180deg, rgba(122,255,176,.18), rgba(122,255,176,.06)); box-shadow:0 0 18px rgba(120,255,172,.10), inset 0 0 0 1px rgba(122,255,176,.20)}
+
+    .match-top{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px}
+    .match-title{font-size:18px; font-weight:840; line-height:1.15}
+    .muted{color:var(--muted)}
+    .muted-2{color:var(--muted-2)}
+    .score{font-size:20px; font-weight:860; letter-spacing:-.03em}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+
+    .back{display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 12px; border-radius:14px; text-decoration:none; color:#eafff3; background:rgba(7,18,16,.58); border:1px solid rgba(130,255,183,.10)}
+    .back svg{width:18px; height:18px}
+    .detail-shell{margin-top:12px; padding:18px}
+    .detail-hero-title{font-size:30px; line-height:1; font-weight:880; margin:6px 0 0}
+    .detail-top-meta{margin-top:10px; display:grid; gap:6px; color:var(--muted)}
+    .detail-metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px}
+    .detail-metrics .box{padding:10px 8px; border-radius:16px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.06); text-align:center}
+    .detail-metrics .box .n{font-size:10px; color:var(--muted-2); letter-spacing:.12em; text-transform:uppercase}
+    .detail-metrics .box .v{margin-top:4px; font-size:16px; font-weight:820}
+    .tabbar{display:flex; gap:8px; overflow:auto; padding-bottom:2px; margin-top:14px}
+    .tab{appearance:none; border:1px solid rgba(130,255,183,.10); background:rgba(6,16,14,.58); color:var(--muted); min-height:38px; padding:0 14px; border-radius:999px; font-size:13px; font-weight:780; white-space:nowrap}
+    .tab.active{color:#eefff4; background:linear-gradient(180deg, rgba(125,216,255,.18), rgba(125,216,255,.07)); border-color:rgba(125,216,255,.28); box-shadow:0 0 18px rgba(125,216,255,.10)}
+    .list{display:grid; gap:10px; margin-top:14px}
+    .standing-row,.profile-row,.activity-row{padding:14px; border-radius:18px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)}
+    .standing-grid{display:grid; grid-template-columns:34px minmax(0,1fr) repeat(4,auto); gap:10px; align-items:center}
+    .rank{width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-weight:840; color:#06110f; background:linear-gradient(180deg, #cbff7f, #83ffb6)}
+    .row-between{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .empty{padding:18px; border-radius:20px; background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.10); color:var(--muted)}
+
+    .bottom-nav{
+      position:fixed; left:50%; bottom:14px; transform:translateX(-50%); width:min(calc(100% - 18px), var(--page-width)); z-index:30;
+      padding:8px; border-radius:24px; background:linear-gradient(180deg, rgba(9,25,22,.88), rgba(6,16,15,.94)); border:1px solid rgba(130,255,183,.14); box-shadow:0 30px 70px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .nav-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
+    .nav-item{position:relative; min-height:62px; border-radius:18px; display:grid; place-items:center; gap:4px; align-content:center; text-decoration:none; color:var(--muted); background:transparent}
+    .nav-item.active{color:#f1fff7; background:linear-gradient(180deg, rgba(121,216,255,.16), rgba(121,216,255,.06)), rgba(7,16,15,.78); box-shadow:inset 0 0 0 1px rgba(121,216,255,.20), 0 0 22px rgba(121,216,255,.10)}
+    .nav-item svg{width:20px; height:20px}
+    .nav-label{font-size:11px; font-weight:760}
+    .nav-count{position:absolute; top:8px; right:10px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; display:none; place-items:center; background:linear-gradient(180deg, #cbff7f, #82ffb5); color:#07110f; font-size:10px; font-weight:860}
+    .nav-count.show{display:grid}
+
+    .toast{position:fixed; left:50%; top:16px; transform:translate(-50%,-16px); z-index:40; min-width:200px; max-width:calc(100% - 32px); padding:12px 14px; border-radius:16px; background:rgba(8,19,17,.92); color:#ecfff3; border:1px solid rgba(130,255,183,.16); box-shadow:var(--shadow-2); opacity:0; pointer-events:none; transition:.22s ease}
+    .toast.show{opacity:1; transform:translate(-50%,0)}
+
+    @media (max-width:390px){
+      .app{padding-left:12px; padding-right:12px}
+      .hero-title{font-size:30px}
+      .compact-title{font-size:20px}
+      .detail-hero-title{font-size:26px}
+      .detail-metrics{grid-template-columns:repeat(2,1fr)}
+      .standing-grid{grid-template-columns:32px minmax(0,1fr) repeat(2,auto)}
+      .hide-m{display:none}
+      .session-box{min-width:94px}
+    }
+  </style>
 </head>
 <body>
+  <div class="toast" id="toast"></div>
+  <main class="app">
+    <header class="topbar">
+      <div class="top-row">
+        <a class="brand" href="#home" data-route="home">
+          <div class="brand-logo"><span>P</span></div>
+          <div class="brand-copy">
+            <div class="eyebrow">Tournament OS</div>
+            <div class="brand-title">Padel premium mobile</div>
+          </div>
+        </a>
+        <div class="session-box">
+          <div class="k">Role session</div>
+          <div class="v">Player mode</div>
+        </div>
+      </div>
+      <div class="segmented" aria-label="Top menu">
+        <button class="seg-btn active" type="button" id="segTournaments">Tournaments</button>
+        <button class="seg-btn" type="button" id="segPlayers">Players</button>
+      </div>
+    </header>
 
-<div class="app">
+    <section class="page active" data-page="home">
+      <div class="hero-stack">
+        <div id="homeHero"></div>
+        <div class="metric-strip">
+          <div class="metric-card"><div class="v" id="metricRegistered">0</div><div class="l">Registered</div></div>
+          <div class="metric-card blue"><div class="v" id="metricCourts">0</div><div class="l">Courts</div></div>
+          <div class="metric-card"><div class="v" id="metricTeams">0</div><div class="l">Teams</div></div>
+        </div>
+      </div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-card">
-      <div class="badge">LIVE</div>
-      <h1>Riga Evening Open</h1>
-      <p>17 Aug · Riga · 10:00</p>
-      <button class="primary">View Matches</button>
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">My tournaments</div>
+            <div class="section-sub">Joined and live first</div>
+          </div>
+        </div>
+        <div class="stack" id="myTournaments"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Open tournaments</div>
+            <div class="section-sub">Available to join</div>
+          </div>
+        </div>
+        <div class="stack" id="availableTournaments"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="matches">
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">My matches</div>
+            <div class="section-sub">Only your own schedule and results</div>
+          </div>
+        </div>
+        <div class="toolbar" id="matchFilters"></div>
+        <div class="stack" id="myMatches"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="history">
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">History</div>
+            <div class="section-sub">Finished tournaments and activity trail</div>
+          </div>
+        </div>
+        <div class="stack" id="historyList"></div>
+      </div>
+    </section>
+
+    <section class="page" data-page="profile">
+      <div class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Profile</div>
+            <div class="section-sub">Player state and demo controls</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="row-between"><strong id="profileName">Nikolaj P.</strong><span class="pill live">Active</span></div>
+          <div style="margin-top:10px" class="muted">Club player • only own matches visible • result can be submitted by admin or any of the four players.</div>
+          <div class="detail-metrics" style="margin-top:14px">
+            <div class="box"><div class="n">Club</div><div class="v">Riga</div></div>
+            <div class="box"><div class="n">Joined</div><div class="v" id="profileJoinedCount">0</div></div>
+            <div class="box"><div class="n">Done</div><div class="v" id="profileMatchesDone">0</div></div>
+            <div class="box"><div class="n">Mode</div><div class="v">Player</div></div>
+          </div>
+          <div class="actions"><button class="btn ghost" id="resetDemo">Reset demo data</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" data-page="detail">
+      <div class="section">
+        <a href="#home" class="back" data-route="home"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Back</span></a>
+        <div id="detailShell"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Primary">
+    <div class="nav-grid">
+      <a href="#home" data-route="home" class="nav-item active"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7.5h16M6.5 3.5v4M17.5 3.5v4M5.5 20.5h13A1.5 1.5 0 0 0 20 19V7.5H4V19A1.5 1.5 0 0 0 5.5 20.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h3M13 12h3M8 16h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">Home</span><span class="nav-count" id="navCountHome"></span></a>
+      <a href="#matches" data-route="matches" class="nav-item"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4.5h10A1.5 1.5 0 0 1 18.5 6v14l-4-2-4 2-4-2-4 2V6A1.5 1.5 0 0 1 4 4.5h3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9h8M8 13h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">Matches</span><span class="nav-count" id="navCountMatches"></span></a>
+      <a href="#history" data-route="history" class="nav-item"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4.5h12A1.5 1.5 0 0 1 19.5 6v12A1.5 1.5 0 0 1 18 19.5H6A1.5 1.5 0 0 1 4.5 18V6A1.5 1.5 0 0 1 6 4.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8.5h8M8 12h8M8 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">History</span><span class="nav-count" id="navCountHistory"></span></a>
+      <a href="#profile" data-route="profile" class="nav-item"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 19c1.6-3 4-4.5 7-4.5s5.4 1.5 7 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">Profile</span></a>
     </div>
-  </section>
+  </nav>
 
-  <!-- MY -->
-  <section class="section">
-    <h2>My Tournaments</h2>
-    <div class="card compact">Joined Tournament</div>
-  </section>
+  <script>
+  const seed = {
+    currentPlayerId: 'p1',
+    detailTournamentId: null,
+    selectedMatchFilter: 'all',
+    detailTab: 'overview',
+    profiles: [
+      {id:'p1', name:'Nikolaj P.'},
+      {id:'p2', name:'Mark'},
+      {id:'p3', name:'Atis'},
+      {id:'p4', name:'Erik'},
+      {id:'p5', name:'Sofia'},
+      {id:'p6', name:'Alex'}
+    ],
+    tournaments: [
+      {id:'t1', name:'Riga Evening Open', start:'17 August 2023', time:'10:00', duration:'20 min', format:'Dynamic Duo', status:'live', club:'Padel Riga', venue:'Riga', description:'Live tournament with player-entered match results and live standings.', maxPlayers:16, stage:'Live', accent:'green', courts:2},
+      {id:'t2', name:'Jurmala Open', start:'Tomorrow', time:'18:30', duration:'90 min', format:'Mixed Doubles', status:'open', club:'Padel Riga', venue:'Jurmala', description:'Open tournament waiting for more registrations before match generation.', maxPlayers:16, stage:'Open', accent:'blue', courts:2},
+      {id:'t3', name:'Spring Night Series', start:'March 15, 2024', time:'19:10', duration:'120 min', format:'Americano', status:'finished', club:'Padel Riga', venue:'Riga', description:'Finished weekly series.', maxPlayers:12, stage:'Finished', accent:'blue', courts:1}
+    ],
+    tournamentPlayers: [
+      {id:'tp1', tournamentId:'t1', profileId:'p1', status:'joined', team:'Team 1'},
+      {id:'tp2', tournamentId:'t1', profileId:'p2', status:'joined', team:'Team 1'},
+      {id:'tp3', tournamentId:'t1', profileId:'p3', status:'joined', team:'Team 2'},
+      {id:'tp4', tournamentId:'t1', profileId:'p4', status:'joined', team:'Team 2'},
+      {id:'tp5', tournamentId:'t2', profileId:'p5', status:'joined', team:'Seed 1'},
+      {id:'tp6', tournamentId:'t2', profileId:'p6', status:'joined', team:'Seed 2'},
+      {id:'tp7', tournamentId:'t3', profileId:'p1', status:'joined', team:'Night Pair'}
+    ],
+    matches: [
+      {id:'m1', tournamentId:'t1', court:'Court 1', time:'Today • 18:30', status:'scheduled', result:null, teams:[['p1','p2'],['p3','p4']]},
+      {id:'m2', tournamentId:'t1', court:'Court 2', time:'Today • 20:00', status:'completed', result:'6:4 4:6 10:8', teams:[['p1','p2'],['p3','p4']], submittedBy:'p1'},
+      {id:'m3', tournamentId:'t3', court:'Court 1', time:'March 15 • 19:10', status:'completed', result:'6:1 6:2', teams:[['p1','p3'],['p5','p6']], submittedBy:'p3'}
+    ],
+    activity: [
+      {id:'a1', text:'You joined Riga Evening Open', at:'Today • 12:10'},
+      {id:'a2', text:'Result submitted in Court 2', at:'Today • 20:15'},
+      {id:'a3', text:'Spring Night Series finished', at:'March 15 • 22:20'}
+    ]
+  };
 
-  <!-- AVAILABLE -->
-  <section class="section">
-    <h2>Available</h2>
-    <div class="card compact">Open Tournament</div>
-  </section>
+  const STORAGE_KEY = 'padel-v14-state';
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  function loadState(){ try{ const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); return saved ? {...seed, ...saved} : structuredClone(seed);}catch(e){ return structuredClone(seed);} }
+  let state = loadState();
+  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function getProfileName(id){ return state.profiles.find(p=>p.id===id)?.name || 'Unknown'; }
+  function tpForTournament(tid){ return state.tournamentPlayers.filter(tp=>tp.tournamentId===tid); }
+  function joinedTournamentIds(){ return state.tournamentPlayers.filter(tp=>tp.profileId===state.currentPlayerId && tp.status==='joined').map(tp=>tp.tournamentId); }
+  function myTournamentPlayers(){ return state.tournamentPlayers.filter(tp=>tp.profileId===state.currentPlayerId); }
+  function myMatches(){ return state.matches.filter(m => m.teams.flat().includes(state.currentPlayerId)); }
+  function parseResult(str){ return str.split(' ').map(set=>set.split(':').map(Number)).filter(a=>a.length===2 && !a.some(Number.isNaN)); }
+  function scoreSets(sets, idx){ return sets.reduce((acc, [a,b]) => acc + ((idx===0 ? a>b : b>a) ? 1 : 0), 0); }
+  function standingsForTournament(tid){
+    const rows = {};
+    tpForTournament(tid).forEach(tp => rows[tp.profileId] = {profileId:tp.profileId, played:0, won:0, lost:0, points:0, diff:0});
+    state.matches.filter(m => m.tournamentId===tid && m.status==='completed' && m.result).forEach(m=>{
+      const sets = parseResult(m.result); const t1 = scoreSets(sets,0), t2 = scoreSets(sets,1); const winnerTeam = t1>t2 ? 0 : 1;
+      m.teams.forEach((team, idx)=> team.forEach(pid=>{ rows[pid].played += 1; rows[pid].points += idx===winnerTeam ? 3 : 1; rows[pid].won += idx===winnerTeam ? 1 : 0; rows[pid].lost += idx===winnerTeam ? 0 : 1; rows[pid].diff += idx===0 ? (t1-t2) : (t2-t1);}));
+    });
+    return Object.values(rows).sort((a,b)=>b.points-a.points || b.diff-a.diff || a.profileId.localeCompare(b.profileId)).map((r,i)=>({...r, rank:i+1}));
+  }
 
-</div>
+  function tournamentStatusClass(status){ return status==='live' ? 'live' : status==='open' ? 'open' : 'finished'; }
+  function activeTournament(){
+    const joinedLive = state.tournaments.find(t => joinedTournamentIds().includes(t.id) && t.status==='live');
+    return joinedLive || state.tournaments.find(t=>t.status==='live') || state.tournaments.find(t=>joinedTournamentIds().includes(t.id)) || state.tournaments[0];
+  }
+  function teamsCount(tid){ return Math.max(1, Math.ceil(tpForTournament(tid).filter(x=>x.status==='joined').length / 2)); }
 
-<nav class="bottom-nav">
-  <button class="active">Home</button>
-  <button>Matches</button>
-  <button>Tournaments</button>
-  <button>Profile</button>
-</nav>
+  function toast(msg){ const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),1800); }
 
+  function renderHomeHero(){
+    const t = activeTournament(); if(!t) return;
+    const joined = joinedTournamentIds().includes(t.id);
+    const players = tpForTournament(t.id).filter(x=>x.status==='joined').length;
+    const myPending = myMatches().filter(m=>m.tournamentId===t.id && m.status!=='completed').length;
+    $('#homeHero').innerHTML = `
+      <article class="hero-card">
+        <div class="hero-head">
+          <div>
+            <div class="eyebrow">${t.club}</div>
+            <h1 class="hero-title">${t.name}</h1>
+          </div>
+          <div class="status-pill">${t.stage}</div>
+        </div>
+        <div class="hero-meta">
+          <span>Date: ${t.start}</span>
+          <span>Place: ${t.venue}</span>
+          <span>Start: ${t.time || t.start}</span>
+          <span>Duration: ${t.duration || '—'}</span>
+        </div>
+        <div class="hero-actions">
+          <button class="btn" id="heroPrimaryBtn">${joined ? 'View matches' : (t.status==='open' ? 'Join tournament' : 'Open tournament')}</button>
+          <button class="btn secondary" id="heroSecondaryBtn">Standings</button>
+        </div>
+      </article>`;
+    $('#heroPrimaryBtn').onclick = ()=>{
+      if(joined){ routeTo('matches'); return; }
+      if(t.status==='open'){ joinTournament(t.id); return; }
+      openTournament(t.id);
+    };
+    $('#heroSecondaryBtn').onclick = ()=>{ state.detailTab='standings'; openTournament(t.id); };
+    $('#metricRegistered').textContent = players;
+    $('#metricCourts').textContent = String(t.courts || Math.max(1, Math.ceil(players/4)));
+    $('#metricTeams').textContent = String(teamsCount(t.id));
+  }
+
+  function renderTournamentCard(t, my=false){
+    const players = tpForTournament(t.id).filter(x=>x.status==='joined').length;
+    const matches = state.matches.filter(m=>m.tournamentId===t.id).length;
+    const statusClass = tournamentStatusClass(t.status);
+    const meta2 = my ? (tpForTournament(t.id).find(x=>x.profileId===state.currentPlayerId)?.team || t.format) : t.format;
+    return `
+      <article class="compact-card ${t.accent==='blue' ? 'blue' : ''}" data-tournament-id="${t.id}" tabindex="0">
+        <div class="compact-row">
+          <div>
+            <h3 class="compact-title">${t.name}</h3>
+            <div class="compact-meta">
+              <div>${t.start} • ${t.venue}</div>
+              <div>${my ? 'My team' : 'Format'}: ${meta2}</div>
+            </div>
+          </div>
+          <span class="pill ${statusClass}">${t.stage}</span>
+        </div>
+        <div class="compact-kpi">
+          <div class="item"><div class="n">Players</div><div class="v">${players}</div></div>
+          <div class="item"><div class="n">Courts</div><div class="v">${t.courts || Math.max(1, Math.ceil(players/4))}</div></div>
+          <div class="item"><div class="n">Matches</div><div class="v">${matches}</div></div>
+        </div>
+      </article>`;
+  }
+
+  function renderHome(){
+    renderHomeHero();
+    const joinedIds = new Set(joinedTournamentIds());
+    const my = state.tournaments.filter(t => joinedIds.has(t.id) && t.status !== 'finished').sort((a,b)=> (a.status==='live'?-1:1) - (b.status==='live'?-1:1));
+    const available = state.tournaments.filter(t => !joinedIds.has(t.id) && t.status === 'open');
+    $('#myTournaments').innerHTML = my.length ? my.map(t=>renderTournamentCard(t, true)).join('') : `<div class="empty">No joined tournaments right now.</div>`;
+    $('#availableTournaments').innerHTML = available.length ? available.map(t=>renderTournamentCard(t,false)).join('') : `<div class="empty">No open tournaments right now.</div>`;
+    bindTournamentCards();
+  }
+
+  function renderMatches(){
+    const filters=[{id:'all',label:'All'},{id:'scheduled',label:'Scheduled'},{id:'completed',label:'Completed'}];
+    $('#matchFilters').innerHTML = filters.map(f=>`<button class="chip ${state.selectedMatchFilter===f.id?'active':''}" data-filter="${f.id}">${f.label}</button>`).join('');
+    $$('#matchFilters .chip').forEach(btn=>btn.onclick=()=>{state.selectedMatchFilter=btn.dataset.filter; saveState(); renderMatches();});
+    let items=myMatches(); if(state.selectedMatchFilter!=='all') items = items.filter(m=>m.status===state.selectedMatchFilter);
+    $('#myMatches').innerHTML = items.length ? items.map(m=>{
+      const t = state.tournaments.find(t=>t.id===m.tournamentId); const team1 = m.teams[0].map(getProfileName).join(' / '); const team2 = m.teams[1].map(getProfileName).join(' / ');
+      return `<article class="match-card" data-match-id="${m.id}">
+        <div class="match-top">
+          <div>
+            <div class="match-title">${team1}</div>
+            <div class="muted">vs ${team2}</div>
+          </div>
+          <span class="pill ${tournamentStatusClass(m.status==='completed' ? 'finished' : t.status)}">${m.status}</span>
+        </div>
+        <div style="margin-top:12px" class="muted">${t.name} • ${m.time} • ${m.court}</div>
+        <div class="row-between" style="margin-top:10px"><div class="muted-2">Result</div><div class="score">${m.result || 'Missing'}</div></div>
+        <div class="actions">${m.status==='scheduled' ? `<button class="btn secondary" data-submit-match="${m.id}">Submit result</button>` : `<button class="btn ghost" data-open-tournament="${t.id}">Open tournament</button>`}</div>
+      </article>`;
+    }).join('') : `<div class="empty">No matches in this filter.</div>`;
+    $$('[data-submit-match]').forEach(btn=>btn.onclick=(e)=>{e.stopPropagation(); submitResultFlow(btn.dataset.submitMatch);});
+    $$('[data-open-tournament]').forEach(btn=>btn.onclick=(e)=>{e.stopPropagation(); openTournament(btn.dataset.openTournament);});
+    $$('[data-match-id]').forEach(el=>el.onclick=()=>openTournament(state.matches.find(m=>m.id===el.dataset.matchId).tournamentId));
+  }
+
+  function renderHistory(){
+    const historyTs = state.tournaments.filter(t=>t.status==='finished');
+    $('#historyList').innerHTML = (historyTs.length ? historyTs.map(t=>renderTournamentCard(t,false)).join('') : `<div class="empty">No finished tournaments yet.</div>`) + `
+      <div class="panel blue">
+        <div class="section-title" style="font-size:11px">Recent activity</div>
+        <div class="list">${state.activity.map(a=>`<div class="activity-row"><div>${a.text}</div><div class="muted" style="margin-top:6px">${a.at}</div></div>`).join('')}</div>
+      </div>`;
+    bindTournamentCards();
+  }
+
+  function renderProfile(){
+    $('#profileJoinedCount').textContent = myTournamentPlayers().length;
+    $('#profileMatchesDone').textContent = myMatches().filter(m=>m.status==='completed').length;
+    $('#resetDemo').onclick = ()=>{ localStorage.removeItem(STORAGE_KEY); state = structuredClone(seed); routeTo('home'); toast('Demo data reset'); };
+  }
+
+  function renderDetail(){
+    const t = state.tournaments.find(x=>x.id===state.detailTournamentId);
+    if(!t){ routeTo('home'); return; }
+    const joined = joinedTournamentIds().includes(t.id); const players = tpForTournament(t.id).filter(x=>x.status==='joined'); const matches = state.matches.filter(m=>m.tournamentId===t.id); const standings = standingsForTournament(t.id);
+    const tabs=[{id:'overview',label:'Overview'},{id:'players',label:'Players'},{id:'matches',label:'Schedule'},{id:'standings',label:'Standings'},{id:'activity',label:'Activity'}];
+
+    const overviewHtml = `
+      <div class="list">
+        <div class="panel"><div class="section-title" style="font-size:11px">System rules</div><div style="margin-top:10px" class="muted">Player sees only own matches. Result can be submitted by admin or any one of the four players. System stores who submitted the result.</div></div>
+        ${matches.slice(0,2).map(m=>{
+          const team1=m.teams[0].map(getProfileName).join(' / '), team2=m.teams[1].map(getProfileName).join(' / ');
+          return `<article class="match-card"><div class="match-top"><div><div class="match-title">${team1}</div><div class="muted">vs ${team2}</div></div><div class="score">${m.result || '—'}</div></div><div style="margin-top:10px" class="muted">${m.time} • ${m.court}</div></article>`;
+        }).join('') || `<div class="empty">No matches yet.</div>`}
+      </div>`;
+
+    const playersHtml = players.length ? players.map(tp=>`<div class="profile-row"><div class="row-between"><strong>${getProfileName(tp.profileId)}</strong><span class="pill ${tp.status==='joined'?'live':'finished'}">${tp.status}</span></div><div class="muted" style="margin-top:6px">${tp.team}</div></div>`).join('') : `<div class="empty">No players yet.</div>`;
+
+    const matchesHtml = matches.length ? matches.map(m=>{
+      const team1=m.teams[0].map(getProfileName).join(' / '), team2=m.teams[1].map(getProfileName).join(' / ');
+      return `<article class="match-card"><div class="match-top"><div><div class="match-title">${team1}</div><div class="muted">vs ${team2}</div></div><span class="pill ${m.status==='completed'?'finished':'open'}">${m.status}</span></div><div style="margin-top:10px" class="muted">${m.time} • ${m.court}</div><div class="row-between" style="margin-top:10px"><div class="muted-2">Score</div><div class="score">${m.result || 'Missing'}</div></div><div class="actions">${m.status!=='completed' ? `<button class="btn secondary" data-submit-detail="${m.id}">Submit result</button>` : `<button class="btn ghost" disabled>Submitted by ${getProfileName(m.submittedBy || state.currentPlayerId)}</button>`}</div></article>`;
+    }).join('') : `<div class="empty">No matches yet.</div>`;
+
+    const standingsHtml = standings.length ? standings.map(s=>`<div class="standing-row"><div class="standing-grid"><div class="rank">${s.rank}</div><div><strong>${getProfileName(s.profileId)}</strong></div><div><b>P</b> ${s.played}</div><div><b>Pts</b> ${s.points}</div><div class="hide-m"><b>W</b> ${s.won}</div><div class="hide-m"><b>Diff</b> ${s.diff}</div></div></div>`).join('') : `<div class="empty">Standings will appear after first result.</div>`;
+
+    const activityHtml = state.activity.filter(a => a.text.toLowerCase().includes(t.name.toLowerCase().split(' ')[0].toLowerCase()) || a.text.includes('Result')).map(a=>`<div class="activity-row"><div>${a.text}</div><div class="muted" style="margin-top:6px">${a.at}</div></div>`).join('') || `<div class="empty">No activity yet.</div>`;
+
+    const tabContent = {overview:overviewHtml, players:`<div class="list">${playersHtml}</div>`, matches:`<div class="list">${matchesHtml}</div>`, standings:`<div class="list">${standingsHtml}</div>`, activity:`<div class="list">${activityHtml}</div>`};
+
+    $('#detailShell').innerHTML = `
+      <article class="detail-shell">
+        <div class="hero-head">
+          <div>
+            <div class="eyebrow">${t.club}</div>
+            <h1 class="detail-hero-title">${t.name}</h1>
+          </div>
+          <span class="status-pill">${t.stage}</span>
+        </div>
+        <div class="detail-top-meta">
+          <div>Date: ${t.start}</div>
+          <div>Place: ${t.venue}</div>
+          <div>Start: ${t.time || t.start}</div>
+        </div>
+        <div class="detail-metrics">
+          <div class="box"><div class="n">Registered</div><div class="v">${players.length}</div></div>
+          <div class="box"><div class="n">Courts</div><div class="v">${t.courts || Math.max(1, Math.ceil(players.length/4))}</div></div>
+          <div class="box"><div class="n">Teams</div><div class="v">${teamsCount(t.id)}</div></div>
+          <div class="box"><div class="n">Matches</div><div class="v">${matches.length}</div></div>
+        </div>
+        <div class="actions">
+          ${t.status==='open' && !joined ? `<button class="btn" id="joinTournamentBtn">Join tournament</button>` : ''}
+          ${joined && t.status!=='finished' ? `<button class="btn danger" id="withdrawTournamentBtn">Withdraw</button>` : ''}
+          <button class="btn secondary" id="openMatchesBtn">Open my matches</button>
+        </div>
+        <div class="tabbar" id="detailTabs">${tabs.map(tab=>`<button class="tab ${state.detailTab===tab.id?'active':''}" data-detail-tab="${tab.id}">${tab.label}</button>`).join('')}</div>
+        <div id="detailContent">${tabContent[state.detailTab] || tabContent.overview}</div>
+      </article>`;
+
+    $('#joinTournamentBtn')?.addEventListener('click', ()=>joinTournament(t.id));
+    $('#withdrawTournamentBtn')?.addEventListener('click', ()=>withdrawTournament(t.id));
+    $('#openMatchesBtn')?.addEventListener('click', ()=>routeTo('matches'));
+    $$('#detailTabs .tab').forEach(btn=>btn.onclick=()=>{state.detailTab=btn.dataset.detailTab; saveState(); renderDetail();});
+    $$('[data-submit-detail]').forEach(btn=>btn.onclick=()=>submitResultFlow(btn.dataset.submitDetail));
+  }
+
+  function joinTournament(tid){ if(joinedTournamentIds().includes(tid)){ toast('Already joined'); return; } state.tournamentPlayers.push({id:'tp'+Math.random().toString(36).slice(2,7), tournamentId:tid, profileId:state.currentPlayerId, status:'joined', team:'Pending draw'}); state.activity.unshift({id:'a'+Date.now(), text:`You joined ${state.tournaments.find(t=>t.id===tid).name}`, at:'Just now'}); saveState(); renderAll(); toast('Joined tournament'); }
+  function withdrawTournament(tid){ const row = state.tournamentPlayers.find(tp=>tp.tournamentId===tid && tp.profileId===state.currentPlayerId); if(!row){ toast('Not joined'); return; } state.tournamentPlayers = state.tournamentPlayers.filter(tp=>!(tp.tournamentId===tid && tp.profileId===state.currentPlayerId)); state.activity.unshift({id:'a'+Date.now(), text:`You withdrew from ${state.tournaments.find(t=>t.id===tid).name}`, at:'Just now'}); saveState(); renderAll(); routeTo('home'); toast('Withdrawn'); }
+  function submitResultFlow(mid){ const result = prompt('Enter result like 6:4 4:6 10:8', '6:4 4:6 10:8'); if(!result) return; const m = state.matches.find(x=>x.id===mid); m.result=result; m.status='completed'; m.submittedBy=state.currentPlayerId; state.activity.unshift({id:'a'+Date.now(), text:`Result submitted in ${m.court}`, at:'Just now'}); saveState(); renderAll(); toast('Result submitted'); }
+  function bindTournamentCards(){ $$('[data-tournament-id]').forEach(card=>{ const open=()=>openTournament(card.dataset.tournamentId); card.onclick=open; card.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } }; }); }
+  function openTournament(tid){ state.detailTournamentId=tid; if(!state.detailTab) state.detailTab='overview'; saveState(); routeTo('detail'); }
+  function updateNavCounts(){
+    const liveCount = state.tournaments.filter(t=>t.status==='live').length;
+    const openCount = state.tournaments.filter(t=>t.status==='open').length;
+    const myMatchCount = state.matches.filter(m=>m.teams.flat().includes(state.currentPlayerId) && m.status!=='completed').length;
+    const historyCount = state.tournaments.filter(t=>t.status==='finished').length;
+    const setCount=(id,value)=>{ const el=$(id); if(!el) return; if(value>0){ el.textContent=value>9?'9+':String(value); el.classList.add('show'); } else { el.textContent=''; el.classList.remove('show'); } };
+    setCount('#navCountHome', liveCount+openCount); setCount('#navCountMatches', myMatchCount); setCount('#navCountHistory', historyCount);
+  }
+  function routeTo(route){ location.hash = route; updateRoute(); }
+  function updateRoute(){
+    const route = location.hash.replace('#','') || 'home';
+    $$('.page').forEach(p=>p.classList.remove('active')); const page=$('[data-page="'+route+'"]'); if(page) page.classList.add('active');
+    $$('.nav-item').forEach(a=>a.classList.toggle('active', a.dataset.route===route));
+    if(route==='detail') renderDetail(); if(route==='matches') renderMatches(); if(route==='history') renderHistory(); if(route==='profile') renderProfile(); if(route==='home') renderHome(); updateNavCounts();
+  }
+  function renderAll(){ renderHome(); renderMatches(); renderHistory(); renderProfile(); if(location.hash.replace('#','')==='detail') renderDetail(); updateNavCounts(); }
+  window.addEventListener('hashchange', updateRoute);
+  $$('[data-route]').forEach(el=>el.addEventListener('click', e=>{ const route=el.dataset.route; if(route){ e.preventDefault(); routeTo(route); } }));
+  $('#segTournaments').onclick=()=>{ $('#segTournaments').classList.add('active'); $('#segPlayers').classList.remove('active'); routeTo('home'); };
+  $('#segPlayers').onclick=()=>{ $('#segPlayers').classList.add('active'); $('#segTournaments').classList.remove('active'); routeTo('profile'); };
+  renderAll(); updateRoute();
+  </script>
 </body>
 </html>
