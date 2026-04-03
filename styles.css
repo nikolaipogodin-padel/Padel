@@ -1,0 +1,65 @@
+body {
+  margin:0;
+  font-family: Arial;
+  background:#0b0f14;
+  color:white;
+}
+
+.hero {
+  padding:16px;
+}
+
+.hero-card {
+  border-radius:20px;
+  padding:20px;
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 0 20px rgba(0,255,150,0.4);
+}
+
+.badge {
+  display:inline-block;
+  background:#00ff99;
+  color:black;
+  padding:4px 10px;
+  border-radius:20px;
+  margin-bottom:10px;
+}
+
+.primary {
+  margin-top:10px;
+  padding:10px 16px;
+  border-radius:12px;
+  background:#00ff99;
+  border:none;
+}
+
+.section {
+  padding:16px;
+}
+
+.card {
+  padding:16px;
+  border-radius:16px;
+  background: rgba(255,255,255,0.03);
+  margin-top:8px;
+}
+
+.bottom-nav {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:#0b0f14;
+  padding:10px 0;
+}
+
+.bottom-nav button {
+  background:none;
+  border:none;
+  color:#aaa;
+}
+
+.bottom-nav .active {
+  color:#00ff99;
+}
