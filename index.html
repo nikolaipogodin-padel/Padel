@@ -543,31 +543,51 @@
       .nav-count{top:10px; right:9px; min-width:18px; height:18px; font-size:10px}
     }
   
-    /* v15 rebuild */
+
+    /* v16 rebuild */
     .topbar-v15{
-      padding:14px 16px;
+      padding:14px 14px 12px;
       background:
-        linear-gradient(180deg, rgba(10,24,21,.78), rgba(6,13,13,.92)),
-        radial-gradient(circle at 20% 0%, rgba(86,255,168,.16), transparent 34%);
-      border-color:rgba(145,255,202,.22);
-      box-shadow:0 18px 44px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.03), 0 0 28px rgba(78,255,142,.08);
+        linear-gradient(180deg, rgba(8,18,22,.78), rgba(6,13,17,.96)),
+        radial-gradient(circle at 12% 0%, rgba(82,239,255,.18), transparent 26%),
+        radial-gradient(circle at 88% 0%, rgba(132,255,159,.14), transparent 30%);
+      border-color:rgba(116,237,255,.18);
+      box-shadow:
+        0 18px 44px rgba(0,0,0,.44),
+        inset 0 1px 0 rgba(255,255,255,.04),
+        0 0 36px rgba(55,212,255,.08);
     }
     .topbar-v15::after{display:none}
     .topbar-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center}
+    .brand-logo{
+      width:42px; height:42px; padding:8px; border-radius:14px;
+      border:1px solid rgba(106,239,255,.28);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), rgba(7,17,18,.62);
+      box-shadow:0 0 24px rgba(63,219,255,.12), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .brand-caption{
+      font-size:10px; text-transform:uppercase; letter-spacing:.22em; color:rgba(214,242,224,.54); font-weight:700
+    }
+    .brand-name{
+      font-size:24px; font-weight:900; letter-spacing:.04em; font-style:italic;
+      color:#c9fff0;
+      text-shadow:0 0 18px rgba(68,255,168,.18), 0 0 28px rgba(58,210,255,.10);
+      line-height:.95;
+    }
     .session-card{
-      min-width:136px; max-width:162px;
+      min-width:124px; max-width:150px;
       padding:10px 12px 11px;
-      border-radius:20px;
-      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02)), rgba(6,15,14,.55);
-      border:1px solid rgba(145,255,202,.16);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02)), rgba(6,15,14,.42);
+      border:1px solid rgba(145,255,202,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
       text-align:right;
     }
     .session-overline{
-      font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); opacity:.84; font-weight:760;
+      font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); opacity:.68; font-weight:760;
     }
     .session-main{
-      margin-top:4px; font-size:18px; line-height:1; font-weight:820;
+      margin-top:4px; font-size:17px; line-height:1; font-weight:820;
     }
     .session-sub{
       margin-top:4px; font-size:11px; color:var(--muted-2); line-height:1.2;
@@ -584,89 +604,109 @@
     .hero-shell{
       position:relative;
       padding:10px 0 0;
+      display:grid;
+      gap:14px;
     }
     .hero-headline{
       display:flex; justify-content:space-between; align-items:center;
-      padding:0 6px 10px;
+      padding:0 4px 0;
     }
     .hero-status-badge{
-      padding:7px 14px;
+      padding:8px 14px;
       border-radius:999px;
-      border:1px solid rgba(183,255,219,.34);
-      background:linear-gradient(180deg, rgba(133,255,181,.18), rgba(124,255,170,.08));
-      box-shadow:0 0 20px rgba(74,255,141,.18), inset 0 0 18px rgba(255,255,255,.04);
-      font-size:13px; font-weight:800; color:#dbffe7;
+      border:1px solid rgba(183,255,219,.22);
+      background:linear-gradient(180deg, rgba(139,255,179,.20), rgba(124,255,170,.08));
+      box-shadow:0 0 24px rgba(74,255,141,.14), inset 0 0 18px rgba(255,255,255,.04);
+      font-size:12px; font-weight:900; color:#effff5; text-transform:uppercase; letter-spacing:.12em;
     }
     .hero-main-card{
       position:relative;
-      border-radius:28px;
-      padding:18px 18px 16px;
+      border-radius:30px;
+      padding:22px 18px 18px;
       background:
-        linear-gradient(180deg, rgba(17,38,29,.64), rgba(7,16,15,.88)),
-        radial-gradient(circle at 0% 0%, rgba(113,232,255,.18), transparent 28%),
-        radial-gradient(circle at 100% 0%, rgba(140,255,171,.16), transparent 32%);
-      border:1px solid rgba(146,255,202,.18);
+        linear-gradient(180deg, rgba(12,26,28,.70), rgba(7,16,18,.92)),
+        radial-gradient(circle at 0% 0%, rgba(81,232,255,.16), transparent 26%),
+        radial-gradient(circle at 100% 0%, rgba(164,255,125,.14), transparent 32%);
+      border:1px solid rgba(96,238,255,.22);
       box-shadow:
-        0 24px 56px rgba(0,0,0,.34),
-        inset 0 1px 0 rgba(255,255,255,.05),
+        0 24px 56px rgba(0,0,0,.40),
+        inset 0 1px 0 rgba(255,255,255,.06),
         0 0 0 1px rgba(129,255,176,.06),
-        0 0 42px rgba(66,255,138,.12);
+        0 0 48px rgba(66,255,138,.10);
       overflow:hidden;
     }
     .hero-main-card::before{
       content:"";
       position:absolute; inset:0; pointer-events:none;
-      background:linear-gradient(135deg, rgba(89,220,255,.14), transparent 34%, transparent 60%, rgba(125,255,175,.12));
+      background:
+        linear-gradient(135deg, rgba(89,220,255,.16), transparent 34%, transparent 66%, rgba(125,255,175,.12)),
+        linear-gradient(0deg, transparent 0 92%, rgba(157,255,229,.24) 100%);
       opacity:.95;
     }
-    .hero-card-grid{position:relative; z-index:1; display:grid; gap:14px}
-    .hero-title-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start}
-    .hero-title{
-      font-size:38px; line-height:.94; letter-spacing:-.045em; font-weight:860; margin:0;
-      text-shadow:0 6px 24px rgba(0,0,0,.28);
+    .hero-card-grid{position:relative; z-index:1; display:grid; gap:16px}
+    .hero-card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:12px}
+    .hero-kicker{
+      font-size:11px; text-transform:uppercase; letter-spacing:.18em; color:rgba(202,233,222,.72); font-weight:800;
+      margin-bottom:10px;
     }
-    .hero-meta-list{display:grid; gap:7px}
-    .hero-meta-line{display:flex; gap:8px; color:#dcefe4; font-size:15px}
-    .hero-meta-line span:first-child{color:var(--muted-2); min-width:64px}
+    .hero-title{
+      font-size:38px; line-height:.94; letter-spacing:-.05em; font-weight:900; margin:0;
+      text-shadow:0 6px 24px rgba(0,0,0,.30);
+      max-width:9ch;
+    }
+    .hero-meta-list{display:grid; gap:10px}
+    .hero-meta-line{
+      display:grid; grid-template-columns:72px minmax(0,1fr); gap:8px;
+      color:#e8fff6; font-size:14px; align-items:center;
+    }
+    .hero-meta-line span:first-child{color:var(--muted-2); text-transform:uppercase; letter-spacing:.10em; font-size:11px; font-weight:800}
+    .hero-glow-badge{
+      padding:8px 13px; border-radius:999px; font-size:12px; font-weight:900; letter-spacing:.14em; text-transform:uppercase;
+      background:linear-gradient(180deg, rgba(154,255,125,.18), rgba(154,255,125,.08));
+      border:1px solid rgba(154,255,125,.26);
+      box-shadow:0 0 18px rgba(154,255,125,.16);
+      white-space:nowrap;
+    }
     .hero-primary-row{display:flex; gap:10px; flex-wrap:wrap}
     .btn.cta{
-      min-height:48px;
+      min-height:50px;
       padding:0 18px;
-      border-radius:16px;
-      border:1px solid rgba(185,255,219,.26);
-      background:linear-gradient(180deg, rgba(113,255,169,.24), rgba(58,209,104,.14));
-      box-shadow:0 0 26px rgba(76,255,140,.16), inset 0 1px 0 rgba(255,255,255,.08);
-      color:#f4fff8; font-size:14px; font-weight:820;
+      border-radius:18px;
+      border:1px solid rgba(185,255,219,.24);
+      background:linear-gradient(180deg, rgba(146,255,125,.26), rgba(85,225,110,.14));
+      box-shadow:0 0 28px rgba(116,255,111,.12), inset 0 1px 0 rgba(255,255,255,.08);
+      color:#f4fff8; font-size:14px; font-weight:860;
     }
-    .hero-tabstrip{
-      display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:8px; margin-top:12px; padding:0 2px;
-    }
-    .hero-mini-tab{
-      min-height:40px;
-      border:none; border-radius:14px;
-      background:rgba(8,17,17,.58);
-      border:1px solid rgba(147,255,202,.10);
-      color:var(--muted); font-weight:760; font-size:13px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
-    }
-    .hero-mini-tab.active{
-      color:#f6fff9;
-      border-color:rgba(183,255,219,.28);
-      box-shadow:0 0 18px rgba(76,255,140,.10), inset 0 1px 0 rgba(255,255,255,.06);
+    .hero-actions-note{
+      font-size:12px; color:var(--muted-2); padding-left:2px;
     }
     .hero-kpi-row{
-      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:12px;
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px;
     }
     .hero-kpi{
-      padding:12px 10px;
+      padding:13px 10px;
       border-radius:18px;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), rgba(8,18,15,.66);
-      border:1px solid rgba(180,255,216,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)), rgba(8,18,15,.66);
+      border:1px solid rgba(96,238,255,.14);
       text-align:center;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
     }
-    .hero-kpi-value{font-size:28px; line-height:1; font-weight:840}
-    .hero-kpi-label{margin-top:5px; font-size:11px; color:var(--muted)}
+    .hero-kpi-value{font-size:26px; line-height:1; font-weight:860}
+    .hero-kpi-label{margin-top:6px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.10em}
+    .home-match-focus{
+      display:grid; gap:10px;
+      padding:16px 16px 14px;
+      border-radius:24px;
+      background:
+        linear-gradient(180deg, rgba(12,24,28,.66), rgba(7,15,18,.88)),
+        radial-gradient(circle at 100% 0%, rgba(81,232,255,.12), transparent 22%);
+      border:1px solid rgba(96,238,255,.16);
+      box-shadow:0 16px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .home-match-head{display:flex; justify-content:space-between; align-items:center; gap:10px}
+    .home-match-overline{font-size:11px; text-transform:uppercase; letter-spacing:.16em; color:rgba(201,230,221,.68); font-weight:800}
+    .home-match-title{font-size:20px; font-weight:840; line-height:1.02}
+    .home-match-meta{color:var(--muted); font-size:13px; line-height:1.4}
     .section-title{padding:0 2px}
     .card{
       grid-template-columns:1fr;
@@ -674,85 +714,122 @@
       padding:18px;
       border-radius:24px;
       background:
-        linear-gradient(180deg, rgba(16,35,28,.70), rgba(8,18,16,.90)),
-        linear-gradient(135deg, rgba(125,255,175,.05), transparent 42%);
-      border:1px solid rgba(179,255,216,.14);
-      box-shadow:0 18px 46px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+        linear-gradient(180deg, rgba(14,26,31,.72), rgba(8,17,20,.92)),
+        linear-gradient(135deg, rgba(81,232,255,.06), transparent 42%);
+      border:1px solid rgba(96,238,255,.14);
+      box-shadow:0 18px 46px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(135deg, rgba(81,232,255,.08), transparent 40%, transparent 70%, rgba(154,255,125,.06));
+      opacity:.9;
+    }
+    .card.live{
+      border-color:rgba(154,255,125,.18);
+      box-shadow:0 18px 46px rgba(0,0,0,.32), 0 0 28px rgba(154,255,125,.08), inset 0 1px 0 rgba(255,255,255,.04);
     }
     .card.blue{
       background:
-        linear-gradient(180deg, rgba(16,30,39,.70), rgba(8,16,24,.90)),
-        linear-gradient(135deg, rgba(125,208,255,.07), transparent 42%);
+        linear-gradient(180deg, rgba(14,26,31,.72), rgba(8,17,20,.92)),
+        linear-gradient(135deg, rgba(81,232,255,.08), transparent 42%);
     }
-    .card .content{display:grid; gap:10px}
-    .card .meta{color:var(--muted)}
-    .card .title{font-size:28px}
-    .card .badge{justify-self:start}
+    .card .content{display:grid; gap:10px; position:relative; z-index:1}
+    .card .meta{color:var(--muted); font-size:13px; line-height:1.45}
+    .card .title{font-size:26px; line-height:.98}
+    .card .badge{justify-self:start; position:relative; z-index:1}
     .icon-shell{display:none}
     .stack .card::after{
       content:"";
+      position:relative; z-index:1;
       height:1px; width:100%; display:block;
-      background:linear-gradient(90deg, rgba(125,208,255,.16), rgba(124,255,170,.26), transparent);
+      background:linear-gradient(90deg, rgba(81,232,255,.24), rgba(124,255,170,.24), transparent);
       opacity:.75;
     }
     .match-card{width:100%}
     .panel{
       border-radius:26px;
       background:
-        linear-gradient(180deg, rgba(16,35,28,.64), rgba(8,18,16,.88)),
-        linear-gradient(135deg, rgba(125,255,175,.05), transparent 42%);
-      border:1px solid rgba(179,255,216,.14);
-      box-shadow:0 18px 46px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+        linear-gradient(180deg, rgba(14,26,31,.72), rgba(8,17,20,.90)),
+        linear-gradient(135deg, rgba(81,232,255,.06), transparent 42%);
+      border:1px solid rgba(96,238,255,.14);
+      box-shadow:0 18px 46px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .chip.active,
+    .tab.active,
+    .badge{
+      box-shadow:0 0 20px rgba(81,232,255,.08);
     }
     .bottom-nav-v15{
       padding:10px 10px calc(10px + var(--safe-bottom));
-      background:linear-gradient(180deg, rgba(10,17,17,.52), rgba(8,14,14,.94));
-      border-top:1px solid rgba(180,255,216,.10);
+      background:linear-gradient(180deg, rgba(8,15,18,.52), rgba(6,11,14,.96));
+      border-top:1px solid rgba(96,238,255,.12);
     }
     .bottom-nav-v15::before{
-      background:linear-gradient(90deg, rgba(125,208,255,.18), rgba(124,255,170,.36), rgba(255,217,117,.12));
+      background:linear-gradient(90deg, rgba(81,232,255,.24), rgba(124,255,170,.24), rgba(255,217,117,.10));
       opacity:.9;
     }
     .bottom-nav-v15 .nav-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
     .bottom-nav-v15 .nav-item.active{
-      background:linear-gradient(180deg, rgba(20,44,35,.82), rgba(10,20,18,.92));
-      box-shadow:0 0 24px rgba(76,255,140,.12), inset 0 1px 0 rgba(255,255,255,.04);
+      background:linear-gradient(180deg, rgba(14,32,34,.84), rgba(9,18,20,.94));
+      border-color:rgba(96,238,255,.18);
+      box-shadow:0 0 24px rgba(81,232,255,.10), inset 0 1px 0 rgba(255,255,255,.04);
     }
     .detail-dashboard-top{
       display:grid; gap:14px;
+      position:relative;
+      overflow:hidden;
+      border-radius:24px;
+      padding:18px;
+      background:
+        linear-gradient(180deg, rgba(12,26,28,.70), rgba(7,16,18,.92)),
+        radial-gradient(circle at 0% 0%, rgba(81,232,255,.16), transparent 28%),
+        radial-gradient(circle at 100% 0%, rgba(164,255,125,.14), transparent 32%);
+      border:1px solid rgba(96,238,255,.18);
+      box-shadow:0 18px 46px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.05), 0 0 34px rgba(66,255,138,.08);
     }
     .detail-dashboard-kpis{
       display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:2px;
     }
     .detail-dashboard-kpi{
       padding:12px 10px; border-radius:18px; text-align:center;
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), rgba(8,18,15,.66);
-      border:1px solid rgba(180,255,216,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)), rgba(8,18,15,.66);
+      border:1px solid rgba(96,238,255,.14);
     }
     .detail-dashboard-kpi b{display:block; font-size:24px; line-height:1; margin-bottom:4px}
     .tabs{
-      display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px;
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px;
     }
-    .tabs .tab:last-child{display:none}
+    .tabs .tab:last-child{display:block}
     .tab{
       border-radius:14px;
-      min-height:42px;
+      min-height:44px;
       padding:10px 12px;
       text-align:center;
+      background:rgba(8,17,17,.58);
+      border:1px solid rgba(96,238,255,.10);
+      color:var(--muted); font-weight:760; font-size:13px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .tab.active{
+      color:#f6fff9;
+      border-color:rgba(96,238,255,.24);
+      box-shadow:0 0 18px rgba(81,232,255,.10), inset 0 1px 0 rgba(255,255,255,.06);
     }
     .profile-row, .activity-row, .standing-row{
       padding:14px 16px;
       border-radius:18px;
       background:rgba(255,255,255,.025);
-      border:1px solid rgba(180,255,216,.08);
+      border:1px solid rgba(96,238,255,.08);
     }
     @media (max-width:420px){
-      .hero-title{font-size:32px}
+      .hero-title{font-size:34px}
       .hero-kpi-value{font-size:24px}
-      .hero-meta-line{font-size:14px}
+      .hero-meta-line{grid-template-columns:64px minmax(0,1fr); font-size:13px}
       .card .title{font-size:24px}
-      .hero-tabstrip,.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
       .hero-kpi-row,.detail-dashboard-kpis{grid-template-columns:1fr 1fr 1fr}
+      .topbar-row{grid-template-columns:minmax(0,1fr) 132px}
     }
 
   </style>
@@ -770,14 +847,14 @@
             <path d="M6 31H30.3C42.4 31 52.4 24.7 58.7 14.7" stroke="#72FF9A" stroke-width="3" stroke-linecap="round"/>
           </svg>
           <div class="brand-block">
-            <div class="brand-caption">EYEBROW</div>
+            <div class="brand-caption">Tournament OS</div>
             <div class="brand-name">PADEL</div>
           </div>
         </a>
         <div class="session-card">
-          <div class="session-overline">Role session</div>
+          <div class="session-overline">Player session</div>
           <div class="session-main" id="routeTitle">Home</div>
-          <div class="session-sub" id="routeSubtitle">Live tournament focus</div>
+          <div class="session-sub" id="routeSubtitle">Next action ready</div>
         </div>
       </div>
     </header>
@@ -790,13 +867,8 @@
           <div class="hero-status-badge" id="heroStatusBadge">Live</div>
         </div>
         <div class="hero-main-card" id="homeHeroCard"></div>
-        <div class="hero-tabstrip">
-          <button class="hero-mini-tab active" type="button">Overview</button>
-          <button class="hero-mini-tab" type="button">Players</button>
-          <button class="hero-mini-tab" type="button">Schedule</button>
-          <button class="hero-mini-tab" type="button">Standings</button>
-        </div>
         <div class="hero-kpi-row" id="homeHeroKpis"></div>
+        <div class="home-match-focus" id="homeMatchFocus"></div>
       </div>
     </section>
 
@@ -895,7 +967,7 @@
     currentPlayerId: 'p1',
     detailTournamentId: null,
     selectedMatchFilter: 'all',
-    detailTab: 'overview',
+    detailTab: 'players',
     profiles: [
       {id:'p1', name:'Nikolaj P.'},
       {id:'p2', name:'Mark'},
@@ -1040,20 +1112,25 @@
     return sets.reduce((acc, [a,b]) => acc + ((idx===0 ? a>b : b>a) ? 1 : 0), 0);
   }
 
+  
   function renderTournamentCard(t, my=false){
     const accentClass = t.accent==='blue' ? 'blue' : '';
-    const icon = t.accent==='blue' ? 'cup' : 'racket';
-    return `<article class="card ${accentClass}" data-tournament-id="${t.id}" tabindex="0">
-      <div class="icon-shell">${iconSvg(icon)}</div>
+    const liveClass = t.status==='live' ? 'live' : '';
+    const teamLabel = tpForTournament(t.id).find(x=>x.profileId===state.currentPlayerId)?.team || t.format;
+    const secondaryMeta = my ? `Team: ${teamLabel}` : `${tpForTournament(t.id).length} / ${t.maxPlayers} players`;
+    return `<article class="card ${accentClass} ${liveClass}" data-tournament-id="${t.id}" tabindex="0">
       <div class="content">
+        <div class="row">
+          <div class="eyebrow">${t.club}</div>
+          <div class="badge ${t.status==='open' ? 'secondary' : ''}">${t.stage}</div>
+        </div>
         <h2 class="title">${t.name}</h2>
-        <div class="meta">Starts: ${t.start}<br/>${my ? `Team: ${tpForTournament(t.id).find(x=>x.profileId===state.currentPlayerId)?.team || t.format}` : t.format}</div>
+        <div class="meta">${t.start} • ${t.venue}<br/>${secondaryMeta}</div>
       </div>
-      <div class="badge">${t.stage}</div>
     </article>`;
   }
 
-  
+
   function renderHome(){
     const joinedIds = new Set(joinedTournamentIds());
     const my = state.tournaments.filter(t => joinedIds.has(t.id) && t.status !== 'finished');
@@ -1062,42 +1139,63 @@
     const focusPlayers = tpForTournament(focus.id).length;
     const focusMatches = state.matches.filter(m=>m.tournamentId===focus.id).length;
     const focusTeams = Math.max(1, Math.floor(focusPlayers/2));
+    const nextMatch = myMatches().find(m => m.status==='scheduled') || myMatches()[0];
     $('#homeHeroCard').innerHTML = `
       <div class="hero-card-grid">
-        <div class="hero-title-row">
+        <div class="hero-card-top">
           <div>
+            <div class="hero-kicker">Selected tournament</div>
             <h1 class="hero-title">${focus.name}</h1>
-            <div class="hero-meta-list">
-              <div class="hero-meta-line"><span>Date</span><strong>${focus.start}</strong></div>
-              <div class="hero-meta-line"><span>Place</span><strong>${focus.club}</strong></div>
-              <div class="hero-meta-line"><span>Start</span><strong>${focus.venue}</strong></div>
-              <div class="hero-meta-line"><span>Format</span><strong>${focus.format}</strong></div>
-            </div>
           </div>
-          <div class="badge">${focus.stage}</div>
+          <div class="hero-glow-badge">${focus.status==='live' ? 'Live' : focus.stage}</div>
+        </div>
+        <div class="hero-meta-list">
+          <div class="hero-meta-line"><span>Date</span><strong>${focus.start}</strong></div>
+          <div class="hero-meta-line"><span>Club</span><strong>${focus.club}</strong></div>
+          <div class="hero-meta-line"><span>Venue</span><strong>${focus.venue}</strong></div>
+          <div class="hero-meta-line"><span>Format</span><strong>${focus.format}</strong></div>
         </div>
         <div class="hero-primary-row">
           <button class="btn cta" id="heroOpenTournament">Open dashboard</button>
           ${joinedIds.has(focus.id) && focus.status!=='finished' ? `<button class="btn secondary" id="heroOpenMatches">My matches</button>` : ''}
           ${focus.status==='open' && !joinedIds.has(focus.id) ? `<button class="btn secondary" id="heroJoin">Join</button>` : ''}
         </div>
+        <div class="hero-actions-note">${joinedIds.has(focus.id) ? 'You are already inside this tournament flow.' : 'Join from here if a slot is still open.'}</div>
       </div>
     `;
     $('#homeHeroKpis').innerHTML = `
-      <div class="hero-kpi"><div class="hero-kpi-value">${focusPlayers}</div><div class="hero-kpi-label">Registered</div></div>
+      <div class="hero-kpi"><div class="hero-kpi-value">${focusPlayers}</div><div class="hero-kpi-label">Players</div></div>
       <div class="hero-kpi"><div class="hero-kpi-value">${Math.max(1, Math.ceil(focusMatches || focusPlayers/4))}</div><div class="hero-kpi-label">Courts</div></div>
       <div class="hero-kpi"><div class="hero-kpi-value">${focusTeams}</div><div class="hero-kpi-label">Teams</div></div>
     `;
-    $('#heroStatusBadge').textContent = focus.stage;
+    $('#heroStatusBadge').textContent = focus.status==='live' ? 'Live now' : focus.stage;
     $('#heroOpenTournament').onclick = ()=>openTournament(focus.id);
     $('#heroOpenMatches')?.addEventListener('click', ()=>routeTo('matches'));
     $('#heroJoin')?.addEventListener('click', ()=>joinTournament(focus.id));
+
+    $('#homeMatchFocus').innerHTML = nextMatch ? `
+      <div class="home-match-head">
+        <div>
+          <div class="home-match-overline">My next match</div>
+          <div class="home-match-title">${state.tournaments.find(t=>t.id===nextMatch.tournamentId)?.name || 'Tournament'}</div>
+        </div>
+        <div class="badge">${nextMatch.status}</div>
+      </div>
+      <div class="home-match-meta">${nextMatch.time} • ${nextMatch.court}<br/>${nextMatch.teams[0].map(getProfileName).join(' / ')} vs ${nextMatch.teams[1].map(getProfileName).join(' / ')}</div>
+      <div class="actions">
+        <button class="btn secondary" id="homeNextMatchBtn">Open my matches</button>
+      </div>
+    ` : `
+      <div class="home-match-overline">My next match</div>
+      <div class="home-match-title">No scheduled matches</div>
+      <div class="home-match-meta">Once a tournament is generated, your next game will appear here.</div>
+    `;
+    $('#homeNextMatchBtn')?.addEventListener('click', ()=>routeTo('matches'));
 
     $('#myTournaments').innerHTML = my.length ? my.map(t=>renderTournamentCard(t, true)).join('') : `<div class="empty panel">No active tournaments yet.</div>`;
     $('#availableTournaments').innerHTML = available.length ? available.map(t=>renderTournamentCard(t)).join('') : `<div class="empty panel">No available tournaments now.</div>`;
     bindTournamentCards();
   }
-  
 
   function renderMatches(){
     const filters = [
@@ -1212,12 +1310,9 @@
     $('#openMatchesBtn')?.addEventListener('click', ()=>routeTo('matches'));
 
     const tabs = [
-
-      {id:'overview', label:'Overview'},
-      {id:'matches', label:'Schedule'},
-      {id:'standings', label:'Standings'},
       {id:'players', label:'Players'},
-      
+      {id:'matches', label:'Schedule'},
+      {id:'standings', label:'Standings'}
     ];
     $('#detailTabs').innerHTML = tabs.map(tab=>`<button class="tab ${state.detailTab===tab.id?'active':''}" data-detail-tab="${tab.id}">${tab.label}</button>`).join('');
     $$('#detailTabs .tab').forEach(btn=>btn.onclick=()=>{state.detailTab=btn.dataset.detailTab; saveState(); renderDetail();});
@@ -1267,18 +1362,11 @@
     const activityHtml = state.activity.filter(a => a.text.toLowerCase().includes(t.name.toLowerCase().split(' ')[0].toLowerCase()) || a.text.includes('Result')).map(a=>`
       <div class="activity-row"><div>${a.text}</div><div class="muted">${a.at}</div></div>`).join('') || `<div class="empty">No activity yet.</div>`;
 
+    
     $('#detailContent').innerHTML = `
-      <div class="detail-tab ${state.detailTab==='overview'?'active':''}">
-        <div class="kv">
-          <div class="kv-item"><b>Status</b><span>${t.stage}</span></div>
-          <div class="kv-item"><b>Join policy</b><span>${t.status==='open' ? 'Self join' : 'Closed'}</span></div>
-          <div class="kv-item"><b>Match result rule</b><span>Any of 4 players may submit</span></div>
-          <div class="kv-item"><b>Club admin</b><span>May correct if needed</span></div>
-        </div>
-      </div>
+      <div class="detail-tab ${state.detailTab==='players'?'active':''}"><div class="list">${playersHtml}</div></div>
       <div class="detail-tab ${state.detailTab==='matches'?'active':''}"><div class="list">${matchHtml}</div></div>
       <div class="detail-tab ${state.detailTab==='standings'?'active':''}"><div class="list">${standingsHtml}</div></div>
-      <div class="detail-tab ${state.detailTab==='players'?'active':''}"><div class="list">${playersHtml}</div></div>
     `;
     $$('[data-submit-detail]').forEach(btn=>btn.onclick=()=>submitResultFlow(btn.dataset.submitDetail));
   }
@@ -1333,7 +1421,7 @@
 
   function openTournament(tid){
     state.detailTournamentId = tid;
-    state.detailTab = 'overview';
+    state.detailTab = 'players';
     saveState();
     routeTo('detail');
   }
