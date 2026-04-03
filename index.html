@@ -3,35 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Padel Tournament OS v14.0</title>
-  <meta name="theme-color" content="#07110f" />
+  <title>Padel Tournament OS</title>
+  <meta name="theme-color" content="#08140f" />
   <style>
     :root{
-      --bg:#07110f;
-      --panel:rgba(7,16,15,.58);
-      --panel-strong:rgba(8,20,18,.84);
-      --glass:rgba(255,255,255,.045);
-      --glass-2:rgba(255,255,255,.025);
-      --text:#f3fff8;
-      --muted:#a7beb2;
-      --muted-2:#7e968d;
-      --line:rgba(116,255,174,.18);
-      --line-blue:rgba(122,208,255,.22);
-      --green:#8cffb0;
-      --green-2:#42e676;
-      --blue:#79d8ff;
-      --blue-2:#2d9bff;
-      --lime:#d8ff7a;
-      --danger:#ff869b;
-      --radius-xl:28px;
-      --radius-lg:22px;
-      --radius-md:18px;
-      --radius-sm:14px;
-      --shadow-1:0 18px 50px rgba(0,0,0,.34);
-      --shadow-2:0 28px 80px rgba(0,0,0,.48);
-      --safe-bottom:max(16px, env(safe-area-inset-bottom));
-      --page-width:430px;
+      --bg:#06120f;
+      --bg-2:#0a1a15;
+      --panel:rgba(10,25,20,.66);
+      --panel-2:rgba(8,20,16,.82);
+      --panel-3:rgba(255,255,255,.04);
+      --line:rgba(160,255,206,.18);
+      --line-strong:rgba(178,255,216,.34);
+      --line-soft:rgba(173,255,205,.10);
+      --text:#f6fff9;
+      --muted:#bfd6c8;
+      --muted-2:#8fa99b;
+      --green:#7CFFAA;
+      --green-2:#2BE071;
+      --blue:#7DD0FF;
+      --blue-2:#2E9CFF;
+      --gold:#FFD975;
+      --danger:#FF7D96;
+      --shadow-lg:0 28px 90px rgba(0,0,0,.48);
+      --shadow-md:0 16px 44px rgba(0,0,0,.30);
+      --shadow-sm:0 10px 24px rgba(0,0,0,.18);
+      --radius:30px;
+      --radius-md:22px;
+      --radius-sm:18px;
+      --safe-bottom:max(18px, env(safe-area-inset-bottom));
+      --page-max:460px;
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -39,263 +41,814 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at 14% 10%, rgba(80,186,255,.12), transparent 24%),
-        radial-gradient(circle at 82% 16%, rgba(132,255,168,.10), transparent 26%),
-        linear-gradient(180deg, rgba(3,10,15,.18), rgba(3,11,10,.72) 42%, rgba(4,10,9,.90) 100%),
+        radial-gradient(circle at 15% 8%, rgba(93,159,255,.16), transparent 24%),
+        radial-gradient(circle at 88% 14%, rgba(119,255,164,.12), transparent 28%),
+        radial-gradient(circle at 50% 84%, rgba(108,255,166,.10), transparent 30%),
+        linear-gradient(180deg, rgba(4,8,12,.24) 0%, rgba(4,11,9,.58) 26%, rgba(4,11,9,.84) 100%),
         url('assets/background.jpg') center/cover fixed no-repeat;
       overflow-x:hidden;
       letter-spacing:-.01em;
     }
     body::before{
-      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      content:"";
+      position:fixed; inset:0; pointer-events:none; z-index:0;
       background:
-        linear-gradient(180deg, rgba(3,8,12,.36), rgba(4,10,9,.16) 22%, rgba(4,9,8,.76) 72%, rgba(3,8,8,.94) 100%),
-        radial-gradient(circle at center, transparent 48%, rgba(0,0,0,.28));
+        linear-gradient(180deg, rgba(5,11,20,.28) 0%, rgba(5,11,20,.06) 16%, rgba(5,15,10,.64) 64%, rgba(4,11,9,.88) 100%),
+        radial-gradient(circle at center, transparent 44%, rgba(0,0,0,.36) 100%);
     }
     body::after{
-      content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.08;
-      background-image:radial-gradient(rgba(255,255,255,.9) .65px, transparent .75px);
-      background-size:10px 10px;
+      content:"";
+      position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:
+        linear-gradient(transparent 0%, rgba(255,255,255,.02) 48%, transparent 100%),
+        radial-gradient(rgba(255,255,255,.045) .6px, transparent .6px);
+      background-size: 100% 100%, 9px 9px;
+      opacity:.08;
       mix-blend-mode:screen;
     }
-    .app{position:relative; z-index:1; min-height:100%; max-width:var(--page-width); margin:0 auto; padding:16px 14px calc(114px + var(--safe-bottom));}
-    .glass{backdrop-filter:blur(18px) saturate(140%); -webkit-backdrop-filter:blur(18px) saturate(140%)}
-    .panel,.hero-card,.compact-card,.match-card,.detail-shell,.topbar,.bottom-nav,.segmented,.metric-card,.floating-cta{backdrop-filter:blur(18px) saturate(140%); -webkit-backdrop-filter:blur(18px) saturate(140%)}
+
+    .app{
+      position:relative; z-index:1; min-height:100%;
+      max-width:var(--page-max); margin:0 auto;
+      padding:18px 16px calc(116px + var(--safe-bottom));
+    }
+
+    .topbar,
+    .hero,
+    .panel,
+    .bottom-nav,
+    .toast{
+      backdrop-filter:blur(18px) saturate(130%);
+      -webkit-backdrop-filter:blur(18px) saturate(130%);
+    }
 
     .topbar{
-      position:sticky; top:10px; z-index:20; border-radius:26px; padding:14px 14px 12px;
-      background:linear-gradient(180deg, rgba(11,28,25,.82), rgba(7,18,16,.92));
-      border:1px solid rgba(130,255,183,.18); box-shadow:var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.06);
+      position:sticky; top:10px; z-index:12;
+      display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start;
+      padding:14px 14px 12px; border-radius:30px; margin-top:8px;
+      background:
+        linear-gradient(180deg, rgba(14,33,27,.82), rgba(8,19,16,.94)),
+        radial-gradient(circle at 12% 0%, rgba(125,255,175,.10), transparent 32%),
+        linear-gradient(135deg, rgba(255,255,255,.05), transparent 35%);
+      border:1px solid rgba(180,255,217,.20);
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 1px rgba(124,255,170,.04);
       overflow:hidden;
     }
-    .topbar::before{content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 15% 0%, rgba(122,255,175,.12), transparent 34%), radial-gradient(circle at 100% 0%, rgba(92,205,255,.14), transparent 30%);}
-    .topbar > *{position:relative; z-index:1}
-    .top-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:start}
-    .brand{display:flex; gap:12px; align-items:center; min-width:0; text-decoration:none; color:inherit}
-    .brand-logo{width:50px; height:50px; border-radius:16px; background:linear-gradient(180deg, rgba(122,216,255,.22), rgba(91,255,170,.12)); border:1px solid rgba(133,236,255,.45); display:grid; place-items:center; box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 0 26px rgba(97,223,255,.20), inset 0 1px 0 rgba(255,255,255,.16)}
-    .brand-logo span{font-weight:900; font-size:30px; line-height:1; color:#ebffff; text-shadow:0 0 18px rgba(132,231,255,.48)}
-    .brand-copy{min-width:0}
-    .eyebrow{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:rgba(214,240,229,.74); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .brand-title{margin-top:4px; font-size:18px; font-weight:860; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 0 14px rgba(128,255,193,.18)}
-    .session-box{min-width:110px; padding:8px 10px; border-radius:16px; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.018)), rgba(5,15,13,.55); border:1px solid rgba(153,255,202,.12)}
-    .session-box .k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:800}
-    .session-box .v{margin-top:4px; font-size:14px; font-weight:760}
-
-    .segmented{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; padding:4px; border-radius:18px; background:rgba(3,10,9,.38); border:1px solid rgba(130,255,183,.10)}
-    .seg-btn{appearance:none; border:0; cursor:pointer; min-height:44px; border-radius:14px; background:transparent; color:var(--muted); font-size:13px; font-weight:760; letter-spacing:.01em}
-    .seg-btn.active{color:#edfff4; background:linear-gradient(180deg, rgba(101,240,160,.16), rgba(88,255,150,.06)); box-shadow:inset 0 0 0 1px rgba(126,255,181,.28), 0 0 22px rgba(112,255,169,.12)}
-
-    .hero-stack{margin-top:16px; display:grid; gap:12px}
-    .hero-card{
-      position:relative; overflow:hidden; border-radius:28px; padding:18px;
-      background:linear-gradient(180deg, rgba(9,25,22,.74), rgba(6,17,15,.88));
-      border:1px solid rgba(136,255,188,.20); box-shadow:var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.06), 0 0 42px rgba(122,255,175,.10);
+    .topbar::after{
+      content:""; position:absolute; left:18px; right:18px; bottom:0; height:1px; pointer-events:none;
+      background:linear-gradient(90deg, transparent, rgba(122,255,173,.42), transparent);
+      opacity:.85;
     }
-    .hero-card::before{content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(120deg, rgba(103,221,255,.22), transparent 28%, transparent 62%, rgba(195,255,110,.18) 100%); opacity:.45}
-    .hero-card::after{content:""; position:absolute; inset:1px; border-radius:27px; pointer-events:none; box-shadow:inset 0 0 0 1px rgba(130,255,183,.12), inset 0 0 34px rgba(112,255,172,.06)}
-    .hero-head{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:start}
-    .hero-title{margin:4px 0 0; font-size:34px; line-height:.96; letter-spacing:-.05em; font-weight:880; text-shadow:0 0 20px rgba(139,255,190,.12)}
-    .hero-meta{margin-top:10px; display:grid; gap:6px; color:#d9efe2}
-    .hero-meta span{display:block; font-size:15px; color:var(--muted)}
-    .status-pill{display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:32px; padding:0 12px; border-radius:999px; background:linear-gradient(180deg, rgba(220,255,130,.20), rgba(157,255,95,.10)); border:1px solid rgba(214,255,123,.36); color:#f4ffd0; font-size:13px; font-weight:800; box-shadow:0 0 18px rgba(202,255,104,.15), inset 0 0 14px rgba(201,255,120,.10)}
-    .status-pill::before{content:""; width:8px; height:8px; border-radius:50%; background:#ddff7f; box-shadow:0 0 12px rgba(220,255,127,.72)}
-    .hero-actions{display:grid; grid-template-columns:1fr auto; gap:10px; margin-top:14px}
-    .btn{appearance:none; cursor:pointer; border:0; min-height:48px; padding:0 16px; border-radius:16px; font-weight:820; font-size:14px; color:#07110f; background:linear-gradient(180deg, #cbff7f, #83ffb6); box-shadow:0 10px 22px rgba(118,255,163,.26), inset 0 1px 0 rgba(255,255,255,.36)}
-    .btn.secondary{color:#eafff1; background:linear-gradient(180deg, rgba(124,216,255,.16), rgba(124,216,255,.06)), rgba(7,18,16,.66); border:1px solid rgba(121,216,255,.28); box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 0 18px rgba(90,203,255,.10)}
-    .btn.ghost{color:#eafff1; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)), rgba(7,17,15,.50); border:1px solid rgba(161,255,204,.12); box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
-    .btn.danger{color:#fff3f6; background:linear-gradient(180deg, rgba(255,112,140,.20), rgba(255,112,140,.08)), rgba(18,6,10,.72); border:1px solid rgba(255,143,168,.28)}
-
-    .metric-strip{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
-    .metric-card{position:relative; padding:12px; border-radius:18px; background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), rgba(7,16,15,.58); border:1px solid rgba(122,255,176,.12); box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
-    .metric-card.blue{border-color:rgba(122,208,255,.18)}
-    .metric-card .v{font-size:28px; line-height:1; font-weight:860}
-    .metric-card .l{margin-top:6px; font-size:11px; line-height:1.2; color:var(--muted)}
-
-    .section{margin-top:20px}
-    .section-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
-    .section-title{font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:#d7f0e3; font-weight:800}
-    .section-sub{font-size:12px; color:var(--muted-2)}
-    .stack{display:grid; gap:12px}
-
-    .compact-card,.panel,.detail-shell,.match-card{
-      position:relative; overflow:hidden; border-radius:22px; padding:16px; background:linear-gradient(180deg, rgba(10,24,21,.68), rgba(6,16,15,.84));
-      border:1px solid rgba(130,255,183,.12); box-shadow:var(--shadow-1), inset 0 1px 0 rgba(255,255,255,.04);
+    .topbar-main{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; grid-column:1 / -1}
+    .topbar-left{min-width:0; display:grid; gap:10px}
+    .brand{display:flex; align-items:center; gap:12px; min-width:0; text-decoration:none; color:inherit}
+    .brand-logo{width:54px; height:38px; filter:drop-shadow(0 0 18px rgba(98,255,152,.24))}
+    .brand-block{display:grid; gap:3px; min-width:0}
+    .brand-name{
+      font-size:28px; font-weight:900; letter-spacing:.05em; font-style:italic;
+      color:#98ffb7;
+      text-shadow:0 0 20px rgba(66,255,138,.16), 0 1px 0 rgba(255,255,255,.14);
+      line-height:.95;
     }
-    .compact-card.blue,.panel.blue{border-color:rgba(122,208,255,.16)}
-    .compact-card::before,.detail-shell::before,.panel::before,.match-card::before{content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(120deg, rgba(121,216,255,.08), transparent 30%, transparent 70%, rgba(194,255,120,.06));}
-    .compact-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center}
-    .compact-title{font-size:23px; line-height:1.02; font-weight:840; margin:0}
-    .compact-meta{margin-top:8px; display:grid; gap:4px; font-size:13px; color:var(--muted)}
-    .compact-kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-top:14px; border-radius:18px; overflow:hidden; border:1px solid rgba(122,255,176,.10); background:rgba(255,255,255,.02)}
-    .compact-kpi .item{padding:10px 8px; text-align:center; border-right:1px solid rgba(255,255,255,.06)}
-    .compact-kpi .item:last-child{border-right:0}
-    .compact-kpi .n{font-size:10px; text-transform:uppercase; color:var(--muted-2); letter-spacing:.12em}
-    .compact-kpi .v{margin-top:4px; font-size:15px; font-weight:820}
-    .pill{display:inline-flex; align-items:center; justify-content:center; padding:0 10px; min-height:30px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); color:#eefef4; font-size:12px; font-weight:760}
-    .pill.live{background:linear-gradient(180deg, rgba(220,255,130,.20), rgba(157,255,95,.10)); border-color:rgba(214,255,123,.32); color:#efffcb}
-    .pill.open{background:linear-gradient(180deg, rgba(122,208,255,.18), rgba(122,208,255,.08)); border-color:rgba(122,208,255,.24); color:#dcf6ff}
-    .pill.finished{background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); color:#c7d4ce}
+    .brand-caption{font-size:10px; text-transform:uppercase; letter-spacing:.22em; color:rgba(214,242,224,.70); font-weight:800}
+    .route-indicator{
+      min-width:0;
+      padding:12px 14px;
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018)), rgba(7,17,14,.48);
+      border:1px solid rgba(180,255,216,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .route-label{
+      font-size:10px; text-transform:uppercase; letter-spacing:.18em; font-weight:800;
+      color:#b9d0c2; opacity:.88; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .route-title{
+      font-size:18px; line-height:1.05; font-weight:840; letter-spacing:-.03em;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .route-subtitle{
+      margin-top:4px; font-size:12px; color:var(--muted-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
 
-    .floating-cta{display:none; margin-top:10px; min-height:54px; border-radius:20px; align-items:center; justify-content:center; font-weight:860; letter-spacing:.01em; color:#06110f; background:linear-gradient(180deg, #cbff7f, #81ffb9); box-shadow:0 18px 40px rgba(136,255,168,.22)}
+    .avatar-wrap{display:flex; align-items:center; gap:10px}
+    .topbar-actions{display:grid; gap:8px; justify-items:end}
+    .top-chip{
+      min-width:52px; height:44px; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      border-radius:16px; border:1px solid rgba(180,255,216,.13);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015)), rgba(8,18,15,.62);
+      color:#effff4; font-size:12px; font-weight:800; letter-spacing:.01em;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .top-chip svg{width:18px; height:18px}
+    .top-menu-lane{
+      grid-column:1 / -1; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:2px;
+    }
+    .menu-pill{
+      position:relative;
+      min-height:58px; padding:10px 12px 11px; border-radius:18px; overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018)), rgba(7,17,14,.52);
+      border:1px solid rgba(180,255,216,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .menu-pill::before{content:""; position:absolute; inset:0; background:linear-gradient(135deg, rgba(124,255,170,.08), transparent 58%); opacity:.9; pointer-events:none}
+    .menu-pill.kpi-blue::before{background:linear-gradient(135deg, rgba(125,208,255,.10), transparent 58%)}
+    .menu-pill-value{position:relative; z-index:1; font-size:20px; line-height:1; font-weight:840; letter-spacing:-.03em}
+    .menu-pill-label{position:relative; z-index:1; margin-top:5px; font-size:11px; line-height:1.15; color:var(--muted); font-weight:760}
+    .avatar{
+      width:52px; height:52px; border-radius:50%; overflow:hidden; flex:0 0 auto;
+      border:1.5px solid rgba(124,255,168,.66);
+      box-shadow:0 0 0 5px rgba(103,255,155,.08), 0 0 26px rgba(69,255,133,.20);
+      background:linear-gradient(135deg, #1a5133, #0b1612);
+    }
+    .avatar img{width:100%; height:100%; object-fit:cover}
+    .status-dot{
+      width:16px; height:16px; border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, #dcffe5 0 18%, #54f784 42%, #12a441 100%);
+      box-shadow:0 0 16px rgba(54,255,113,.62);
+      flex:0 0 auto;
+    }
 
-    .page{display:none; animation:fade .22s ease}
+    .hero{
+      position:relative;
+      margin-top:16px; padding:20px 18px 18px; border-radius:30px;
+      background:
+        linear-gradient(180deg, rgba(12,31,24,.70), rgba(7,18,14,.82)),
+        linear-gradient(135deg, rgba(125,255,175,.08), transparent 42%);
+      border:1px solid rgba(180,255,216,.14);
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.05), 0 0 32px rgba(72,255,138,.08);
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-1px; pointer-events:none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(117,255,171,.14), transparent 24%),
+        radial-gradient(circle at 85% 14%, rgba(116,201,255,.16), transparent 26%);
+      opacity:.95;
+    }
+    .hero > *{position:relative; z-index:1}
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:12px; text-transform:uppercase; letter-spacing:.16em;
+      color:#d3f0da; opacity:.94; font-weight:700;
+    }
+    .hero h1{
+      margin:10px 0 8px;
+      font-size:35px; line-height:.98; letter-spacing:-.045em; font-weight:860;
+      max-width:12ch;
+    }
+    .hero p{margin:0; color:var(--muted); font-size:15px; line-height:1.5; max-width:34ch}
+    .hero-metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px}
+    .metric{
+      padding:14px 12px; border-radius:20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)),
+        rgba(8,19,16,.64);
+      border:1px solid rgba(180,255,216,.10);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .metric .value{font-size:24px; line-height:1; font-weight:820}
+    .metric .label{font-size:12px; color:var(--muted); margin-top:6px}
+
+    .page{display:none; animation:fade .24s ease}
     .page.active{display:block}
-    @keyframes fade{from{opacity:.55; transform:translateY(8px)} to{opacity:1; transform:none}}
+    @keyframes fade{from{opacity:.55; transform:translateY(6px)} to{opacity:1; transform:none}}
 
-    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
-    .chip{appearance:none; border:1px solid rgba(128,255,183,.14); background:rgba(6,16,14,.60); color:var(--muted); border-radius:999px; min-height:36px; padding:0 14px; font-size:13px; font-weight:760}
-    .chip.active{color:#ecfff3; background:linear-gradient(180deg, rgba(122,255,176,.18), rgba(122,255,176,.06)); box-shadow:0 0 18px rgba(120,255,172,.10), inset 0 0 0 1px rgba(122,255,176,.20)}
+    .section{margin-top:24px}
+    .section-title{
+      display:flex; align-items:center; gap:12px;
+      margin:0 0 12px; padding:0 6px;
+      font-size:31px; line-height:1.02; font-weight:820; letter-spacing:-.04em;
+      text-shadow:0 4px 30px rgba(0,0,0,.24);
+    }
+    .section-title.small{font-size:27px}
+    .section-sub{margin:0 6px 0; color:var(--muted); font-size:14px; line-height:1.45}
+    .diamond{
+      width:14px; height:14px; transform:rotate(45deg); border-radius:3px;
+      background:linear-gradient(135deg, #e1ffea, #35f17f);
+      box-shadow:0 0 18px rgba(76,255,140,.42), inset 0 0 8px rgba(255,255,255,.34);
+      flex:0 0 auto;
+    }
+    .diamond.blue{
+      background:linear-gradient(135deg, #e4f5ff, #3bb7ff);
+      box-shadow:0 0 18px rgba(52,183,255,.40), inset 0 0 8px rgba(255,255,255,.34);
+    }
 
-    .match-top{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px}
-    .match-title{font-size:18px; font-weight:840; line-height:1.15}
+    .toolbar{display:flex; gap:10px; padding:0 6px; margin-top:14px; flex-wrap:wrap}
+    .chip,
+    .tab{
+      border:1px solid rgba(173,255,205,.16);
+      border-radius:999px;
+      padding:10px 14px;
+      background:rgba(9,21,17,.58);
+      color:var(--text);
+      font-weight:700;
+      font-size:13px;
+      cursor:pointer;
+      transition:.2s ease;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .chip.active,.chip:hover,
+    .tab.active,.tab:hover{
+      border-color:rgba(183,255,219,.34);
+      background:linear-gradient(180deg, rgba(18,42,31,.78), rgba(10,22,18,.84));
+      box-shadow:0 0 18px rgba(76,255,140,.10), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .stack,.list{display:grid; gap:14px}
+
+    .card{
+      position:relative;
+      display:grid; grid-template-columns:84px 1fr auto; gap:16px; align-items:center;
+      padding:18px 18px 18px 16px; border-radius:28px; overflow:hidden; cursor:pointer;
+      background:
+        linear-gradient(180deg, rgba(15,35,28,.78), rgba(8,20,16,.86)),
+        linear-gradient(90deg, rgba(124,255,176,.045), transparent 46%);
+      border:1px solid rgba(180,255,216,.16);
+      box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.04), inset 0 -1px 0 rgba(0,0,0,.14);
+      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+    .card::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:
+        radial-gradient(circle at 10% 50%, rgba(112,255,153,.18), transparent 24%),
+        linear-gradient(90deg, rgba(255,255,255,.035), transparent 26%);
+    }
+    .card::after{
+      content:""; position:absolute; inset:1px; border-radius:27px; pointer-events:none;
+      border:1px solid rgba(255,255,255,.03);
+    }
+    .card.blue{
+      background:
+        linear-gradient(180deg, rgba(11,26,36,.80), rgba(8,18,26,.88)),
+        linear-gradient(90deg, rgba(116,201,255,.045), transparent 46%);
+      border-color:rgba(154,220,255,.15);
+    }
+    .card.slim{
+      grid-template-columns:1fr auto;
+      gap:12px;
+      padding:16px;
+      cursor:default;
+      border-radius:24px;
+    }
+    .card.slim::after{border-radius:23px}
+    .card:hover{transform:translateY(-2px); box-shadow:0 20px 48px rgba(0,0,0,.32), 0 0 28px rgba(72,255,138,.08)}
+    .card:active{transform:scale(.992)}
+
+    .icon-shell{
+      width:84px; height:84px; border-radius:24px; display:grid; place-items:center; position:relative;
+      background:radial-gradient(circle at 35% 25%, rgba(118,255,168,.16), rgba(14,28,22,.92) 72%);
+      border:1px solid rgba(180,255,216,.14);
+      box-shadow:inset 0 0 40px rgba(72,255,136,.09), 0 0 22px rgba(72,255,136,.08);
+    }
+    .card.blue .icon-shell{
+      background:radial-gradient(circle at 35% 25%, rgba(123,212,255,.16), rgba(14,22,31,.92) 72%);
+      border-color:rgba(171,225,255,.14);
+      box-shadow:inset 0 0 40px rgba(73,175,255,.08), 0 0 22px rgba(73,175,255,.08);
+    }
+    .icon-shell svg{width:62px; height:62px}
+
+    .content{min-width:0}
+    .title{
+      font-size:25px; line-height:1.06; font-weight:820; letter-spacing:-.04em;
+      margin:0 0 8px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .meta{font-size:15px; line-height:1.42; color:var(--muted)}
+    .badge{
+      align-self:start;
+      white-space:nowrap;
+      padding:10px 14px;
+      border-radius:16px;
+      font-size:13px; font-weight:780; letter-spacing:.01em;
+      background:linear-gradient(180deg, rgba(18,45,30,.86), rgba(13,32,24,.94));
+      color:#f2fff6;
+      border:1px solid rgba(123,255,171,.26);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 6px 18px rgba(0,0,0,.18);
+      backdrop-filter:blur(10px);
+    }
+    .card.blue .badge{
+      background:linear-gradient(180deg, rgba(19,42,60,.86), rgba(12,24,36,.94));
+      border-color:rgba(114,204,255,.22);
+    }
+
+    .row{display:flex; align-items:center; justify-content:space-between; gap:12px}
+
+    .panel{
+      position:relative;
+      margin-top:16px; border-radius:28px; padding:18px;
+      background:
+        linear-gradient(180deg, rgba(13,31,24,.76), rgba(8,19,16,.86)),
+        linear-gradient(135deg, rgba(255,255,255,.03), transparent 34%);
+      border:1px solid rgba(180,255,216,.12);
+      box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.04);
+      overflow:hidden;
+    }
+    .panel::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(circle at 8% 12%, rgba(117,255,171,.07), transparent 24%);
+    }
+    .panel > *{position:relative; z-index:1}
+
+    .tabs{display:flex; gap:8px; flex-wrap:wrap}
+    .detail-tab{display:none; margin-top:16px}
+    .detail-tab.active{display:block}
+
+    .kv{
+      display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:16px;
+    }
+    .kv-item{
+      padding:14px;
+      border-radius:18px;
+      background:rgba(8,20,16,.54);
+      border:1px solid rgba(180,255,216,.08);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+    }
+    .kv-item b{
+      display:block; margin-bottom:6px;
+      font-size:11px; text-transform:uppercase; letter-spacing:.11em;
+      color:var(--muted-2);
+    }
+
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    .btn{
+      padding:14px 18px; border-radius:18px;
+      border:1px solid rgba(173,255,205,.18);
+      background:linear-gradient(180deg, rgba(22,49,36,.92), rgba(11,24,19,.96));
+      color:var(--text); font-weight:780; cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.04);
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 14px 28px rgba(0,0,0,.26), 0 0 18px rgba(76,255,140,.08)}
+    .btn.secondary{
+      background:linear-gradient(180deg, rgba(17,42,60,.92), rgba(11,23,34,.96));
+      border-color:rgba(114,204,255,.18);
+    }
+    .btn.ghost{
+      background:linear-gradient(180deg, rgba(14,24,20,.84), rgba(10,18,15,.92));
+    }
+    .btn.danger{
+      background:linear-gradient(180deg, rgba(63,20,31,.90), rgba(39,11,18,.96));
+      border-color:rgba(255,122,147,.20);
+    }
+    .btn[disabled]{opacity:.62; cursor:not-allowed}
+
+    .match-card{display:grid; gap:10px}
+    .match-head{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+    .match-teams{font-size:17px; line-height:1.25; font-weight:780}
     .muted{color:var(--muted)}
-    .muted-2{color:var(--muted-2)}
-    .score{font-size:20px; font-weight:860; letter-spacing:-.03em}
-    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    .score{font-size:18px; font-weight:820; letter-spacing:-.02em}
 
-    .back{display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:0 12px; border-radius:14px; text-decoration:none; color:#eafff3; background:rgba(7,18,16,.58); border:1px solid rgba(130,255,183,.10)}
-    .back svg{width:18px; height:18px}
-    .detail-shell{margin-top:12px; padding:18px}
-    .detail-hero-title{font-size:30px; line-height:1; font-weight:880; margin:6px 0 0}
-    .detail-top-meta{margin-top:10px; display:grid; gap:6px; color:var(--muted)}
-    .detail-metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px}
-    .detail-metrics .box{padding:10px 8px; border-radius:16px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.06); text-align:center}
-    .detail-metrics .box .n{font-size:10px; color:var(--muted-2); letter-spacing:.12em; text-transform:uppercase}
-    .detail-metrics .box .v{margin-top:4px; font-size:16px; font-weight:820}
-    .tabbar{display:flex; gap:8px; overflow:auto; padding-bottom:2px; margin-top:14px}
-    .tab{appearance:none; border:1px solid rgba(130,255,183,.10); background:rgba(6,16,14,.58); color:var(--muted); min-height:38px; padding:0 14px; border-radius:999px; font-size:13px; font-weight:780; white-space:nowrap}
-    .tab.active{color:#eefff4; background:linear-gradient(180deg, rgba(125,216,255,.18), rgba(125,216,255,.07)); border-color:rgba(125,216,255,.28); box-shadow:0 0 18px rgba(125,216,255,.10)}
-    .list{display:grid; gap:10px; margin-top:14px}
-    .standing-row,.profile-row,.activity-row{padding:14px; border-radius:18px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06)}
-    .standing-grid{display:grid; grid-template-columns:34px minmax(0,1fr) repeat(4,auto); gap:10px; align-items:center}
-    .rank{width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-weight:840; color:#06110f; background:linear-gradient(180deg, #cbff7f, #83ffb6)}
-    .row-between{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .empty{padding:18px; border-radius:20px; background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.10); color:var(--muted)}
+    .standing-row,.activity-row,.profile-row{
+      display:grid; gap:10px; padding:14px;
+      border-radius:18px;
+      background:rgba(8,20,16,.54);
+      border:1px solid rgba(180,255,216,.08);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+    }
+    .standing-grid{display:grid; grid-template-columns:42px 1fr repeat(4,auto); gap:10px; align-items:center}
+    .rank{
+      width:32px; height:32px; border-radius:50%;
+      display:grid; place-items:center;
+      background:linear-gradient(180deg, rgba(17,38,30,.92), rgba(11,24,19,.98));
+      border:1px solid rgba(180,255,216,.12);
+      font-weight:820;
+      box-shadow:0 6px 14px rgba(0,0,0,.14);
+    }
+    .activity-row{grid-template-columns:1fr auto}
+    .empty{
+      padding:22px 18px;
+      text-align:center;
+      color:var(--muted);
+      background:rgba(8,20,16,.42);
+      border:1px solid rgba(180,255,216,.08);
+      border-radius:20px;
+    }
+
+    .back{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:0 8px;
+      cursor:pointer; font-weight:760; color:var(--text); text-decoration:none;
+      opacity:.96;
+    }
+    .back svg{width:20px;height:20px}
 
     .bottom-nav{
-      position:fixed; left:50%; bottom:14px; transform:translateX(-50%); width:min(calc(100% - 18px), var(--page-width)); z-index:30;
-      padding:8px; border-radius:24px; background:linear-gradient(180deg, rgba(9,25,22,.88), rgba(6,16,15,.94)); border:1px solid rgba(130,255,183,.14); box-shadow:0 30px 70px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.05);
+      position:fixed; left:50%; transform:translateX(-50%); bottom:12px; z-index:10;
+      width:min(var(--page-max), calc(100vw - 14px));
+      padding:8px 8px calc(10px + env(safe-area-inset-bottom));
+      border-radius:34px;
+      background:
+        linear-gradient(180deg, rgba(8,18,15,.90), rgba(4,10,8,.98)),
+        radial-gradient(circle at 50% 0%, rgba(125,255,175,.10), transparent 52%),
+        linear-gradient(135deg, rgba(255,255,255,.04), transparent 36%);
+      border:1px solid rgba(180,255,216,.14);
+      box-shadow:0 24px 70px rgba(0,0,0,.56), inset 0 1px 0 rgba(255,255,255,.05), 0 0 34px rgba(72,255,138,.08);
+      overflow:hidden;
+    }
+    .bottom-nav::before{
+      content:""; position:absolute; left:10%; right:10%; top:0; height:1px;
+      background:linear-gradient(90deg, transparent, rgba(117,255,171,.48), transparent);
+      box-shadow:0 0 18px rgba(72,255,138,.24);
     }
     .nav-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
-    .nav-item{position:relative; min-height:62px; border-radius:18px; display:grid; place-items:center; gap:4px; align-content:center; text-decoration:none; color:var(--muted); background:transparent}
-    .nav-item.active{color:#f1fff7; background:linear-gradient(180deg, rgba(121,216,255,.16), rgba(121,216,255,.06)), rgba(7,16,15,.78); box-shadow:inset 0 0 0 1px rgba(121,216,255,.20), 0 0 22px rgba(121,216,255,.10)}
-    .nav-item svg{width:20px; height:20px}
-    .nav-label{font-size:11px; font-weight:760}
-    .nav-count{position:absolute; top:8px; right:10px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; display:none; place-items:center; background:linear-gradient(180deg, #cbff7f, #82ffb5); color:#07110f; font-size:10px; font-weight:860}
+    .nav-item{
+      display:grid; justify-items:center; align-content:center; gap:6px;
+      min-height:82px; border-radius:26px; position:relative; text-decoration:none;
+      color:#d8f4e0; transition:background .22s ease, transform .22s ease, color .22s ease, box-shadow .22s ease;
+      overflow:hidden; padding:8px 6px 10px; isolation:isolate;
+    }
+    .nav-item::before{
+      content:""; position:absolute; inset:6px; border-radius:21px; opacity:0; transition:.22s ease;
+      background:linear-gradient(180deg, rgba(122,255,173,.16), rgba(43,224,113,.03));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 0 20px rgba(76,255,140,.08);
+    }
+    .nav-item:hover{background:rgba(117,255,171,.05); transform:translateY(-1px)}
+    .nav-item.active{
+      color:#fff;
+      background:linear-gradient(180deg, rgba(17,40,30,.72), rgba(10,21,17,.56));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .nav-item.active::before{opacity:1}
+    .nav-item.active::after{
+      content:""; position:absolute; bottom:6px; left:18%; right:18%; height:3px;
+      border-radius:999px;
+      background:linear-gradient(90deg, transparent, rgba(117,255,171,.98), transparent);
+      box-shadow:0 0 18px rgba(72,255,138,.48);
+    }
+    .nav-icon{
+      width:46px; height:46px; border-radius:16px; display:grid; place-items:center; position:relative; z-index:1;
+      background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.04);
+    }
+    .nav-item.active .nav-icon{
+      background:linear-gradient(180deg, rgba(120,255,172,.16), rgba(55,141,84,.05));
+      border-color:rgba(168,255,205,.22);
+      box-shadow:0 0 20px rgba(72,255,138,.12);
+    }
+    .nav-item svg{width:24px; height:24px; opacity:.96}
+    .nav-label{position:relative; z-index:1; font-size:12px; line-height:1.05; font-weight:780; text-align:center; letter-spacing:-.01em}
+    .nav-count{
+      position:absolute; top:12px; right:12px; z-index:2;
+      min-width:20px; height:20px; padding:0 6px; border-radius:999px; display:none; place-items:center;
+      font-size:11px; font-weight:820; line-height:1; color:#08130f;
+      background:linear-gradient(180deg, #dffff0, #8cffbb);
+      box-shadow:0 8px 18px rgba(72,255,138,.25);
+    }
     .nav-count.show{display:grid}
 
-    .toast{position:fixed; left:50%; top:16px; transform:translate(-50%,-16px); z-index:40; min-width:200px; max-width:calc(100% - 32px); padding:12px 14px; border-radius:16px; background:rgba(8,19,17,.92); color:#ecfff3; border:1px solid rgba(130,255,183,.16); box-shadow:var(--shadow-2); opacity:0; pointer-events:none; transition:.22s ease}
-    .toast.show{opacity:1; transform:translate(-50%,0)}
+    .toast{
+      position:fixed; left:50%; top:18px; transform:translateX(-50%) translateY(-8px);
+      width:min(420px,calc(100vw - 24px)); z-index:20;
+      padding:14px 16px; border-radius:18px;
+      background:linear-gradient(180deg, rgba(12,31,24,.92), rgba(8,18,15,.96));
+      border:1px solid rgba(180,255,216,.12);
+      box-shadow:var(--shadow-md);
+      opacity:0; pointer-events:none; transition:.25s ease;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+    .sparkle{
+      position:fixed; right:16px; bottom:18px; z-index:11;
+      width:34px; height:34px; opacity:.88;
+      filter:drop-shadow(0 0 10px rgba(255,255,255,.18));
+    }
 
     @media (max-width:390px){
-      .app{padding-left:12px; padding-right:12px}
-      .hero-title{font-size:30px}
-      .compact-title{font-size:20px}
-      .detail-hero-title{font-size:26px}
-      .detail-metrics{grid-template-columns:repeat(2,1fr)}
-      .standing-grid{grid-template-columns:32px minmax(0,1fr) repeat(2,auto)}
-      .hide-m{display:none}
-      .session-box{min-width:94px}
+      .app{padding-inline:14px}
+      .topbar{padding:12px 12px 10px}
+      .topbar-main{grid-template-columns:minmax(0,1fr) auto; gap:10px}
+      .brand-name{font-size:24px}
+      .brand-caption{font-size:9px}
+      .route-indicator{padding:10px 12px}
+      .route-title{font-size:15px}
+      .route-subtitle{font-size:11px}
+      .top-chip{min-width:40px; height:40px; padding:0 10px; border-radius:14px}
+      .top-menu-lane{grid-template-columns:repeat(3,1fr); gap:7px}
+      .menu-pill{min-height:54px; padding:10px}
+      .menu-pill-value{font-size:18px}
+      .menu-pill-label{font-size:10px}
+      .section-title{font-size:28px}
+      .card{grid-template-columns:74px 1fr; gap:14px; padding:16px}
+      .badge{grid-column:2; justify-self:start; margin-top:-2px}
+      .icon-shell{width:74px; height:74px}
+      .icon-shell svg{width:54px; height:54px}
+      .title{font-size:22px}
+      .meta{font-size:14px}
+      .hero h1{font-size:31px}
+      .hero-metrics,.kv{grid-template-columns:1fr}
+      .standing-grid{grid-template-columns:34px 1fr repeat(2,auto)}
+      .standing-grid .hide-m{display:none}
+      .nav-label{font-size:11px}
+      .nav-count{top:10px; right:9px; min-width:18px; height:18px; font-size:10px}
     }
+  
+    /* v15 rebuild */
+    .topbar-v15{
+      padding:14px 16px;
+      background:
+        linear-gradient(180deg, rgba(10,24,21,.78), rgba(6,13,13,.92)),
+        radial-gradient(circle at 20% 0%, rgba(86,255,168,.16), transparent 34%);
+      border-color:rgba(145,255,202,.22);
+      box-shadow:0 18px 44px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.03), 0 0 28px rgba(78,255,142,.08);
+    }
+    .topbar-v15::after{display:none}
+    .topbar-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center}
+    .session-card{
+      min-width:136px; max-width:162px;
+      padding:10px 12px 11px;
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02)), rgba(6,15,14,.55);
+      border:1px solid rgba(145,255,202,.16);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+      text-align:right;
+    }
+    .session-overline{
+      font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); opacity:.84; font-weight:760;
+    }
+    .session-main{
+      margin-top:4px; font-size:18px; line-height:1; font-weight:820;
+    }
+    .session-sub{
+      margin-top:4px; font-size:11px; color:var(--muted-2); line-height:1.2;
+    }
+    .home-hero-v15{
+      padding:0;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    .home-hero-v15::before{display:none}
+    .hero-shell{
+      position:relative;
+      padding:10px 0 0;
+    }
+    .hero-headline{
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0 6px 10px;
+    }
+    .hero-status-badge{
+      padding:7px 14px;
+      border-radius:999px;
+      border:1px solid rgba(183,255,219,.34);
+      background:linear-gradient(180deg, rgba(133,255,181,.18), rgba(124,255,170,.08));
+      box-shadow:0 0 20px rgba(74,255,141,.18), inset 0 0 18px rgba(255,255,255,.04);
+      font-size:13px; font-weight:800; color:#dbffe7;
+    }
+    .hero-main-card{
+      position:relative;
+      border-radius:28px;
+      padding:18px 18px 16px;
+      background:
+        linear-gradient(180deg, rgba(17,38,29,.64), rgba(7,16,15,.88)),
+        radial-gradient(circle at 0% 0%, rgba(113,232,255,.18), transparent 28%),
+        radial-gradient(circle at 100% 0%, rgba(140,255,171,.16), transparent 32%);
+      border:1px solid rgba(146,255,202,.18);
+      box-shadow:
+        0 24px 56px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.05),
+        0 0 0 1px rgba(129,255,176,.06),
+        0 0 42px rgba(66,255,138,.12);
+      overflow:hidden;
+    }
+    .hero-main-card::before{
+      content:"";
+      position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(135deg, rgba(89,220,255,.14), transparent 34%, transparent 60%, rgba(125,255,175,.12));
+      opacity:.95;
+    }
+    .hero-card-grid{position:relative; z-index:1; display:grid; gap:14px}
+    .hero-title-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:start}
+    .hero-title{
+      font-size:38px; line-height:.94; letter-spacing:-.045em; font-weight:860; margin:0;
+      text-shadow:0 6px 24px rgba(0,0,0,.28);
+    }
+    .hero-meta-list{display:grid; gap:7px}
+    .hero-meta-line{display:flex; gap:8px; color:#dcefe4; font-size:15px}
+    .hero-meta-line span:first-child{color:var(--muted-2); min-width:64px}
+    .hero-primary-row{display:flex; gap:10px; flex-wrap:wrap}
+    .btn.cta{
+      min-height:48px;
+      padding:0 18px;
+      border-radius:16px;
+      border:1px solid rgba(185,255,219,.26);
+      background:linear-gradient(180deg, rgba(113,255,169,.24), rgba(58,209,104,.14));
+      box-shadow:0 0 26px rgba(76,255,140,.16), inset 0 1px 0 rgba(255,255,255,.08);
+      color:#f4fff8; font-size:14px; font-weight:820;
+    }
+    .hero-tabstrip{
+      display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:8px; margin-top:12px; padding:0 2px;
+    }
+    .hero-mini-tab{
+      min-height:40px;
+      border:none; border-radius:14px;
+      background:rgba(8,17,17,.58);
+      border:1px solid rgba(147,255,202,.10);
+      color:var(--muted); font-weight:760; font-size:13px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .hero-mini-tab.active{
+      color:#f6fff9;
+      border-color:rgba(183,255,219,.28);
+      box-shadow:0 0 18px rgba(76,255,140,.10), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .hero-kpi-row{
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:12px;
+    }
+    .hero-kpi{
+      padding:12px 10px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), rgba(8,18,15,.66);
+      border:1px solid rgba(180,255,216,.10);
+      text-align:center;
+    }
+    .hero-kpi-value{font-size:28px; line-height:1; font-weight:840}
+    .hero-kpi-label{margin-top:5px; font-size:11px; color:var(--muted)}
+    .section-title{padding:0 2px}
+    .card{
+      grid-template-columns:1fr;
+      gap:12px;
+      padding:18px;
+      border-radius:24px;
+      background:
+        linear-gradient(180deg, rgba(16,35,28,.70), rgba(8,18,16,.90)),
+        linear-gradient(135deg, rgba(125,255,175,.05), transparent 42%);
+      border:1px solid rgba(179,255,216,.14);
+      box-shadow:0 18px 46px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .card.blue{
+      background:
+        linear-gradient(180deg, rgba(16,30,39,.70), rgba(8,16,24,.90)),
+        linear-gradient(135deg, rgba(125,208,255,.07), transparent 42%);
+    }
+    .card .content{display:grid; gap:10px}
+    .card .meta{color:var(--muted)}
+    .card .title{font-size:28px}
+    .card .badge{justify-self:start}
+    .icon-shell{display:none}
+    .stack .card::after{
+      content:"";
+      height:1px; width:100%; display:block;
+      background:linear-gradient(90deg, rgba(125,208,255,.16), rgba(124,255,170,.26), transparent);
+      opacity:.75;
+    }
+    .match-card{width:100%}
+    .panel{
+      border-radius:26px;
+      background:
+        linear-gradient(180deg, rgba(16,35,28,.64), rgba(8,18,16,.88)),
+        linear-gradient(135deg, rgba(125,255,175,.05), transparent 42%);
+      border:1px solid rgba(179,255,216,.14);
+      box-shadow:0 18px 46px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .bottom-nav-v15{
+      padding:10px 10px calc(10px + var(--safe-bottom));
+      background:linear-gradient(180deg, rgba(10,17,17,.52), rgba(8,14,14,.94));
+      border-top:1px solid rgba(180,255,216,.10);
+    }
+    .bottom-nav-v15::before{
+      background:linear-gradient(90deg, rgba(125,208,255,.18), rgba(124,255,170,.36), rgba(255,217,117,.12));
+      opacity:.9;
+    }
+    .bottom-nav-v15 .nav-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .bottom-nav-v15 .nav-item.active{
+      background:linear-gradient(180deg, rgba(20,44,35,.82), rgba(10,20,18,.92));
+      box-shadow:0 0 24px rgba(76,255,140,.12), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .detail-dashboard-top{
+      display:grid; gap:14px;
+    }
+    .detail-dashboard-kpis{
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:2px;
+    }
+    .detail-dashboard-kpi{
+      padding:12px 10px; border-radius:18px; text-align:center;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), rgba(8,18,15,.66);
+      border:1px solid rgba(180,255,216,.10);
+    }
+    .detail-dashboard-kpi b{display:block; font-size:24px; line-height:1; margin-bottom:4px}
+    .tabs{
+      display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px;
+    }
+    .tabs .tab:last-child{display:none}
+    .tab{
+      border-radius:14px;
+      min-height:42px;
+      padding:10px 12px;
+      text-align:center;
+    }
+    .profile-row, .activity-row, .standing-row{
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.025);
+      border:1px solid rgba(180,255,216,.08);
+    }
+    @media (max-width:420px){
+      .hero-title{font-size:32px}
+      .hero-kpi-value{font-size:24px}
+      .hero-meta-line{font-size:14px}
+      .card .title{font-size:24px}
+      .hero-tabstrip,.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .hero-kpi-row,.detail-dashboard-kpis{grid-template-columns:1fr 1fr 1fr}
+    }
+
   </style>
 </head>
 <body>
   <div class="toast" id="toast"></div>
   <main class="app">
-    <header class="topbar">
-      <div class="top-row">
+    
+    <header class="topbar topbar-v15">
+      <div class="topbar-row">
         <a class="brand" href="#home" data-route="home">
-          <div class="brand-logo"><span>P</span></div>
-          <div class="brand-copy">
-            <div class="eyebrow">Tournament OS</div>
-            <div class="brand-title">Padel premium mobile</div>
+          <svg class="brand-logo" viewBox="0 0 64 44" fill="none" aria-hidden="true">
+            <path d="M6 30.5C14.8 11.7 36.1 3.8 56 8.8C43.9 11.1 34.9 16.5 28.6 24.3C22.2 32.2 18.7 39.3 18 41H6.5C6.1 41 5.8 40.6 5.9 40.1L6 30.5Z" stroke="#72FF9A" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M8 31.1C16.4 21.5 28.2 16.6 43.3 16.5C50.1 16.4 56.2 17.2 61 18.5" stroke="#72FF9A" stroke-width="3" stroke-linecap="round"/>
+            <path d="M6 31H30.3C42.4 31 52.4 24.7 58.7 14.7" stroke="#72FF9A" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div class="brand-block">
+            <div class="brand-caption">EYEBROW</div>
+            <div class="brand-name">PADEL</div>
           </div>
         </a>
-        <div class="session-box">
-          <div class="k">Role session</div>
-          <div class="v">Player mode</div>
+        <div class="session-card">
+          <div class="session-overline">Role session</div>
+          <div class="session-main" id="routeTitle">Home</div>
+          <div class="session-sub" id="routeSubtitle">Live tournament focus</div>
         </div>
-      </div>
-      <div class="segmented" aria-label="Top menu">
-        <button class="seg-btn active" type="button" id="segTournaments">Tournaments</button>
-        <button class="seg-btn" type="button" id="segPlayers">Players</button>
       </div>
     </header>
 
-    <section class="page active" data-page="home">
-      <div class="hero-stack">
-        <div id="homeHero"></div>
-        <div class="metric-strip">
-          <div class="metric-card"><div class="v" id="metricRegistered">0</div><div class="l">Registered</div></div>
-          <div class="metric-card blue"><div class="v" id="metricCourts">0</div><div class="l">Courts</div></div>
-          <div class="metric-card"><div class="v" id="metricTeams">0</div><div class="l">Teams</div></div>
+    
+    <section class="hero page active home-hero-v15" data-page="home-hero">
+      <div class="hero-shell">
+        <div class="hero-headline">
+          <div class="eyebrow">Brand title</div>
+          <div class="hero-status-badge" id="heroStatusBadge">Live</div>
         </div>
+        <div class="hero-main-card" id="homeHeroCard"></div>
+        <div class="hero-tabstrip">
+          <button class="hero-mini-tab active" type="button">Overview</button>
+          <button class="hero-mini-tab" type="button">Players</button>
+          <button class="hero-mini-tab" type="button">Schedule</button>
+          <button class="hero-mini-tab" type="button">Standings</button>
+        </div>
+        <div class="hero-kpi-row" id="homeHeroKpis"></div>
       </div>
+    </section>
 
+
+    <section class="page active" data-page="home">
       <div class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-title">My tournaments</div>
-            <div class="section-sub">Joined and live first</div>
-          </div>
-        </div>
+        <h1 class="section-title"><span>My Tournaments</span><span class="diamond"></span></h1>
+        <p class="section-sub">Your active and joined tournaments only.</p>
         <div class="stack" id="myTournaments"></div>
       </div>
-
       <div class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-title">Open tournaments</div>
-            <div class="section-sub">Available to join</div>
-          </div>
-        </div>
+        <h2 class="section-title small"><span class="diamond blue"></span><span>Available Tournaments</span></h2>
         <div class="stack" id="availableTournaments"></div>
       </div>
     </section>
 
     <section class="page" data-page="matches">
       <div class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-title">My matches</div>
-            <div class="section-sub">Only your own schedule and results</div>
-          </div>
-        </div>
+        <h1 class="section-title"><span>My Matches</span><span class="diamond"></span></h1>
         <div class="toolbar" id="matchFilters"></div>
         <div class="stack" id="myMatches"></div>
       </div>
     </section>
 
-    <section class="page" data-page="history">
+    
+    <section class="page" data-page="tournaments">
       <div class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-title">History</div>
-            <div class="section-sub">Finished tournaments and activity trail</div>
-          </div>
-        </div>
-        <div class="stack" id="historyList"></div>
+        <h1 class="section-title"><span>Tournaments</span><span class="diamond blue"></span></h1>
+        <p class="section-sub">Live, open and finished tournaments in one tournament feed.</p>
+        <div class="toolbar" id="tournamentFilters"></div>
+        <div class="stack" id="tournamentsList"></div>
       </div>
     </section>
 
+
     <section class="page" data-page="profile">
       <div class="section">
-        <div class="section-head">
-          <div>
-            <div class="section-title">Profile</div>
-            <div class="section-sub">Player state and demo controls</div>
-          </div>
-        </div>
+        <h1 class="section-title"><span>Profile</span><span class="diamond"></span></h1>
         <div class="panel">
-          <div class="row-between"><strong id="profileName">Nikolaj P.</strong><span class="pill live">Active</span></div>
-          <div style="margin-top:10px" class="muted">Club player • only own matches visible • result can be submitted by admin or any of the four players.</div>
-          <div class="detail-metrics" style="margin-top:14px">
-            <div class="box"><div class="n">Club</div><div class="v">Riga</div></div>
-            <div class="box"><div class="n">Joined</div><div class="v" id="profileJoinedCount">0</div></div>
-            <div class="box"><div class="n">Done</div><div class="v" id="profileMatchesDone">0</div></div>
-            <div class="box"><div class="n">Mode</div><div class="v">Player</div></div>
+          <div class="profile-row">
+            <div class="row"><strong id="profileName">Nikolaj P.</strong><span class="badge">Active</span></div>
+            <div class="muted">Club player • Dynamic Duo • Results can be submitted by any one of the four players in a match.</div>
           </div>
-          <div class="actions"><button class="btn ghost" id="resetDemo">Reset demo data</button></div>
+          <div class="kv">
+            <div class="kv-item"><b>Club</b><span>Padel Riga</span></div>
+            <div class="kv-item"><b>Joined tournaments</b><span id="profileJoinedCount">0</span></div>
+            <div class="kv-item"><b>Matches completed</b><span id="profileMatchesDone">0</span></div>
+            <div class="kv-item"><b>Preferred format</b><span>Mixed Doubles</span></div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost" id="resetDemo">Reset demo data</button>
+          </div>
         </div>
       </div>
     </section>
@@ -303,19 +856,39 @@
     <section class="page" data-page="detail">
       <div class="section">
         <a href="#home" class="back" data-route="home"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Back</span></a>
-        <div id="detailShell"></div>
+        <div class="panel" id="detailHero"></div>
+        <div class="panel">
+          <div class="tabs" id="detailTabs"></div>
+          <div id="detailContent"></div>
+        </div>
       </div>
     </section>
   </main>
 
-  <nav class="bottom-nav" aria-label="Primary">
+  
+  <nav class="bottom-nav bottom-nav-v15" aria-label="Primary">
     <div class="nav-grid">
-      <a href="#home" data-route="home" class="nav-item active"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7.5h16M6.5 3.5v4M17.5 3.5v4M5.5 20.5h13A1.5 1.5 0 0 0 20 19V7.5H4V19A1.5 1.5 0 0 0 5.5 20.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h3M13 12h3M8 16h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">Home</span><span class="nav-count" id="navCountHome"></span></a>
-      <a href="#matches" data-route="matches" class="nav-item"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4.5h10A1.5 1.5 0 0 1 18.5 6v14l-4-2-4 2-4-2-4 2V6A1.5 1.5 0 0 1 4 4.5h3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9h8M8 13h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">Matches</span><span class="nav-count" id="navCountMatches"></span></a>
-      <a href="#history" data-route="history" class="nav-item"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4.5h12A1.5 1.5 0 0 1 19.5 6v12A1.5 1.5 0 0 1 18 19.5H6A1.5 1.5 0 0 1 4.5 18V6A1.5 1.5 0 0 1 6 4.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8.5h8M8 12h8M8 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">History</span><span class="nav-count" id="navCountHistory"></span></a>
-      <a href="#profile" data-route="profile" class="nav-item"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 19c1.6-3 4-4.5 7-4.5s5.4 1.5 7 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="nav-label">Profile</span></a>
+      <a href="#home" data-route="home" class="nav-item active">
+        <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5 12 5l8 7.5V20H4v-7.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 20v-5h6v5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+        <span class="nav-label">Home</span><span class="nav-count" id="navCountHome"></span>
+      </a>
+      <a href="#matches" data-route="matches" class="nav-item">
+        <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4.5h10A1.5 1.5 0 0 1 18.5 6v14l-4-2-4 2-4-2-4 2V6A1.5 1.5 0 0 1 4 4.5h3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9h8M8 13h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="nav-label">Matches</span><span class="nav-count" id="navCountMatches"></span>
+      </a>
+      <a href="#tournaments" data-route="tournaments" class="nav-item">
+        <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 4.5h12A1.5 1.5 0 0 1 19.5 6v12A1.5 1.5 0 0 1 18 19.5H6A1.5 1.5 0 0 1 4.5 18V6A1.5 1.5 0 0 1 6 4.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M8 8.5h8M8 12h8M8 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="nav-label">Tournaments</span><span class="nav-count" id="navCountTournaments"></span>
+      </a>
+      <a href="#profile" data-route="profile" class="nav-item">
+        <div class="nav-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 19c1.6-3 4-4.5 7-4.5s5.4 1.5 7 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <span class="nav-label">Profile</span>
+      </a>
     </div>
   </nav>
+
+
+  <svg class="sparkle" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M18 4c1.2 5.7 2.2 6.9 7 8-4.8 1.1-5.8 2.3-7 8-1.2-5.7-2.2-6.9-7-8 4.8-1.1 5.8-2.3 7-8z" fill="rgba(255,255,255,.88)"/></svg>
 
   <script>
   const seed = {
@@ -332,15 +905,15 @@
       {id:'p6', name:'Alex'}
     ],
     tournaments: [
-      {id:'t1', name:'Riga Evening Open', start:'17 August 2023', time:'10:00', duration:'20 min', format:'Dynamic Duo', status:'live', club:'Padel Riga', venue:'Riga', description:'Live tournament with player-entered match results and live standings.', maxPlayers:16, stage:'Live', accent:'green', courts:2},
-      {id:'t2', name:'Jurmala Open', start:'Tomorrow', time:'18:30', duration:'90 min', format:'Mixed Doubles', status:'open', club:'Padel Riga', venue:'Jurmala', description:'Open tournament waiting for more registrations before match generation.', maxPlayers:16, stage:'Open', accent:'blue', courts:2},
-      {id:'t3', name:'Spring Night Series', start:'March 15, 2024', time:'19:10', duration:'120 min', format:'Americano', status:'finished', club:'Padel Riga', venue:'Riga', description:'Finished weekly series.', maxPlayers:12, stage:'Finished', accent:'blue', courts:1}
+      {id:'t1', name:'Padel Cup Weekend', start:'April 25, 2024', format:'Dynamic Duo', status:'live', club:'Padel Riga', venue:'Court Arena 1', description:'Weekend live cup with active standings and player-entered results.', maxPlayers:16, stage:'In Progress', accent:'green'},
+      {id:'t2', name:'Weekly Padel Challenge', start:'Tomorrow', format:'Mixed Doubles', status:'open', club:'Padel Riga', venue:'Court Arena 2', description:'Open challenge tournament with group stage. Join before the draw is locked.', maxPlayers:16, stage:'Group Stage', accent:'blue'},
+      {id:'t3', name:'Spring Night Series', start:'March 15, 2024', format:'Americano', status:'finished', club:'Padel Riga', venue:'Court Arena 1', description:'Finished weekly series.', maxPlayers:12, stage:'Finished', accent:'blue'}
     ],
     tournamentPlayers: [
-      {id:'tp1', tournamentId:'t1', profileId:'p1', status:'joined', team:'Team 1'},
-      {id:'tp2', tournamentId:'t1', profileId:'p2', status:'joined', team:'Team 1'},
-      {id:'tp3', tournamentId:'t1', profileId:'p3', status:'joined', team:'Team 2'},
-      {id:'tp4', tournamentId:'t1', profileId:'p4', status:'joined', team:'Team 2'},
+      {id:'tp1', tournamentId:'t1', profileId:'p1', status:'joined', team:'Dynamic Duo'},
+      {id:'tp2', tournamentId:'t1', profileId:'p2', status:'joined', team:'Dynamic Duo'},
+      {id:'tp3', tournamentId:'t1', profileId:'p3', status:'joined', team:'Blue Side'},
+      {id:'tp4', tournamentId:'t1', profileId:'p4', status:'joined', team:'Blue Side'},
       {id:'tp5', tournamentId:'t2', profileId:'p5', status:'joined', team:'Seed 1'},
       {id:'tp6', tournamentId:'t2', profileId:'p6', status:'joined', team:'Seed 2'},
       {id:'tp7', tournamentId:'t3', profileId:'p1', status:'joined', team:'Night Pair'}
@@ -351,246 +924,465 @@
       {id:'m3', tournamentId:'t3', court:'Court 1', time:'March 15 • 19:10', status:'completed', result:'6:1 6:2', teams:[['p1','p3'],['p5','p6']], submittedBy:'p3'}
     ],
     activity: [
-      {id:'a1', text:'You joined Riga Evening Open', at:'Today • 12:10'},
+      {id:'a1', text:'You joined Padel Cup Weekend', at:'Today • 12:10'},
       {id:'a2', text:'Result submitted in Court 2', at:'Today • 20:15'},
       {id:'a3', text:'Spring Night Series finished', at:'March 15 • 22:20'}
     ]
   };
 
-  const STORAGE_KEY = 'padel-v14-state';
+  const STORAGE_KEY = 'padel-v15-0-state';
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
-  function loadState(){ try{ const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); return saved ? {...seed, ...saved} : structuredClone(seed);}catch(e){ return structuredClone(seed);} }
+
+  function loadState(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      return saved ? {...seed, ...saved} : structuredClone(seed);
+    }catch(e){ return structuredClone(seed); }
+  }
   let state = loadState();
-  function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+
+  const routeMeta = {
+    home: {title:'Home', subtitle:'Live tournament focus'},
+    matches: {title:'Matches', subtitle:'Only your own matches and result entry'},
+    tournaments: {title:'Tournaments', subtitle:'Live, open and finished tournament feed'},
+    profile: {title:'Profile', subtitle:'Player card and stats'},
+    detail: {title:'Tournament', subtitle:'Live dashboard'}
+  };
+
+  
+  function updateTopbar(route){
+    const meta = routeMeta[route] || routeMeta.home;
+    $('#routeTitle').textContent = meta.title;
+    $('#routeSubtitle').textContent = meta.subtitle;
+  }
+  
+  function updateNavCounts(){
+    const liveCount = state.tournaments.filter(t=>t.status==='live').length;
+    const openCount = state.tournaments.filter(t=>t.status==='open').length;
+    const myMatchCount = state.matches.filter(m=>m.teams.flat().includes(state.currentPlayerId) && m.status!=='completed').length;
+    const tournamentsCount = state.tournaments.length;
+
+    $('#topLiveValue').textContent = String(liveCount);
+    $('#topMatchValue').textContent = String(myMatchCount);
+    $('#topAvailableValue').textContent = String(openCount);
+
+    const setCount = (id, value) => {
+      const el = $(id);
+      if(!el) return;
+      if(value > 0){
+        el.textContent = value > 9 ? '9+' : String(value);
+        el.classList.add('show');
+      }else{
+        el.textContent = '';
+        el.classList.remove('show');
+      }
+    };
+
+    setCount('#navCountHome', liveCount + openCount);
+    setCount('#navCountMatches', myMatchCount);
+    setCount('#navCountTournaments', tournamentsCount);
+  }
+
+
+  function toast(msg){
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>el.classList.remove('show'), 1800);
+  }
+
+  function iconSvg(kind, accent='green'){
+    if(kind==='cup'){
+      return `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B9E6FF"/><stop offset="1" stop-color="#2E9CFF"/></linearGradient></defs><path d="M18 14h28v6c0 8 4 13 8 15-1 8-7 15-15 17v4h9v4H16v-4h9v-4C17 48 11 41 10 33c4-2 8-7 8-15v-4z" stroke="url(#g2)" stroke-width="3.2" stroke-linejoin="round"/><path d="M24 20h16M21 29h22" stroke="url(#g2)" stroke-width="2.4" stroke-linecap="round" opacity=".95"/></svg>`;
+    }
+    return `<svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8CFFB0"/><stop offset="1" stop-color="#22D564"/></linearGradient></defs><circle cx="40" cy="25" r="11" stroke="url(#g1)" stroke-width="3"/><path d="M16 45c8-10 19-16 33-18" stroke="url(#g1)" stroke-width="3.5" stroke-linecap="round"/><path d="M12 50l7-28 13 3-7 28" stroke="url(#g1)" stroke-width="3.5" stroke-linejoin="round"/><path d="M18 28l6 1.4M16.6 34l6 1.4M15.2 40l6 1.4M13.8 46l6 1.4" stroke="url(#g1)" stroke-width="2" stroke-linecap="round" opacity=".95"/></svg>`;
+  }
+
   function getProfileName(id){ return state.profiles.find(p=>p.id===id)?.name || 'Unknown'; }
   function tpForTournament(tid){ return state.tournamentPlayers.filter(tp=>tp.tournamentId===tid); }
-  function joinedTournamentIds(){ return state.tournamentPlayers.filter(tp=>tp.profileId===state.currentPlayerId && tp.status==='joined').map(tp=>tp.tournamentId); }
+  function joinedTournamentIds(){
+    return state.tournamentPlayers.filter(tp=>tp.profileId===state.currentPlayerId && tp.status==='joined').map(tp=>tp.tournamentId);
+  }
   function myTournamentPlayers(){ return state.tournamentPlayers.filter(tp=>tp.profileId===state.currentPlayerId); }
-  function myMatches(){ return state.matches.filter(m => m.teams.flat().includes(state.currentPlayerId)); }
-  function parseResult(str){ return str.split(' ').map(set=>set.split(':').map(Number)).filter(a=>a.length===2 && !a.some(Number.isNaN)); }
-  function scoreSets(sets, idx){ return sets.reduce((acc, [a,b]) => acc + ((idx===0 ? a>b : b>a) ? 1 : 0), 0); }
+  function myMatches(){
+    return state.matches.filter(m => m.teams.flat().includes(state.currentPlayerId));
+  }
   function standingsForTournament(tid){
     const rows = {};
     tpForTournament(tid).forEach(tp => rows[tp.profileId] = {profileId:tp.profileId, played:0, won:0, lost:0, points:0, diff:0});
     state.matches.filter(m => m.tournamentId===tid && m.status==='completed' && m.result).forEach(m=>{
-      const sets = parseResult(m.result); const t1 = scoreSets(sets,0), t2 = scoreSets(sets,1); const winnerTeam = t1>t2 ? 0 : 1;
-      m.teams.forEach((team, idx)=> team.forEach(pid=>{ rows[pid].played += 1; rows[pid].points += idx===winnerTeam ? 3 : 1; rows[pid].won += idx===winnerTeam ? 1 : 0; rows[pid].lost += idx===winnerTeam ? 0 : 1; rows[pid].diff += idx===0 ? (t1-t2) : (t2-t1);}));
+      const sets = parseResult(m.result);
+      const t1 = scoreSets(sets, 0), t2 = scoreSets(sets, 1);
+      const winnerTeam = t1>t2 ? 0 : 1;
+      m.teams.forEach((team, idx) => {
+        team.forEach(pid => {
+          rows[pid].played += 1;
+          rows[pid].points += idx===winnerTeam ? 3 : 1;
+          rows[pid].won += idx===winnerTeam ? 1 : 0;
+          rows[pid].lost += idx===winnerTeam ? 0 : 1;
+          rows[pid].diff += idx===0 ? (t1 - t2) : (t2 - t1);
+        });
+      });
     });
-    return Object.values(rows).sort((a,b)=>b.points-a.points || b.diff-a.diff || a.profileId.localeCompare(b.profileId)).map((r,i)=>({...r, rank:i+1}));
+    return Object.values(rows).sort((a,b)=> b.points-a.points || b.diff-a.diff || a.profileId.localeCompare(b.profileId)).map((r,i)=>({...r, rank:i+1}));
   }
-
-  function tournamentStatusClass(status){ return status==='live' ? 'live' : status==='open' ? 'open' : 'finished'; }
-  function activeTournament(){
-    const joinedLive = state.tournaments.find(t => joinedTournamentIds().includes(t.id) && t.status==='live');
-    return joinedLive || state.tournaments.find(t=>t.status==='live') || state.tournaments.find(t=>joinedTournamentIds().includes(t.id)) || state.tournaments[0];
+  function parseResult(str){
+    return str.split(' ').map(set=>set.split(':').map(Number)).filter(a=>a.length===2 && !a.some(Number.isNaN));
   }
-  function teamsCount(tid){ return Math.max(1, Math.ceil(tpForTournament(tid).filter(x=>x.status==='joined').length / 2)); }
-
-  function toast(msg){ const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),1800); }
-
-  function renderHomeHero(){
-    const t = activeTournament(); if(!t) return;
-    const joined = joinedTournamentIds().includes(t.id);
-    const players = tpForTournament(t.id).filter(x=>x.status==='joined').length;
-    const myPending = myMatches().filter(m=>m.tournamentId===t.id && m.status!=='completed').length;
-    $('#homeHero').innerHTML = `
-      <article class="hero-card">
-        <div class="hero-head">
-          <div>
-            <div class="eyebrow">${t.club}</div>
-            <h1 class="hero-title">${t.name}</h1>
-          </div>
-          <div class="status-pill">${t.stage}</div>
-        </div>
-        <div class="hero-meta">
-          <span>Date: ${t.start}</span>
-          <span>Place: ${t.venue}</span>
-          <span>Start: ${t.time || t.start}</span>
-          <span>Duration: ${t.duration || '—'}</span>
-        </div>
-        <div class="hero-actions">
-          <button class="btn" id="heroPrimaryBtn">${joined ? 'View matches' : (t.status==='open' ? 'Join tournament' : 'Open tournament')}</button>
-          <button class="btn secondary" id="heroSecondaryBtn">Standings</button>
-        </div>
-      </article>`;
-    $('#heroPrimaryBtn').onclick = ()=>{
-      if(joined){ routeTo('matches'); return; }
-      if(t.status==='open'){ joinTournament(t.id); return; }
-      openTournament(t.id);
-    };
-    $('#heroSecondaryBtn').onclick = ()=>{ state.detailTab='standings'; openTournament(t.id); };
-    $('#metricRegistered').textContent = players;
-    $('#metricCourts').textContent = String(t.courts || Math.max(1, Math.ceil(players/4)));
-    $('#metricTeams').textContent = String(teamsCount(t.id));
+  function scoreSets(sets, idx){
+    return sets.reduce((acc, [a,b]) => acc + ((idx===0 ? a>b : b>a) ? 1 : 0), 0);
   }
 
   function renderTournamentCard(t, my=false){
-    const players = tpForTournament(t.id).filter(x=>x.status==='joined').length;
-    const matches = state.matches.filter(m=>m.tournamentId===t.id).length;
-    const statusClass = tournamentStatusClass(t.status);
-    const meta2 = my ? (tpForTournament(t.id).find(x=>x.profileId===state.currentPlayerId)?.team || t.format) : t.format;
-    return `
-      <article class="compact-card ${t.accent==='blue' ? 'blue' : ''}" data-tournament-id="${t.id}" tabindex="0">
-        <div class="compact-row">
+    const accentClass = t.accent==='blue' ? 'blue' : '';
+    const icon = t.accent==='blue' ? 'cup' : 'racket';
+    return `<article class="card ${accentClass}" data-tournament-id="${t.id}" tabindex="0">
+      <div class="icon-shell">${iconSvg(icon)}</div>
+      <div class="content">
+        <h2 class="title">${t.name}</h2>
+        <div class="meta">Starts: ${t.start}<br/>${my ? `Team: ${tpForTournament(t.id).find(x=>x.profileId===state.currentPlayerId)?.team || t.format}` : t.format}</div>
+      </div>
+      <div class="badge">${t.stage}</div>
+    </article>`;
+  }
+
+  
+  function renderHome(){
+    const joinedIds = new Set(joinedTournamentIds());
+    const my = state.tournaments.filter(t => joinedIds.has(t.id) && t.status !== 'finished');
+    const available = state.tournaments.filter(t => !joinedIds.has(t.id) && t.status === 'open');
+    const focus = my.find(t=>t.status==='live') || my[0] || available[0] || state.tournaments[0];
+    const focusPlayers = tpForTournament(focus.id).length;
+    const focusMatches = state.matches.filter(m=>m.tournamentId===focus.id).length;
+    const focusTeams = Math.max(1, Math.floor(focusPlayers/2));
+    $('#homeHeroCard').innerHTML = `
+      <div class="hero-card-grid">
+        <div class="hero-title-row">
           <div>
-            <h3 class="compact-title">${t.name}</h3>
-            <div class="compact-meta">
-              <div>${t.start} • ${t.venue}</div>
-              <div>${my ? 'My team' : 'Format'}: ${meta2}</div>
+            <h1 class="hero-title">${focus.name}</h1>
+            <div class="hero-meta-list">
+              <div class="hero-meta-line"><span>Date</span><strong>${focus.start}</strong></div>
+              <div class="hero-meta-line"><span>Place</span><strong>${focus.club}</strong></div>
+              <div class="hero-meta-line"><span>Start</span><strong>${focus.venue}</strong></div>
+              <div class="hero-meta-line"><span>Format</span><strong>${focus.format}</strong></div>
             </div>
           </div>
-          <span class="pill ${statusClass}">${t.stage}</span>
+          <div class="badge">${focus.stage}</div>
         </div>
-        <div class="compact-kpi">
-          <div class="item"><div class="n">Players</div><div class="v">${players}</div></div>
-          <div class="item"><div class="n">Courts</div><div class="v">${t.courts || Math.max(1, Math.ceil(players/4))}</div></div>
-          <div class="item"><div class="n">Matches</div><div class="v">${matches}</div></div>
+        <div class="hero-primary-row">
+          <button class="btn cta" id="heroOpenTournament">Open dashboard</button>
+          ${joinedIds.has(focus.id) && focus.status!=='finished' ? `<button class="btn secondary" id="heroOpenMatches">My matches</button>` : ''}
+          ${focus.status==='open' && !joinedIds.has(focus.id) ? `<button class="btn secondary" id="heroJoin">Join</button>` : ''}
         </div>
-      </article>`;
-  }
+      </div>
+    `;
+    $('#homeHeroKpis').innerHTML = `
+      <div class="hero-kpi"><div class="hero-kpi-value">${focusPlayers}</div><div class="hero-kpi-label">Registered</div></div>
+      <div class="hero-kpi"><div class="hero-kpi-value">${Math.max(1, Math.ceil(focusMatches || focusPlayers/4))}</div><div class="hero-kpi-label">Courts</div></div>
+      <div class="hero-kpi"><div class="hero-kpi-value">${focusTeams}</div><div class="hero-kpi-label">Teams</div></div>
+    `;
+    $('#heroStatusBadge').textContent = focus.stage;
+    $('#heroOpenTournament').onclick = ()=>openTournament(focus.id);
+    $('#heroOpenMatches')?.addEventListener('click', ()=>routeTo('matches'));
+    $('#heroJoin')?.addEventListener('click', ()=>joinTournament(focus.id));
 
-  function renderHome(){
-    renderHomeHero();
-    const joinedIds = new Set(joinedTournamentIds());
-    const my = state.tournaments.filter(t => joinedIds.has(t.id) && t.status !== 'finished').sort((a,b)=> (a.status==='live'?-1:1) - (b.status==='live'?-1:1));
-    const available = state.tournaments.filter(t => !joinedIds.has(t.id) && t.status === 'open');
-    $('#myTournaments').innerHTML = my.length ? my.map(t=>renderTournamentCard(t, true)).join('') : `<div class="empty">No joined tournaments right now.</div>`;
-    $('#availableTournaments').innerHTML = available.length ? available.map(t=>renderTournamentCard(t,false)).join('') : `<div class="empty">No open tournaments right now.</div>`;
+    $('#myTournaments').innerHTML = my.length ? my.map(t=>renderTournamentCard(t, true)).join('') : `<div class="empty panel">No active tournaments yet.</div>`;
+    $('#availableTournaments').innerHTML = available.length ? available.map(t=>renderTournamentCard(t)).join('') : `<div class="empty panel">No available tournaments now.</div>`;
     bindTournamentCards();
   }
+  
 
   function renderMatches(){
-    const filters=[{id:'all',label:'All'},{id:'scheduled',label:'Scheduled'},{id:'completed',label:'Completed'}];
+    const filters = [
+      {id:'all', label:'All'},
+      {id:'scheduled', label:'Scheduled'},
+      {id:'completed', label:'Completed'}
+    ];
     $('#matchFilters').innerHTML = filters.map(f=>`<button class="chip ${state.selectedMatchFilter===f.id?'active':''}" data-filter="${f.id}">${f.label}</button>`).join('');
     $$('#matchFilters .chip').forEach(btn=>btn.onclick=()=>{state.selectedMatchFilter=btn.dataset.filter; saveState(); renderMatches();});
-    let items=myMatches(); if(state.selectedMatchFilter!=='all') items = items.filter(m=>m.status===state.selectedMatchFilter);
+    let items = myMatches();
+    if(state.selectedMatchFilter!=='all') items = items.filter(m=>m.status===state.selectedMatchFilter);
     $('#myMatches').innerHTML = items.length ? items.map(m=>{
-      const t = state.tournaments.find(t=>t.id===m.tournamentId); const team1 = m.teams[0].map(getProfileName).join(' / '); const team2 = m.teams[1].map(getProfileName).join(' / ');
-      return `<article class="match-card" data-match-id="${m.id}">
-        <div class="match-top">
-          <div>
-            <div class="match-title">${team1}</div>
-            <div class="muted">vs ${team2}</div>
+      const t = state.tournaments.find(t=>t.id===m.tournamentId);
+      const team1 = m.teams[0].map(getProfileName).join(' / ');
+      const team2 = m.teams[1].map(getProfileName).join(' / ');
+      return `<article class="card slim" data-match-id="${m.id}">
+        <div class="match-card">
+          <div class="match-head">
+            <div>
+              <div class="match-teams">${team1}</div>
+              <div class="muted">vs ${team2}</div>
+            </div>
+            <div class="badge ${t.accent==='blue'?'secondary':''}">${m.status}</div>
           </div>
-          <span class="pill ${tournamentStatusClass(m.status==='completed' ? 'finished' : t.status)}">${m.status}</span>
+          <div class="row">
+            <div class="muted">${t.name} • ${m.time} • ${m.court}</div>
+            <div class="score">${m.result || 'Missing'}</div>
+          </div>
         </div>
-        <div style="margin-top:12px" class="muted">${t.name} • ${m.time} • ${m.court}</div>
-        <div class="row-between" style="margin-top:10px"><div class="muted-2">Result</div><div class="score">${m.result || 'Missing'}</div></div>
-        <div class="actions">${m.status==='scheduled' ? `<button class="btn secondary" data-submit-match="${m.id}">Submit result</button>` : `<button class="btn ghost" data-open-tournament="${t.id}">Open tournament</button>`}</div>
+        <div class="actions">
+          ${m.status==='scheduled' ? `<button class="btn secondary" data-submit-match="${m.id}">Submit result</button>` : `<button class="btn ghost" data-open-tournament="${t.id}">Open tournament</button>`}
+        </div>
       </article>`;
-    }).join('') : `<div class="empty">No matches in this filter.</div>`;
+    }).join('') : `<div class="empty panel">No matches in this filter.</div>`;
     $$('[data-submit-match]').forEach(btn=>btn.onclick=(e)=>{e.stopPropagation(); submitResultFlow(btn.dataset.submitMatch);});
     $$('[data-open-tournament]').forEach(btn=>btn.onclick=(e)=>{e.stopPropagation(); openTournament(btn.dataset.openTournament);});
     $$('[data-match-id]').forEach(el=>el.onclick=()=>openTournament(state.matches.find(m=>m.id===el.dataset.matchId).tournamentId));
   }
 
-  function renderHistory(){
-    const historyTs = state.tournaments.filter(t=>t.status==='finished');
-    $('#historyList').innerHTML = (historyTs.length ? historyTs.map(t=>renderTournamentCard(t,false)).join('') : `<div class="empty">No finished tournaments yet.</div>`) + `
-      <div class="panel blue">
-        <div class="section-title" style="font-size:11px">Recent activity</div>
-        <div class="list">${state.activity.map(a=>`<div class="activity-row"><div>${a.text}</div><div class="muted" style="margin-top:6px">${a.at}</div></div>`).join('')}</div>
+  
+  function renderTournaments(){
+    const filters = [
+      {id:'all', label:'All'},
+      {id:'live', label:'Live'},
+      {id:'open', label:'Open'},
+      {id:'finished', label:'Finished'}
+    ];
+    const activeFilter = state.selectedTournamentFilter || 'all';
+    $('#tournamentFilters').innerHTML = filters.map(f=>`<button class="chip ${activeFilter===f.id?'active':''}" data-t-filter="${f.id}">${f.label}</button>`).join('');
+    $$('#tournamentFilters .chip').forEach(btn=>btn.onclick=()=>{state.selectedTournamentFilter=btn.dataset.tFilter; saveState(); renderTournaments();});
+    let items = state.tournaments.slice();
+    if(activeFilter!=='all') items = items.filter(t=>t.status===activeFilter);
+    $('#tournamentsList').innerHTML = items.map(t=>renderTournamentCard(t, joinedTournamentIds().includes(t.id))).join('') + `
+      <div class="panel">
+        <div class="section-sub" style="margin:0 0 12px 0">Recent activity</div>
+        <div class="list">
+          ${state.activity.map(a=>`<div class="activity-row"><div>${a.text}</div><div class="muted">${a.at}</div></div>`).join('')}
+        </div>
       </div>`;
     bindTournamentCards();
   }
+  
 
   function renderProfile(){
     $('#profileJoinedCount').textContent = myTournamentPlayers().length;
     $('#profileMatchesDone').textContent = myMatches().filter(m=>m.status==='completed').length;
-    $('#resetDemo').onclick = ()=>{ localStorage.removeItem(STORAGE_KEY); state = structuredClone(seed); routeTo('home'); toast('Demo data reset'); };
+    $('#resetDemo').onclick = ()=>{
+      localStorage.removeItem(STORAGE_KEY);
+      state = structuredClone(seed);
+      routeTo('home');
+      toast('Demo data reset');
+    };
   }
 
+  
   function renderDetail(){
     const t = state.tournaments.find(x=>x.id===state.detailTournamentId);
     if(!t){ routeTo('home'); return; }
-    const joined = joinedTournamentIds().includes(t.id); const players = tpForTournament(t.id).filter(x=>x.status==='joined'); const matches = state.matches.filter(m=>m.tournamentId===t.id); const standings = standingsForTournament(t.id);
-    const tabs=[{id:'overview',label:'Overview'},{id:'players',label:'Players'},{id:'matches',label:'Schedule'},{id:'standings',label:'Standings'},{id:'activity',label:'Activity'}];
-
-    const overviewHtml = `
-      <div class="list">
-        <div class="panel"><div class="section-title" style="font-size:11px">System rules</div><div style="margin-top:10px" class="muted">Player sees only own matches. Result can be submitted by admin or any one of the four players. System stores who submitted the result.</div></div>
-        ${matches.slice(0,2).map(m=>{
-          const team1=m.teams[0].map(getProfileName).join(' / '), team2=m.teams[1].map(getProfileName).join(' / ');
-          return `<article class="match-card"><div class="match-top"><div><div class="match-title">${team1}</div><div class="muted">vs ${team2}</div></div><div class="score">${m.result || '—'}</div></div><div style="margin-top:10px" class="muted">${m.time} • ${m.court}</div></article>`;
-        }).join('') || `<div class="empty">No matches yet.</div>`}
-      </div>`;
-
-    const playersHtml = players.length ? players.map(tp=>`<div class="profile-row"><div class="row-between"><strong>${getProfileName(tp.profileId)}</strong><span class="pill ${tp.status==='joined'?'live':'finished'}">${tp.status}</span></div><div class="muted" style="margin-top:6px">${tp.team}</div></div>`).join('') : `<div class="empty">No players yet.</div>`;
-
-    const matchesHtml = matches.length ? matches.map(m=>{
-      const team1=m.teams[0].map(getProfileName).join(' / '), team2=m.teams[1].map(getProfileName).join(' / ');
-      return `<article class="match-card"><div class="match-top"><div><div class="match-title">${team1}</div><div class="muted">vs ${team2}</div></div><span class="pill ${m.status==='completed'?'finished':'open'}">${m.status}</span></div><div style="margin-top:10px" class="muted">${m.time} • ${m.court}</div><div class="row-between" style="margin-top:10px"><div class="muted-2">Score</div><div class="score">${m.result || 'Missing'}</div></div><div class="actions">${m.status!=='completed' ? `<button class="btn secondary" data-submit-detail="${m.id}">Submit result</button>` : `<button class="btn ghost" disabled>Submitted by ${getProfileName(m.submittedBy || state.currentPlayerId)}</button>`}</div></article>`;
-    }).join('') : `<div class="empty">No matches yet.</div>`;
-
-    const standingsHtml = standings.length ? standings.map(s=>`<div class="standing-row"><div class="standing-grid"><div class="rank">${s.rank}</div><div><strong>${getProfileName(s.profileId)}</strong></div><div><b>P</b> ${s.played}</div><div><b>Pts</b> ${s.points}</div><div class="hide-m"><b>W</b> ${s.won}</div><div class="hide-m"><b>Diff</b> ${s.diff}</div></div></div>`).join('') : `<div class="empty">Standings will appear after first result.</div>`;
-
-    const activityHtml = state.activity.filter(a => a.text.toLowerCase().includes(t.name.toLowerCase().split(' ')[0].toLowerCase()) || a.text.includes('Result')).map(a=>`<div class="activity-row"><div>${a.text}</div><div class="muted" style="margin-top:6px">${a.at}</div></div>`).join('') || `<div class="empty">No activity yet.</div>`;
-
-    const tabContent = {overview:overviewHtml, players:`<div class="list">${playersHtml}</div>`, matches:`<div class="list">${matchesHtml}</div>`, standings:`<div class="list">${standingsHtml}</div>`, activity:`<div class="list">${activityHtml}</div>`};
-
-    $('#detailShell').innerHTML = `
-      <article class="detail-shell">
-        <div class="hero-head">
+    const joined = joinedTournamentIds().includes(t.id);
+    const playerCount = tpForTournament(t.id).length;
+    const tournamentMatches = state.matches.filter(m=>m.tournamentId===t.id);
+    const completedMatches = tournamentMatches.filter(m=>m.status==='completed').length;
+    $('#detailHero').innerHTML = `
+      <div class="detail-dashboard-top">
+        <div class="row">
           <div>
             <div class="eyebrow">${t.club}</div>
-            <h1 class="detail-hero-title">${t.name}</h1>
+            <h1 style="margin:6px 0 8px; font-size:34px; line-height:1.02">${t.name}</h1>
+            <div class="muted">${t.description}</div>
           </div>
-          <span class="status-pill">${t.stage}</span>
+          <div class="badge">${t.stage}</div>
         </div>
-        <div class="detail-top-meta">
-          <div>Date: ${t.start}</div>
-          <div>Place: ${t.venue}</div>
-          <div>Start: ${t.time || t.start}</div>
+        <div class="detail-dashboard-kpis">
+          <div class="detail-dashboard-kpi"><b>${playerCount}</b><span>Registered</span></div>
+          <div class="detail-dashboard-kpi"><b>${Math.max(1, tournamentMatches.length || Math.ceil(playerCount/4))}</b><span>Matches</span></div>
+          <div class="detail-dashboard-kpi"><b>${completedMatches}</b><span>Results</span></div>
         </div>
-        <div class="detail-metrics">
-          <div class="box"><div class="n">Registered</div><div class="v">${players.length}</div></div>
-          <div class="box"><div class="n">Courts</div><div class="v">${t.courts || Math.max(1, Math.ceil(players.length/4))}</div></div>
-          <div class="box"><div class="n">Teams</div><div class="v">${teamsCount(t.id)}</div></div>
-          <div class="box"><div class="n">Matches</div><div class="v">${matches.length}</div></div>
+        <div class="kv">
+          <div class="kv-item"><b>Start</b><span>${t.start}</span></div>
+          <div class="kv-item"><b>Format</b><span>${t.format}</span></div>
+          <div class="kv-item"><b>Venue</b><span>${t.venue}</span></div>
+          <div class="kv-item"><b>Players</b><span>${playerCount} / ${t.maxPlayers}</span></div>
         </div>
         <div class="actions">
           ${t.status==='open' && !joined ? `<button class="btn" id="joinTournamentBtn">Join tournament</button>` : ''}
           ${joined && t.status!=='finished' ? `<button class="btn danger" id="withdrawTournamentBtn">Withdraw</button>` : ''}
           <button class="btn secondary" id="openMatchesBtn">Open my matches</button>
         </div>
-        <div class="tabbar" id="detailTabs">${tabs.map(tab=>`<button class="tab ${state.detailTab===tab.id?'active':''}" data-detail-tab="${tab.id}">${tab.label}</button>`).join('')}</div>
-        <div id="detailContent">${tabContent[state.detailTab] || tabContent.overview}</div>
-      </article>`;
-
+      </div>`;
     $('#joinTournamentBtn')?.addEventListener('click', ()=>joinTournament(t.id));
     $('#withdrawTournamentBtn')?.addEventListener('click', ()=>withdrawTournament(t.id));
     $('#openMatchesBtn')?.addEventListener('click', ()=>routeTo('matches'));
+
+    const tabs = [
+
+      {id:'overview', label:'Overview'},
+      {id:'matches', label:'Schedule'},
+      {id:'standings', label:'Standings'},
+      {id:'players', label:'Players'},
+      
+    ];
+    $('#detailTabs').innerHTML = tabs.map(tab=>`<button class="tab ${state.detailTab===tab.id?'active':''}" data-detail-tab="${tab.id}">${tab.label}</button>`).join('');
     $$('#detailTabs .tab').forEach(btn=>btn.onclick=()=>{state.detailTab=btn.dataset.detailTab; saveState(); renderDetail();});
+
+    const matches = state.matches.filter(m=>m.tournamentId===t.id);
+    const standings = standingsForTournament(t.id);
+    const players = tpForTournament(t.id);
+    const matchHtml = matches.length ? matches.map(m=>{
+      const team1 = m.teams[0].map(getProfileName).join(' / ');
+      const team2 = m.teams[1].map(getProfileName).join(' / ');
+      return `<article class="card slim">
+        <div class="match-card">
+          <div class="match-head">
+            <div>
+              <div class="match-teams">${team1}</div>
+              <div class="muted">vs ${team2}</div>
+            </div>
+            <div class="badge">${m.status}</div>
+          </div>
+          <div class="row">
+            <div class="muted">${m.time} • ${m.court}</div>
+            <div class="score">${m.result || 'Missing'}</div>
+          </div>
+        </div>
+        <div class="actions">${m.status!=='completed' ? `<button class="btn secondary" data-submit-detail="${m.id}">Submit result</button>` : `<button class="btn ghost" disabled>Submitted by ${getProfileName(m.submittedBy || state.currentPlayerId)}</button>`}</div>
+      </article>`;
+    }).join('') : `<div class="empty">No matches yet.</div>`;
+
+    const standingsHtml = standings.length ? standings.map(s=>`
+      <div class="standing-row">
+        <div class="standing-grid">
+          <div class="rank">${s.rank}</div>
+          <div><strong>${getProfileName(s.profileId)}</strong></div>
+          <div><b>P</b> ${s.played}</div>
+          <div><b>Pts</b> ${s.points}</div>
+          <div class="hide-m"><b>W</b> ${s.won}</div>
+          <div class="hide-m"><b>Diff</b> ${s.diff}</div>
+        </div>
+      </div>`).join('') : `<div class="empty">Standings will appear after first result.</div>`;
+
+    const playersHtml = players.map(tp=>`
+      <div class="profile-row">
+        <div class="row"><strong>${getProfileName(tp.profileId)}</strong><span class="badge">${tp.status}</span></div>
+        <div class="muted">${tp.team}</div>
+      </div>`).join('');
+
+    const activityHtml = state.activity.filter(a => a.text.toLowerCase().includes(t.name.toLowerCase().split(' ')[0].toLowerCase()) || a.text.includes('Result')).map(a=>`
+      <div class="activity-row"><div>${a.text}</div><div class="muted">${a.at}</div></div>`).join('') || `<div class="empty">No activity yet.</div>`;
+
+    $('#detailContent').innerHTML = `
+      <div class="detail-tab ${state.detailTab==='overview'?'active':''}">
+        <div class="kv">
+          <div class="kv-item"><b>Status</b><span>${t.stage}</span></div>
+          <div class="kv-item"><b>Join policy</b><span>${t.status==='open' ? 'Self join' : 'Closed'}</span></div>
+          <div class="kv-item"><b>Match result rule</b><span>Any of 4 players may submit</span></div>
+          <div class="kv-item"><b>Club admin</b><span>May correct if needed</span></div>
+        </div>
+      </div>
+      <div class="detail-tab ${state.detailTab==='matches'?'active':''}"><div class="list">${matchHtml}</div></div>
+      <div class="detail-tab ${state.detailTab==='standings'?'active':''}"><div class="list">${standingsHtml}</div></div>
+      <div class="detail-tab ${state.detailTab==='players'?'active':''}"><div class="list">${playersHtml}</div></div>
+    `;
     $$('[data-submit-detail]').forEach(btn=>btn.onclick=()=>submitResultFlow(btn.dataset.submitDetail));
   }
 
-  function joinTournament(tid){ if(joinedTournamentIds().includes(tid)){ toast('Already joined'); return; } state.tournamentPlayers.push({id:'tp'+Math.random().toString(36).slice(2,7), tournamentId:tid, profileId:state.currentPlayerId, status:'joined', team:'Pending draw'}); state.activity.unshift({id:'a'+Date.now(), text:`You joined ${state.tournaments.find(t=>t.id===tid).name}`, at:'Just now'}); saveState(); renderAll(); toast('Joined tournament'); }
-  function withdrawTournament(tid){ const row = state.tournamentPlayers.find(tp=>tp.tournamentId===tid && tp.profileId===state.currentPlayerId); if(!row){ toast('Not joined'); return; } state.tournamentPlayers = state.tournamentPlayers.filter(tp=>!(tp.tournamentId===tid && tp.profileId===state.currentPlayerId)); state.activity.unshift({id:'a'+Date.now(), text:`You withdrew from ${state.tournaments.find(t=>t.id===tid).name}`, at:'Just now'}); saveState(); renderAll(); routeTo('home'); toast('Withdrawn'); }
-  function submitResultFlow(mid){ const result = prompt('Enter result like 6:4 4:6 10:8', '6:4 4:6 10:8'); if(!result) return; const m = state.matches.find(x=>x.id===mid); m.result=result; m.status='completed'; m.submittedBy=state.currentPlayerId; state.activity.unshift({id:'a'+Date.now(), text:`Result submitted in ${m.court}`, at:'Just now'}); saveState(); renderAll(); toast('Result submitted'); }
-  function bindTournamentCards(){ $$('[data-tournament-id]').forEach(card=>{ const open=()=>openTournament(card.dataset.tournamentId); card.onclick=open; card.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } }; }); }
-  function openTournament(tid){ state.detailTournamentId=tid; if(!state.detailTab) state.detailTab='overview'; saveState(); routeTo('detail'); }
-  function updateNavCounts(){
-    const liveCount = state.tournaments.filter(t=>t.status==='live').length;
-    const openCount = state.tournaments.filter(t=>t.status==='open').length;
-    const myMatchCount = state.matches.filter(m=>m.teams.flat().includes(state.currentPlayerId) && m.status!=='completed').length;
-    const historyCount = state.tournaments.filter(t=>t.status==='finished').length;
-    const setCount=(id,value)=>{ const el=$(id); if(!el) return; if(value>0){ el.textContent=value>9?'9+':String(value); el.classList.add('show'); } else { el.textContent=''; el.classList.remove('show'); } };
-    setCount('#navCountHome', liveCount+openCount); setCount('#navCountMatches', myMatchCount); setCount('#navCountHistory', historyCount);
+  function joinTournament(tid){
+    if(joinedTournamentIds().includes(tid)){ toast('Already joined'); return; }
+    state.tournamentPlayers.push({
+      id:'tp' + Math.random().toString(36).slice(2,7),
+      tournamentId:tid,
+      profileId:state.currentPlayerId,
+      status:'joined',
+      team:'Pending draw'
+    });
+    state.activity.unshift({id:'a'+Date.now(), text:`You joined ${state.tournaments.find(t=>t.id===tid).name}`, at:'Just now'});
+    saveState();
+    renderAll();
+    toast('Joined tournament');
   }
-  function routeTo(route){ location.hash = route; updateRoute(); }
+
+  function withdrawTournament(tid){
+    const row = state.tournamentPlayers.find(tp=>tp.tournamentId===tid && tp.profileId===state.currentPlayerId);
+    if(!row){ toast('Not joined'); return; }
+    row.status = 'withdrawn';
+    state.tournamentPlayers = state.tournamentPlayers.filter(tp=>!(tp.tournamentId===tid && tp.profileId===state.currentPlayerId));
+    state.activity.unshift({id:'a'+Date.now(), text:`You withdrew from ${state.tournaments.find(t=>t.id===tid).name}`, at:'Just now'});
+    saveState();
+    renderAll();
+    routeTo('home');
+    toast('Withdrawn');
+  }
+
+  function submitResultFlow(mid){
+    const result = prompt('Enter result like 6:4 4:6 10:8', '6:4 4:6 10:8');
+    if(!result) return;
+    const m = state.matches.find(x=>x.id===mid);
+    m.result = result;
+    m.status = 'completed';
+    m.submittedBy = state.currentPlayerId;
+    state.activity.unshift({id:'a'+Date.now(), text:`Result submitted in ${m.court}`, at:'Just now'});
+    saveState();
+    renderAll();
+    toast('Result submitted');
+  }
+
+  function bindTournamentCards(){
+    $$('[data-tournament-id]').forEach(card=>{
+      const open = ()=>openTournament(card.dataset.tournamentId);
+      card.onclick = open;
+      card.onkeydown = e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); open(); } };
+    });
+  }
+
+  function openTournament(tid){
+    state.detailTournamentId = tid;
+    state.detailTab = 'overview';
+    saveState();
+    routeTo('detail');
+  }
+
+  function routeTo(route){
+    location.hash = route;
+    updateRoute();
+  }
+
   function updateRoute(){
     const route = location.hash.replace('#','') || 'home';
-    $$('.page').forEach(p=>p.classList.remove('active')); const page=$('[data-page="'+route+'"]'); if(page) page.classList.add('active');
+    $$('.page').forEach(p=>p.classList.remove('active'));
+    if(route==='home'){
+      $('[data-page="home"]').classList.add('active');
+      $('[data-page="home-hero"]').classList.add('active');
+    } else {
+      const page = $('[data-page="'+route+'"]');
+      if(page) page.classList.add('active');
+    }
     $$('.nav-item').forEach(a=>a.classList.toggle('active', a.dataset.route===route));
-    if(route==='detail') renderDetail(); if(route==='matches') renderMatches(); if(route==='history') renderHistory(); if(route==='profile') renderProfile(); if(route==='home') renderHome(); updateNavCounts();
+    updateTopbar(route);
+    updateNavCounts();
+    if(route==='detail') renderDetail();
+    if(route==='matches') renderMatches();
+    if(route==='tournaments') renderTournaments();
+    if(route==='profile') renderProfile();
+    if(route==='home') renderHome();
   }
-  function renderAll(){ renderHome(); renderMatches(); renderHistory(); renderProfile(); if(location.hash.replace('#','')==='detail') renderDetail(); updateNavCounts(); }
+
+  function renderAll(){
+    renderHome();
+    renderMatches();
+    renderTournaments();
+    renderProfile();
+    if(location.hash.replace('#','')==='detail') renderDetail();
+  }
+
   window.addEventListener('hashchange', updateRoute);
-  $$('[data-route]').forEach(el=>el.addEventListener('click', e=>{ const route=el.dataset.route; if(route){ e.preventDefault(); routeTo(route); } }));
-  $('#segTournaments').onclick=()=>{ $('#segTournaments').classList.add('active'); $('#segPlayers').classList.remove('active'); routeTo('home'); };
-  $('#segPlayers').onclick=()=>{ $('#segPlayers').classList.add('active'); $('#segTournaments').classList.remove('active'); routeTo('profile'); };
-  renderAll(); updateRoute();
+  $$('[data-route]').forEach(el=> el.addEventListener('click', (e)=>{
+    const route = el.dataset.route;
+    if(route){
+      e.preventDefault();
+      routeTo(route);
+    }
+  }));
+
+  renderAll();
+  updateTopbar(location.hash.replace('#','') || 'home');
+  updateRoute();
   </script>
 </body>
 </html>
