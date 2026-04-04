@@ -1,0 +1,1 @@
+Upload index.html, 404.html, .nojekyll, assets/, docs/ to the repository root. Replace previous UI files completely.
