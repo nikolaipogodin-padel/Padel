@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07110f" />
+  <title>Tournament OS — v18 clean UI</title>
+  <style>
+    :root{
+      --bg:#07110f;
+      --panel:rgba(7,18,16,.68);
+      --panel-2:rgba(9,24,20,.82);
+      --panel-3:rgba(255,255,255,.05);
+      --line:rgba(135,255,186,.18);
+      --line-strong:rgba(140,255,190,.34);
+      --line-blue:rgba(124,208,255,.34);
+      --text:#f4fff8;
+      --muted:#c0d3c8;
+      --muted-2:#90a79b;
+      --green:#7effab;
+      --green-2:#31dc76;
+      --blue:#7ad6ff;
+      --blue-2:#2f9fff;
+      --lime:#c8ff65;
+      --danger:#ff7c92;
+      --warning:#ffd475;
+      --shadow-lg:0 28px 90px rgba(0,0,0,.48);
+      --shadow-md:0 16px 42px rgba(0,0,0,.34);
+      --shadow-sm:0 10px 24px rgba(0,0,0,.22);
+      --radius-xl:30px;
+      --radius-lg:24px;
+      --radius-md:20px;
+      --radius-sm:16px;
+      --safe-bottom:max(18px, env(safe-area-inset-bottom));
+      --page-max:440px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      letter-spacing:-.01em;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(122,214,255,.18), transparent 22%),
+        radial-gradient(circle at 82% 18%, rgba(126,255,171,.14), transparent 24%),
+        radial-gradient(circle at 50% 88%, rgba(126,255,171,.12), transparent 28%),
+        linear-gradient(180deg, rgba(4,10,13,.24) 0%, rgba(4,10,10,.64) 26%, rgba(3,9,8,.94) 100%),
+        url('assets/background.jpg') center/cover fixed no-repeat;
+      overflow-x:hidden;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        linear-gradient(180deg, rgba(6,13,19,.24) 0%, rgba(6,13,19,.04) 18%, rgba(5,12,10,.7) 68%, rgba(4,9,8,.95) 100%),
+        radial-gradient(circle at center, transparent 42%, rgba(0,0,0,.42) 100%);
+    }
+    body::after{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:radial-gradient(rgba(255,255,255,.04) .7px, transparent .7px);
+      background-size:10px 10px; opacity:.08; mix-blend-mode:screen;
+    }
+    .app{position:relative; z-index:1; max-width:var(--page-max); margin:0 auto; min-height:100%; padding:16px 16px calc(108px + var(--safe-bottom));}
+    .glass{backdrop-filter:blur(18px) saturate(130%); -webkit-backdrop-filter:blur(18px) saturate(130%)}
+    .topbar{
+      position:sticky; top:10px; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px; border-radius:26px; border:1px solid rgba(190,255,222,.18);
+      background:linear-gradient(180deg, rgba(10,24,21,.82), rgba(8,17,15,.92));
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 30px rgba(88,255,161,.05);
+    }
+    .brand{display:flex; align-items:center; gap:12px; min-width:0}
+    .logo{
+      width:48px; height:48px; border-radius:16px; display:grid; place-items:center; flex:0 0 auto;
+      background:linear-gradient(135deg, rgba(70,162,255,.95), rgba(44,221,118,.92));
+      box-shadow:0 0 24px rgba(69,175,255,.35), 0 0 40px rgba(58,233,121,.2), inset 0 1px 0 rgba(255,255,255,.25);
+      font-weight:900; font-size:28px; font-style:italic;
+    }
+    .brand-copy{min-width:0}
+    .eyebrow{font-size:10px; text-transform:uppercase; letter-spacing:.2em; color:#d4eee0; opacity:.75; font-weight:800}
+    .brand-title{margin-top:4px; font-size:26px; line-height:.95; font-weight:900; letter-spacing:.02em}
+    .brand-title span{color:var(--green)}
+    .session{padding:10px 12px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(190,255,222,.1); text-align:right}
+    .session .label{font-size:10px; text-transform:uppercase; letter-spacing:.18em; color:var(--muted); opacity:.7; font-weight:800}
+    .session .value{margin-top:5px; font-size:14px; color:#f3fff8; font-weight:700}
+
+    .page{display:none; animation:fade .22s ease}
+    .page.active{display:block}
+    @keyframes fade{from{opacity:.55; transform:translateY(5px)} to{opacity:1; transform:none}}
+
+    .hero{
+      position:relative; margin-top:16px; padding:16px; border-radius:28px; overflow:hidden;
+      background:
+        linear-gradient(180deg, rgba(9,22,19,.84), rgba(7,16,14,.92)),
+        radial-gradient(circle at 18% 14%, rgba(122,214,255,.12), transparent 28%),
+        radial-gradient(circle at 86% 20%, rgba(123,255,170,.14), transparent 26%);
+      border:1px solid rgba(188,255,220,.16);
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 38px rgba(87,255,157,.08);
+    }
+    .hero::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(135deg, rgba(122,214,255,.14), transparent 34%, transparent 58%, rgba(123,255,170,.12) 100%);
+      opacity:.9;
+    }
+    .hero > *{position:relative; z-index:1}
+    .hero-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+    .hero-kicker{font-size:11px; text-transform:uppercase; letter-spacing:.22em; color:#dbf9e7; opacity:.9; font-weight:800}
+    .live-badge{
+      display:inline-flex; align-items:center; gap:8px; white-space:nowrap; padding:9px 14px; border-radius:999px;
+      background:rgba(155,255,91,.12); border:1px solid rgba(188,255,110,.38); color:#f8ffe9; font-size:13px; font-weight:800;
+      box-shadow:0 0 26px rgba(188,255,110,.18), inset 0 0 20px rgba(188,255,110,.08);
+    }
+    .live-dot{width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 40% 40%, #f8ffd0 0 20%, #cbff6f 44%, #88e641 100%); box-shadow:0 0 16px rgba(200,255,101,.55)}
+    .hero-title{margin:10px 0 10px; font-size:35px; line-height:.98; font-weight:860; letter-spacing:-.045em; max-width:11ch}
+    .hero-meta{display:grid; gap:8px; margin-top:10px}
+    .meta-row{display:grid; grid-template-columns:74px 1fr; gap:8px; font-size:15px}
+    .meta-label{color:var(--muted-2)}
+    .meta-value{color:#f4fff8}
+    .hero-actions{display:grid; grid-template-columns:1fr auto; gap:10px; margin-top:18px}
+    .btn{
+      border:0; cursor:pointer; color:inherit; font:inherit; min-height:54px; border-radius:18px; padding:0 16px;
+      transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    }
+    .btn:active{transform:translateY(1px) scale(.995)}
+    .btn-primary{
+      background:linear-gradient(135deg, rgba(111,219,255,.96), rgba(113,255,160,.92)); color:#03110c; font-weight:900;
+      box-shadow:0 10px 30px rgba(58,173,255,.26), 0 10px 32px rgba(68,244,133,.18), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+    .btn-secondary{
+      background:rgba(255,255,255,.04); border:1px solid rgba(190,255,222,.12); color:#effff4; font-weight:800;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    .stats-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
+    .stat-card{
+      padding:14px 12px; border-radius:18px; background:rgba(7,18,15,.68); border:1px solid rgba(190,255,222,.10);
+      box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .stat-card.blue{box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.04), 0 0 24px rgba(82,173,255,.08)}
+    .stat-card.green{box-shadow:var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,.04), 0 0 24px rgba(99,255,153,.08)}
+    .stat-value{font-size:24px; line-height:1; font-weight:850}
+    .stat-label{margin-top:6px; color:var(--muted); font-size:12px}
+
+    .section{margin-top:24px}
+    .section-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px}
+    .section-title{font-size:22px; font-weight:860; letter-spacing:-.03em}
+    .section-link{color:var(--green); font-size:13px; font-weight:800; cursor:pointer}
+
+    .card{
+      position:relative; overflow:hidden; padding:16px; border-radius:22px; background:linear-gradient(180deg, rgba(10,23,20,.82), rgba(7,16,14,.9));
+      border:1px solid rgba(188,255,220,.10); box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .card + .card{margin-top:12px}
+    .card.hero-outline{border-color:rgba(188,255,220,.18); box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.05), 0 0 36px rgba(87,255,157,.10)}
+    .card.compact{padding:14px 14px 13px; border-radius:18px}
+    .card::before{content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(135deg, rgba(122,214,255,.06), transparent 32%, transparent 70%, rgba(123,255,170,.05));}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:12px}
+    .title{font-size:24px; line-height:1.05; font-weight:840}
+    .sub{margin-top:6px; font-size:13px; color:var(--muted)}
+    .small{font-size:12px; color:var(--muted-2)}
+    .pill{display:inline-flex; align-items:center; gap:6px; min-height:30px; padding:0 12px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04)}
+    .pill.live{background:rgba(155,255,91,.12); border-color:rgba(188,255,110,.32); color:#f7ffe6}
+    .pill.open{background:rgba(122,214,255,.11); border-color:rgba(122,214,255,.28)}
+    .pill.joined{background:rgba(126,255,171,.10); border-color:rgba(126,255,171,.28)}
+    .pill.waitlist{background:rgba(255,212,117,.10); border-color:rgba(255,212,117,.28)}
+    .pill.finished{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.12)}
+    .divider{height:1px; background:linear-gradient(90deg, transparent, rgba(190,255,222,.14), transparent); margin:14px 0}
+    .kv{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
+    .kv-item{padding:12px; border-radius:16px; background:rgba(255,255,255,.03); border:1px solid rgba(190,255,222,.08)}
+    .kv-label{font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.14em; font-weight:800}
+    .kv-value{margin-top:8px; font-size:22px; font-weight:850}
+
+    .match-card .teams{display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:start; margin-top:12px}
+    .team{text-align:left}
+    .team:last-child{text-align:right}
+    .team-name{font-size:18px; line-height:1.1; font-weight:820}
+    .team-players{margin-top:5px; font-size:12px; color:var(--muted)}
+    .vs{font-size:14px; font-weight:900; letter-spacing:.18em; color:var(--muted-2); padding-top:4px}
+    .match-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+    .meta-chip{padding:9px 12px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(190,255,222,.08); font-size:12px; font-weight:760; color:#effff4}
+    .match-actions{display:grid; grid-template-columns:1fr auto; gap:10px; margin-top:14px}
+
+    .tabs{display:flex; gap:8px; margin-top:12px; overflow:auto; scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{min-height:42px; padding:0 14px; border-radius:14px; border:1px solid rgba(190,255,222,.10); background:rgba(255,255,255,.03); color:var(--muted); font-size:13px; font-weight:800; white-space:nowrap}
+    .tab.active{color:#04120c; background:linear-gradient(135deg, rgba(122,214,255,.95), rgba(126,255,171,.92)); border-color:transparent; box-shadow:0 0 22px rgba(88,179,255,.18)}
+    .tab-panel{display:none; margin-top:12px}
+    .tab-panel.active{display:block}
+
+    .profile-card{padding:18px; border-radius:26px; background:linear-gradient(180deg, rgba(10,24,21,.84), rgba(7,16,14,.92)); border:1px solid rgba(188,255,220,.14); box-shadow:var(--shadow-lg)}
+    .profile-top{display:flex; gap:14px; align-items:center}
+    .avatar{width:72px; height:72px; border-radius:22px; display:grid; place-items:center; font-size:28px; font-weight:900; background:linear-gradient(135deg, rgba(122,214,255,.95), rgba(126,255,171,.92)); color:#04110c; box-shadow:0 0 26px rgba(82,173,255,.25), 0 0 28px rgba(95,255,155,.16)}
+    .profile-name{font-size:28px; line-height:.98; font-weight:900}
+    .profile-role{margin-top:6px; font-size:13px; color:var(--muted)}
+
+    .bottom-nav{
+      position:fixed; left:50%; transform:translateX(-50%); bottom:calc(10px + env(safe-area-inset-bottom)); z-index:20;
+      width:min(calc(100% - 20px), calc(var(--page-max) - 10px));
+      display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px;
+      border-radius:28px; background:linear-gradient(180deg, rgba(10,23,20,.88), rgba(6,14,12,.96)); border:1px solid rgba(188,255,220,.14);
+      box-shadow:0 16px 52px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.05);
+      backdrop-filter:blur(20px) saturate(135%); -webkit-backdrop-filter:blur(20px) saturate(135%);
+    }
+    .nav-item{
+      min-height:62px; border:0; border-radius:18px; background:transparent; color:var(--muted); display:grid; justify-items:center; align-content:center; gap:6px; cursor:pointer; font:inherit; font-size:11px; font-weight:800; letter-spacing:.04em;
+    }
+    .nav-item svg{width:20px; height:20px}
+    .nav-item.active{color:#05120d; background:linear-gradient(135deg, rgba(122,214,255,.95), rgba(126,255,171,.92)); box-shadow:0 0 26px rgba(88,179,255,.18), inset 0 1px 0 rgba(255,255,255,.25)}
+
+    .modal-backdrop{position:fixed; inset:0; background:rgba(3,8,7,.62); z-index:30; display:none; padding:18px; backdrop-filter:blur(14px)}
+    .modal-backdrop.show{display:grid; align-items:end}
+    .modal{
+      max-width:var(--page-max); width:100%; margin:0 auto; padding:18px; border-radius:26px; background:linear-gradient(180deg, rgba(11,25,22,.94), rgba(8,16,14,.98)); border:1px solid rgba(188,255,220,.16); box-shadow:var(--shadow-lg);
+    }
+    .modal h3{margin:0 0 8px; font-size:24px; line-height:1.02}
+    .modal p{margin:0; color:var(--muted); font-size:14px; line-height:1.5}
+    .score-grid{display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; margin-top:16px}
+    .score-box{padding:14px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(188,255,220,.10)}
+    .score-box label{display:block; font-size:12px; color:var(--muted); margin-bottom:8px}
+    .score-box input{width:100%; min-height:54px; border-radius:14px; border:1px solid rgba(188,255,220,.12); background:rgba(3,10,8,.6); color:#f7fff9; font-size:24px; text-align:center; font-weight:900; outline:none}
+    .modal-actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px}
+
+    .empty{padding:18px; border-radius:18px; border:1px dashed rgba(188,255,220,.16); color:var(--muted); background:rgba(255,255,255,.02)}
+
+    @media (max-width:380px){
+      .hero-title{font-size:31px}
+      .title{font-size:22px}
+      .brand-title{font-size:24px}
+      .hero-actions,.match-actions,.modal-actions{grid-template-columns:1fr}
+      .stats-grid,.kv{grid-template-columns:1fr 1fr 1fr}
+      .meta-row{grid-template-columns:66px 1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="logo">P</div>
+        <div class="brand-copy">
+          <div class="eyebrow">Eyebrow</div>
+          <div class="brand-title">PADEL <span>OS</span></div>
+        </div>
+      </div>
+      <div class="session">
+        <div class="label">Role session</div>
+        <div class="value">Player mode</div>
+      </div>
+    </header>
+
+    <main id="page-home" class="page active">
+      <section class="hero glass">
+        <div class="hero-head">
+          <div>
+            <div class="hero-kicker">Active tournament</div>
+            <div id="heroTitle" class="hero-title">Riga Evening Open</div>
+          </div>
+          <div class="live-badge"><span class="live-dot"></span>Live</div>
+        </div>
+        <div class="hero-meta" id="heroMeta"></div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-go="matches">View Matches</button>
+          <button class="btn btn-secondary" data-go="tournaments">All Tournaments</button>
+        </div>
+      </section>
+
+      <section class="stats-grid">
+        <div class="stat-card green glass"><div class="stat-value" id="statLive">1</div><div class="stat-label">Live now</div></div>
+        <div class="stat-card blue glass"><div class="stat-value" id="statOpen">0</div><div class="stat-label">Open</div></div>
+        <div class="stat-card glass"><div class="stat-value" id="statMine">0</div><div class="stat-label">My matches</div></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-title">My Matches</div>
+          <div class="section-link" data-go="matches">Open all</div>
+        </div>
+        <div id="homeMatches"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-title">My Tournaments</div>
+          <div class="section-link" data-go="tournaments">View</div>
+        </div>
+        <div id="homeMyTournaments"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div class="section-title">Available</div>
+          <div class="section-link" data-go="tournaments">Browse</div>
+        </div>
+        <div id="homeAvailable"></div>
+      </section>
+    </main>
+
+    <main id="page-matches" class="page">
+      <section class="section" style="margin-top:16px">
+        <div class="section-head">
+          <div class="section-title">My Matches</div>
+          <div class="pill live">Only my games</div>
+        </div>
+        <div id="matchesList"></div>
+      </section>
+    </main>
+
+    <main id="page-tournaments" class="page">
+      <section class="section" style="margin-top:16px">
+        <div class="section-head">
+          <div class="section-title">Tournaments</div>
+          <div class="pill open">Join / Withdraw</div>
+        </div>
+        <div id="tournamentsList"></div>
+      </section>
+    </main>
+
+    <main id="page-profile" class="page">
+      <section class="section" style="margin-top:16px">
+        <div class="profile-card glass">
+          <div class="profile-top">
+            <div class="avatar">NP</div>
+            <div>
+              <div class="profile-name" id="profileName">Nikolaj P.</div>
+              <div class="profile-role">Club player · Tournament OS</div>
+              <div style="margin-top:10px" class="pill joined">Active player</div>
+            </div>
+          </div>
+          <div class="kv">
+            <div class="kv-item"><div class="kv-label">Joined</div><div class="kv-value" id="profileJoined">0</div></div>
+            <div class="kv-item"><div class="kv-label">Matches</div><div class="kv-value" id="profileMatches">0</div></div>
+            <div class="kv-item"><div class="kv-label">Live</div><div class="kv-value" id="profileLive">0</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="small">Preferred flow: see → join → play → enter result</div>
+          <div style="margin-top:14px">
+            <button id="resetDemo" class="btn btn-secondary" style="width:100%">Reset demo data</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="home" aria-label="Home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" data-page="matches" aria-label="Matches">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      <span>Matches</span>
+    </button>
+    <button class="nav-item" data-page="tournaments" aria-label="Tournaments">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h10"/><path d="M8 4v3a4 4 0 0 0 8 0V4"/><path d="M8 20h8"/><path d="M12 11v9"/></svg>
+      <span>Tournaments</span>
+    </button>
+    <button class="nav-item" data-page="profile" aria-label="Profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <div id="scoreModal" class="modal-backdrop">
+    <div class="modal glass">
+      <h3>Submit result</h3>
+      <p id="modalText">Enter the final score for your match.</p>
+      <div class="score-grid">
+        <div class="score-box"><label>Team 1</label><input id="scoreA" type="number" min="0" max="99" value="0"></div>
+        <div class="vs">V-S</div>
+        <div class="score-box"><label>Team 2</label><input id="scoreB" type="number" min="0" max="99" value="0"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelModal">Cancel</button>
+        <button class="btn btn-primary" id="saveScore">Save result</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'padel.v18.clean-ui';
+  const currentPlayerId = 'p1';
+  const currentPlayerName = 'Nikolaj P.';
+  const seed = {
+    player:{id:'p1', name:'Nikolaj P.'},
+    tournaments:[
+      {
+        id:'t1', name:'Riga Evening Open', date:'17 August 2023', city:'Riga', start:'10:00', duration:'20 min', courts:2, teams:2, registered:4, status:'live', myStatus:'joined',
+        players:['Nikolaj P.','Armands K.','Mikus R.','Edgars S.'],
+        standings:[
+          {team:'Team 1', w:1, l:1, pts:3},
+          {team:'Team 2', w:1, l:1, pts:3}
+        ]
+      },
+      {
+        id:'t2', name:'Jurmala Open', date:'21 August 2023', city:'Jurmala', start:'18:30', duration:'25 min', courts:3, teams:4, registered:12, status:'open', myStatus:'joined',
+        players:['Nikolaj P.','Janis B.','Rolands V.','Toms L.','Agris K.','Karlis P.']
+      },
+      {
+        id:'t3', name:'City Sunrise Cup', date:'24 August 2023', city:'Riga', start:'08:00', duration:'20 min', courts:2, teams:4, registered:8, status:'open', myStatus:'open', players:[]
+      },
+      {
+        id:'t4', name:'Doubles Night', date:'28 August 2023', city:'Riga', start:'20:15', duration:'20 min', courts:2, teams:2, registered:4, status:'finished', myStatus:'waitlist', players:[]
+      }
+    ],
+    matches:[
+      {id:'m1', tournamentId:'t1', court:'Court 1', time:'10:00', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:1, score2:1, status:'live', eligible:['p1','p2','p3','p4'], resultAuthor:null},
+      {id:'m2', tournamentId:'t1', court:'Court 2', time:'10:20', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:0, score2:2, status:'scheduled', eligible:['p1','p2','p3','p4'], resultAuthor:null},
+      {id:'m3', tournamentId:'t2', court:'Court 3', time:'18:30', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Janis B.'], team2Players:['Rolands V.','Toms L.'], score1:null, score2:null, status:'scheduled', eligible:['p1'], resultAuthor:null}
+    ]
+  };
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+    return JSON.parse(JSON.stringify(seed));
+  }
+  let state = load();
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+  const pages = ['home','matches','tournaments','profile'];
+  const pageEls = Object.fromEntries(pages.map(p=>[p, document.getElementById('page-'+p)]));
+  const navEls = [...document.querySelectorAll('.nav-item')];
+
+  function goto(page){
+    pages.forEach(p => pageEls[p].classList.toggle('active', p===page));
+    navEls.forEach(el => el.classList.toggle('active', el.dataset.page===page));
+    history.replaceState(null,'','#'+page);
+  }
+  navEls.forEach(el => el.addEventListener('click', ()=>goto(el.dataset.page)));
+  document.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', ()=>goto(el.dataset.go)));
+  goto((location.hash || '#home').replace('#',''));
+
+  function getHeroTournament(){ return state.tournaments.find(t=>t.status==='live') || state.tournaments.find(t=>t.myStatus==='joined') || state.tournaments[0]; }
+  function myMatches(){ return state.matches.filter(m=>m.team1Players.includes(currentPlayerName) || m.team2Players.includes(currentPlayerName)); }
+  function statusPill(status){
+    const map = {live:'live', open:'open', joined:'joined', waitlist:'waitlist', finished:'finished', scheduled:'open'};
+    const cls = map[status] || 'finished';
+    const label = status === 'scheduled' ? 'Scheduled' : status.charAt(0).toUpperCase()+status.slice(1);
+    return `<span class="pill ${cls}">${label}</span>`;
+  }
+
+  function renderHero(){
+    const hero = getHeroTournament();
+    document.getElementById('heroTitle').textContent = hero.name;
+    document.getElementById('heroMeta').innerHTML = `
+      <div class="meta-row"><div class="meta-label">Date</div><div class="meta-value">${hero.date}</div></div>
+      <div class="meta-row"><div class="meta-label">Place</div><div class="meta-value">${hero.city}</div></div>
+      <div class="meta-row"><div class="meta-label">Start</div><div class="meta-value">${hero.start}</div></div>
+      <div class="meta-row"><div class="meta-label">Duration</div><div class="meta-value">${hero.duration}</div></div>`;
+  }
+
+  function renderStats(){
+    const live = state.tournaments.filter(t=>t.status==='live').length;
+    const open = state.tournaments.filter(t=>t.myStatus==='open').length;
+    document.getElementById('statLive').textContent = live;
+    document.getElementById('statOpen').textContent = open;
+    document.getElementById('statMine').textContent = myMatches().length;
+  }
+
+  function tournamentCard(t, includeTabs=false){
+    const canJoin = t.myStatus === 'open';
+    const canWithdraw = t.myStatus === 'joined' || t.myStatus === 'waitlist';
+    const action = canJoin ? `<button class="btn btn-primary join-btn" data-id="${t.id}" style="width:100%">Join tournament</button>` : canWithdraw ? `<button class="btn btn-secondary withdraw-btn" data-id="${t.id}" style="width:100%">Withdraw</button>` : '';
+    const tabs = includeTabs ? `
+      <div class="tabs">
+        <button class="tab active" data-tab="overview-${t.id}">Overview</button>
+        <button class="tab" data-tab="players-${t.id}">Players</button>
+        <button class="tab" data-tab="standings-${t.id}">Standings</button>
+      </div>
+      <div class="tab-panel active" id="overview-${t.id}">
+        <div class="kv">
+          <div class="kv-item"><div class="kv-label">Registered</div><div class="kv-value">${t.registered}</div></div>
+          <div class="kv-item"><div class="kv-label">Courts</div><div class="kv-value">${t.courts}</div></div>
+          <div class="kv-item"><div class="kv-label">Teams</div><div class="kv-value">${t.teams}</div></div>
+        </div>
+      </div>
+      <div class="tab-panel" id="players-${t.id}">${(t.players && t.players.length) ? t.players.map(p=>`<div class="card compact"><div class="row"><div>${p}</div><div class="small">Player</div></div></div>`).join('') : `<div class="empty">No player list available yet.</div>`}</div>
+      <div class="tab-panel" id="standings-${t.id}">${(t.standings && t.standings.length) ? t.standings.map(s=>`<div class="card compact"><div class="row"><div><div style="font-weight:840">${s.team}</div><div class="small">W ${s.w} · L ${s.l}</div></div><div style="font-size:22px;font-weight:850">${s.pts}</div></div></div>`).join('') : `<div class="empty">Standings will appear after results.</div>`}</div>
+    ` : `
+      <div class="sub">${t.date} · ${t.city} · ${t.start}</div>
+      <div class="match-meta">
+        <div class="meta-chip">${t.registered} registered</div>
+        <div class="meta-chip">${t.courts} courts</div>
+        <div class="meta-chip">${t.teams} teams</div>
+      </div>`;
+    return `
+      <article class="card ${t.status==='live' ? 'hero-outline' : ''} glass">
+        <div class="row">
+          <div>
+            <div class="title">${t.name}</div>
+            <div class="sub">${t.date} · ${t.city}</div>
+          </div>
+          ${statusPill(t.status==='open' ? t.myStatus : t.status)}
+        </div>
+        ${tabs}
+        ${action ? `<div style="margin-top:14px">${action}</div>` : ''}
+      </article>`;
+  }
+
+  function matchCard(m){
+    const t = state.tournaments.find(t => t.id === m.tournamentId);
+    const result = m.score1 === null ? `<span class="pill open">No result</span>` : `<span class="pill joined">${m.score1} - ${m.score2}</span>`;
+    return `
+      <article class="card compact match-card glass">
+        <div class="row">
+          <div>
+            <div style="font-size:18px;font-weight:840">${t ? t.name : 'Tournament'}</div>
+            <div class="small">${m.time} · ${m.court}</div>
+          </div>
+          ${result}
+        </div>
+        <div class="teams">
+          <div class="team"><div class="team-name">${m.team1}</div><div class="team-players">${m.team1Players.join(', ')}</div></div>
+          <div class="vs">V-S</div>
+          <div class="team"><div class="team-name">${m.team2}</div><div class="team-players">${m.team2Players.join(', ')}</div></div>
+        </div>
+        <div class="match-meta">
+          <div class="meta-chip">${m.status === 'scheduled' ? 'Scheduled' : 'Live'} match</div>
+          <div class="meta-chip">Result author: ${m.resultAuthor || '—'}</div>
+        </div>
+        <div class="match-actions">
+          <button class="btn btn-primary score-btn" data-id="${m.id}">Enter result</button>
+          <button class="btn btn-secondary" data-go="tournaments">Tournament</button>
+        </div>
+      </article>`;
+  }
+
+  function bindTabs(){
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const parent = btn.closest('.card');
+        parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        parent.querySelector('#'+btn.dataset.tab).classList.add('active');
+      });
+    });
+  }
+
+  function bindActions(){
+    document.querySelectorAll('.join-btn').forEach(btn => btn.addEventListener('click', () => {
+      const t = state.tournaments.find(x => x.id === btn.dataset.id);
+      if(!t) return;
+      t.myStatus = t.registered < t.teams * 2 ? 'joined' : 'waitlist';
+      if(t.myStatus === 'joined') t.registered += 1;
+      save(); render();
+    }));
+    document.querySelectorAll('.withdraw-btn').forEach(btn => btn.addEventListener('click', () => {
+      const t = state.tournaments.find(x => x.id === btn.dataset.id);
+      if(!t) return;
+      if(t.myStatus === 'joined' && t.registered > 0) t.registered -= 1;
+      t.myStatus = 'open';
+      save(); render();
+    }));
+    document.querySelectorAll('.score-btn').forEach(btn => btn.addEventListener('click', () => openScoreModal(btn.dataset.id)));
+    document.querySelectorAll('[data-go]').forEach(el => {
+      if(!el.dataset.bound){
+        el.dataset.bound='1';
+        el.addEventListener('click', ()=>goto(el.dataset.go));
+      }
+    });
+  }
+
+  function renderHome(){
+    const mm = myMatches();
+    document.getElementById('homeMatches').innerHTML = mm.length ? mm.slice(0,2).map(matchCard).join('') : `<div class="empty">No matches assigned yet.</div>`;
+    const mine = state.tournaments.filter(t => t.myStatus === 'joined' || t.myStatus === 'waitlist');
+    document.getElementById('homeMyTournaments').innerHTML = mine.length ? mine.slice(0,2).map(t => tournamentCard(t)).join('') : `<div class="empty">You have not joined a tournament yet.</div>`;
+    const avail = state.tournaments.filter(t => t.myStatus === 'open');
+    document.getElementById('homeAvailable').innerHTML = avail.length ? avail.slice(0,2).map(t => tournamentCard(t)).join('') : `<div class="empty">No open tournaments right now.</div>`;
+  }
+
+  function renderMatches(){
+    const mm = myMatches();
+    document.getElementById('matchesList').innerHTML = mm.length ? mm.map(matchCard).join('') : `<div class="empty">No matches for this player.</div>`;
+  }
+
+  function renderTournaments(){
+    const hero = getHeroTournament();
+    const others = state.tournaments.filter(t => t.id !== hero.id);
+    document.getElementById('tournamentsList').innerHTML = tournamentCard(hero, true) + others.map(t => tournamentCard(t)).join('');
+  }
+
+  function renderProfile(){
+    document.getElementById('profileName').textContent = currentPlayerName;
+    document.getElementById('profileJoined').textContent = state.tournaments.filter(t => t.myStatus === 'joined').length;
+    document.getElementById('profileMatches').textContent = myMatches().length;
+    document.getElementById('profileLive').textContent = state.tournaments.filter(t => t.status === 'live').length;
+  }
+
+  let activeMatchId = null;
+  const modal = document.getElementById('scoreModal');
+  function openScoreModal(id){
+    const m = state.matches.find(x => x.id === id); if(!m) return;
+    activeMatchId = id;
+    document.getElementById('modalText').textContent = `${m.team1} vs ${m.team2} · ${m.time} · ${m.court}`;
+    document.getElementById('scoreA').value = m.score1 ?? 0;
+    document.getElementById('scoreB').value = m.score2 ?? 0;
+    modal.classList.add('show');
+  }
+  function closeScoreModal(){ modal.classList.remove('show'); activeMatchId = null; }
+  document.getElementById('cancelModal').addEventListener('click', closeScoreModal);
+  modal.addEventListener('click', (e) => { if(e.target === modal) closeScoreModal(); });
+  document.getElementById('saveScore').addEventListener('click', () => {
+    if(!activeMatchId) return;
+    const m = state.matches.find(x => x.id === activeMatchId); if(!m) return;
+    m.score1 = Number(document.getElementById('scoreA').value || 0);
+    m.score2 = Number(document.getElementById('scoreB').value || 0);
+    m.resultAuthor = currentPlayerName;
+    m.status = 'live';
+    save(); closeScoreModal(); render();
+  });
+
+  document.getElementById('resetDemo').addEventListener('click', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+    state = load();
+    render();
+  });
+
+  function render(){
+    renderHero();
+    renderStats();
+    renderHome();
+    renderMatches();
+    renderTournaments();
+    renderProfile();
+    bindTabs();
+    bindActions();
+  }
+  render();
+})();
+</script>
+</body>
+</html>
