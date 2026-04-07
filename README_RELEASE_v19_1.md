@@ -1,8 +1,9 @@
-# Release v19.1 — Premium Cards Home
+# Release v19.2 — Premium Cards refined flow
 
 Included:
-- clean Home with 2 horizontal premium rails
-- image-based tournament cards
-- bottom navigation
-- preserved tournament and match demo logic
-- tappable cards on Home
+- stronger distinct blue and green section underlays on Home
+- My Tournaments cleaned to a single live tournament card
+- Available Tournaments kept as premium horizontal rail
+- tap on live tournament card routes to Matches
+- Matches page cleaned to one live tournament context
+- preserved simplified tournament and result logic

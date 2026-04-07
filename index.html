@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#06100f" />
-  <title>Padel OS — v19.1 premium cards</title>
+  <title>Padel OS — v19.2 refined home flow</title>
   <style>
     :root{
       --bg:#06100f;
@@ -91,19 +91,19 @@
     }
     .rail-section.blue{
       background:
-        linear-gradient(180deg, rgba(7,18,32,.72), rgba(6,15,18,.84)),
-        radial-gradient(circle at 10% 16%, rgba(125,215,255,.16), transparent 28%),
-        radial-gradient(circle at 90% 82%, rgba(58,147,255,.16), transparent 34%);
-      border-color:rgba(125,215,255,.16);
-      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 42px rgba(70,160,255,.10);
+        linear-gradient(180deg, rgba(8,23,45,.78), rgba(7,18,28,.90)),
+        radial-gradient(circle at 10% 16%, rgba(125,215,255,.26), transparent 30%),
+        radial-gradient(circle at 90% 82%, rgba(58,147,255,.22), transparent 38%);
+      border-color:rgba(125,215,255,.22);
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 52px rgba(70,160,255,.16);
     }
     .rail-section.green{
       background:
-        linear-gradient(180deg, rgba(12,24,17,.76), rgba(8,18,13,.88)),
-        radial-gradient(circle at 12% 12%, rgba(141,255,134,.14), transparent 26%),
-        radial-gradient(circle at 88% 78%, rgba(126,255,171,.14), transparent 32%);
-      border-color:rgba(141,255,134,.16);
-      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 42px rgba(110,255,130,.09);
+        linear-gradient(180deg, rgba(18,35,18,.80), rgba(10,22,13,.92)),
+        radial-gradient(circle at 12% 12%, rgba(141,255,134,.24), transparent 30%),
+        radial-gradient(circle at 88% 78%, rgba(126,255,171,.20), transparent 36%);
+      border-color:rgba(141,255,134,.22);
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 52px rgba(110,255,130,.14);
     }
 
     .section-head{
@@ -344,6 +344,21 @@
       box-shadow:0 0 24px rgba(86,165,255,.18), inset 0 1px 0 rgba(255,255,255,.28);
     }
 
+    
+    .live-tournament-card{
+      margin-bottom:14px;
+      padding:18px;
+      border-radius:24px;
+      background:
+        linear-gradient(180deg, rgba(8,23,45,.82), rgba(6,16,22,.92)),
+        radial-gradient(circle at 12% 16%, rgba(125,215,255,.18), transparent 30%);
+      border:1px solid rgba(125,215,255,.20);
+      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 32px rgba(86,165,255,.10);
+    }
+    .live-tournament-card .title{
+      font-size:26px;
+    }
+
     .section{
       margin-top:18px;
     }
@@ -505,8 +520,9 @@
       <section class="section">
         <div class="section-head-base">
           <div class="section-title-base">My Matches</div>
-          <div class="pill">Only my games</div>
+          <div class="pill">Live tournament only</div>
         </div>
+        <div id="liveTournamentCard"></div>
         <div id="matchesList" class="list-view"></div>
       </section>
     </main>
@@ -586,14 +602,13 @@
     player:{id:'p1', name:'Nikolaj P.'},
     tournaments:[
       {id:'t1', name:'Riga Evening Open', date:'17 August 2023', city:'Riga', start:'10:00', duration:'20 min', courts:2, teams:2, registered:4, status:'live', myStatus:'joined'},
-      {id:'t2', name:'Jurmala Open', date:'21 August 2023', city:'Jurmala', start:'18:30', duration:'25 min', courts:3, teams:4, registered:12, status:'open', myStatus:'joined'},
-      {id:'t3', name:'City Sunrise Cup', date:'24 August 2023', city:'Riga', start:'08:00', duration:'20 min', courts:2, teams:4, registered:8, status:'open', myStatus:'open'},
-      {id:'t4', name:'Doubles Night', date:'28 August 2023', city:'Riga', start:'20:15', duration:'20 min', courts:2, teams:2, registered:4, status:'finished', myStatus:'waitlist'}
+      {id:'t2', name:'Riga Morning Open', date:'19 August 2023', city:'Riga', start:'09:30', duration:'20 min', courts:2, teams:4, registered:8, status:'open', myStatus:'open'},
+      {id:'t3', name:'Kaunas Padel Challenge', date:'21 August 2023', city:'Kaunas', start:'12:00', duration:'30 min', courts:3, teams:4, registered:8, status:'open', myStatus:'open'},
+      {id:'t4', name:'Tartu Summer Cup', date:'26 August 2023', city:'Tartu', start:'10:00', duration:'20 min', courts:2, teams:4, registered:8, status:'open', myStatus:'open'}
     ],
     matches:[
       {id:'m1', tournamentId:'t1', court:'Court 1', time:'10:00', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:1, score2:1, status:'live', eligible:['p1','p2','p3','p4'], resultAuthor:null},
-      {id:'m2', tournamentId:'t1', court:'Court 2', time:'10:20', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:0, score2:2, status:'scheduled', eligible:['p1','p2','p3','p4'], resultAuthor:null},
-      {id:'m3', tournamentId:'t2', court:'Court 3', time:'18:30', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Janis B.'], team2Players:['Rolands V.','Toms L.'], score1:null, score2:null, status:'scheduled', eligible:['p1'], resultAuthor:null}
+      {id:'m2', tournamentId:'t1', court:'Court 2', time:'10:20', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:null, score2:null, status:'scheduled', eligible:['p1','p2','p3','p4'], resultAuthor:null}
     ]
   };
 
@@ -621,8 +636,16 @@
   document.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', ()=>goto(el.dataset.go)));
   goto((location.hash || '#home').replace('#',''));
 
+  function liveTournament(){
+    return state.tournaments.find(t => t.status === 'live' && t.myStatus === 'joined') || null;
+  }
+
   function myMatches(){
-    return state.matches.filter(m=>m.team1Players.includes(currentPlayerName) || m.team2Players.includes(currentPlayerName));
+    const live = liveTournament();
+    return state.matches.filter(m =>
+      (m.team1Players.includes(currentPlayerName) || m.team2Players.includes(currentPlayerName)) &&
+      (!live || m.tournamentId === live.id)
+    );
   }
 
   function statusMeta(t){
@@ -688,14 +711,13 @@
   }
 
   function matchCard(m){
-    const t = state.tournaments.find(t => t.id === m.tournamentId);
     const result = m.score1 === null ? `<span class="pill">No result</span>` : `<span class="pill">${m.score1} - ${m.score2}</span>`;
     return `
       <article class="card match-card glass">
         <div class="row">
           <div>
-            <div style="font-size:18px;font-weight:860">${t ? t.name : 'Tournament'}</div>
-            <div class="small">${m.time} · ${m.court}</div>
+            <div style="font-size:18px;font-weight:860">${m.time} · ${m.court}</div>
+            <div class="small">${m.status === 'scheduled' ? 'Scheduled match' : 'Live match'}</div>
           </div>
           ${result}
         </div>
@@ -759,7 +781,15 @@
     }));
     document.querySelectorAll('.score-btn').forEach(btn => btn.addEventListener('click', () => openScoreModal(btn.dataset.id)));
     document.querySelectorAll('[data-open-tournament]').forEach(el => {
-      el.addEventListener('click', () => goto('tournaments'));
+      el.addEventListener('click', () => {
+        const id = el.dataset.openTournament;
+        const t = state.tournaments.find(x => x.id === id);
+        if(t && t.status === 'live' && t.myStatus === 'joined'){
+          goto('matches');
+        }else{
+          goto('tournaments');
+        }
+      });
     });
     document.querySelectorAll('[data-go]').forEach(el => {
       if(!el.dataset.bound){
@@ -770,27 +800,39 @@
   }
 
   function renderHome(){
-    const mine = state.tournaments.filter(t => t.myStatus === 'joined' || t.myStatus === 'waitlist').slice(0,3);
+    const mine = state.tournaments.filter(t => t.status === 'live' && t.myStatus === 'joined').slice(0,1);
     const available = state.tournaments.filter(t => t.myStatus === 'open');
 
     document.getElementById('homeMyRail').innerHTML = mine.length
       ? mine.map(t => premiumCard(t, 'blue')).join('')
-      : `<div class="empty" style="margin:0 16px">You have not joined a tournament yet.</div>`;
+      : `<div class="empty" style="margin:0 16px">No live tournament for this player.</div>`;
 
     document.getElementById('homeAvailableRail').innerHTML = available.length
       ? available.map(t => premiumCard(t, 'green')).join('')
       : `<div class="empty" style="margin:0 16px">No open tournaments right now.</div>`;
 
-    document.getElementById('homeMyDots').innerHTML = mine.length ? dotsMarkup(Math.min(mine.length, 4), 0) : '';
+    document.getElementById('homeMyDots').innerHTML = mine.length > 1 ? dotsMarkup(mine.length, 0) : '';
     document.getElementById('homeAvailableDots').innerHTML = available.length ? dotsMarkup(Math.min(available.length, 4), 0) : '';
   }
 
   function renderMatches(){
+    const live = liveTournament();
     const mm = myMatches();
-    document.getElementById('matchesList').innerHTML = mm.length ? mm.map(matchCard).join('') : `<div class="empty">No matches for this player.</div>`;
+    document.getElementById('liveTournamentCard').innerHTML = live ? `
+      <article class="live-tournament-card glass">
+        <div class="row">
+          <div>
+            <div class="small">Active tournament</div>
+            <div class="title">${live.name}</div>
+            <div class="sub">${live.date} · ${live.city} · ${live.start}</div>
+          </div>
+          <span class="pill">Live</span>
+        </div>
+      </article>` : '';
+    document.getElementById('matchesList').innerHTML = mm.length ? mm.map(matchCard).join('') : `<div class="empty">No matches for this live tournament.</div>`;
   }
 
-  function renderTournaments(){
+  function renderTournaments(){(){
     document.getElementById('tournamentsList').innerHTML = state.tournaments.map(tournamentListCard).join('');
   }
 
