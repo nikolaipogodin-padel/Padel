@@ -1,1 +1,1 @@
-Upload index.html, 404.html, .nojekyll, assets/, docs/ to the root of the GitHub Pages repository.
+Upload index.html, 404.html, .nojekyll, assets/, docs/ into the GitHub Pages repo root.

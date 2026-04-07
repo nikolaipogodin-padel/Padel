@@ -3,32 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#06100f" />
-  <title>Padel OS — v19.2 refined home flow</title>
+  <meta name="theme-color" content="#05100f" />
+  <title>Padel OS v19.3</title>
   <style>
     :root{
       --bg:#06100f;
-      --panel:rgba(6,18,16,.72);
-      --panel-strong:rgba(7,21,18,.9);
-      --panel-soft:rgba(255,255,255,.04);
-      --line:rgba(174,255,224,.12);
-      --line-strong:rgba(173,255,224,.24);
-      --text:#f3fff8;
-      --muted:#b7c8bf;
-      --muted-2:#8fa39a;
-      --blue:#7dd7ff;
-      --blue-deep:#2e93ff;
-      --green:#8dff86;
-      --green-deep:#36db72;
-      --lime:#c8ff63;
-      --shadow-lg:0 24px 80px rgba(0,0,0,.5);
-      --shadow-md:0 14px 34px rgba(0,0,0,.32);
-      --radius-xl:32px;
-      --radius-lg:26px;
-      --radius-md:22px;
-      --radius-sm:18px;
-      --page-max:440px;
-      --safe-bottom:max(18px, env(safe-area-inset-bottom));
+      --panel:rgba(7,16,17,.75);
+      --panel-2:rgba(8,18,18,.88);
+      --text:#f3fff9;
+      --muted:#afc6bc;
+      --muted2:#7f958c;
+      --line:rgba(255,255,255,.08);
+      --blue:#70cfff;
+      --blue2:#2b87ff;
+      --green:#a8ff6d;
+      --green2:#39d96c;
+      --shadow:0 24px 72px rgba(0,0,0,.46);
+      --radius-xl:30px;
+      --radius-lg:24px;
+      --radius-md:18px;
+      --page:440px;
+      --safe: max(12px, env(safe-area-inset-bottom));
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -37,287 +32,288 @@
       color:var(--text);
       font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background:
-        radial-gradient(circle at 14% 12%, rgba(124,215,255,.18), transparent 18%),
-        radial-gradient(circle at 86% 22%, rgba(141,255,134,.14), transparent 24%),
-        radial-gradient(circle at 50% 82%, rgba(141,255,134,.10), transparent 24%),
-        linear-gradient(180deg, rgba(4,8,12,.28) 0%, rgba(4,9,8,.74) 36%, rgba(2,6,5,.96) 100%),
+        radial-gradient(circle at 15% 10%, rgba(112,207,255,.18), transparent 22%),
+        radial-gradient(circle at 84% 20%, rgba(168,255,109,.12), transparent 28%),
+        linear-gradient(180deg, rgba(4,10,16,.20), rgba(4,8,9,.92)),
         url('assets/background.jpg') center/cover fixed no-repeat;
       overflow-x:hidden;
       letter-spacing:-.01em;
     }
     body::before{
       content:"";
-      position:fixed; inset:0; pointer-events:none; z-index:0;
+      position:fixed; inset:0; z-index:0; pointer-events:none;
       background:
-        linear-gradient(180deg, rgba(4,11,17,.14) 0%, rgba(4,10,9,.14) 18%, rgba(4,9,8,.84) 72%, rgba(3,7,6,.96) 100%),
-        radial-gradient(circle at center, transparent 46%, rgba(0,0,0,.34) 100%);
-    }
-    body::after{
-      content:"";
-      position:fixed; inset:0; pointer-events:none; z-index:0;
-      background-image:radial-gradient(rgba(255,255,255,.035) .7px, transparent .7px);
-      background-size:11px 11px;
-      opacity:.08;
-      mix-blend-mode:screen;
+        linear-gradient(180deg, rgba(2,6,8,.14) 0%, rgba(3,7,8,.26) 18%, rgba(4,8,9,.82) 70%, rgba(2,5,5,.96) 100%);
     }
     .app{
       position:relative; z-index:1;
-      max-width:var(--page-max);
-      margin:0 auto;
+      max-width:var(--page);
       min-height:100%;
-      padding:18px 14px calc(100px + var(--safe-bottom));
+      margin:0 auto;
+      padding:18px 14px calc(96px + var(--safe));
     }
-
-    .page{display:none; animation:fade .18s ease}
+    .page{display:none}
     .page.active{display:block}
-    @keyframes fade{from{opacity:.6; transform:translateY(4px)} to{opacity:1; transform:none}}
-
     .glass{
-      backdrop-filter:blur(18px) saturate(128%);
-      -webkit-backdrop-filter:blur(18px) saturate(128%);
+      backdrop-filter: blur(18px) saturate(125%);
+      -webkit-backdrop-filter: blur(18px) saturate(125%);
     }
-
-    .home-page{
-      display:flex; flex-direction:column; gap:18px;
-    }
-
-    .rail-section{
-      position:relative;
-      padding:16px 0 14px;
-      border-radius:30px;
-      overflow:hidden;
+    .section-shell{
+      border-radius:32px;
+      padding:18px 0 16px;
       border:1px solid rgba(255,255,255,.08);
-      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.05);
+      overflow:hidden;
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.05);
     }
-    .rail-section.blue{
+    .shell-blue{
       background:
-        linear-gradient(180deg, rgba(8,23,45,.78), rgba(7,18,28,.90)),
-        radial-gradient(circle at 10% 16%, rgba(125,215,255,.26), transparent 30%),
-        radial-gradient(circle at 90% 82%, rgba(58,147,255,.22), transparent 38%);
-      border-color:rgba(125,215,255,.22);
-      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 52px rgba(70,160,255,.16);
+        linear-gradient(180deg, rgba(8,18,35,.78), rgba(7,16,18,.92)),
+        radial-gradient(circle at 10% 16%, rgba(112,207,255,.17), transparent 26%),
+        radial-gradient(circle at 88% 82%, rgba(43,135,255,.13), transparent 30%);
+      border-color:rgba(112,207,255,.18);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.05), 0 0 42px rgba(67,138,255,.10);
     }
-    .rail-section.green{
+    .shell-green{
       background:
-        linear-gradient(180deg, rgba(18,35,18,.80), rgba(10,22,13,.92)),
-        radial-gradient(circle at 12% 12%, rgba(141,255,134,.24), transparent 30%),
-        radial-gradient(circle at 88% 78%, rgba(126,255,171,.20), transparent 36%);
-      border-color:rgba(141,255,134,.22);
-      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 52px rgba(110,255,130,.14);
+        linear-gradient(180deg, rgba(12,24,15,.82), rgba(7,16,12,.94)),
+        radial-gradient(circle at 14% 16%, rgba(168,255,109,.12), transparent 28%),
+        radial-gradient(circle at 86% 84%, rgba(57,217,108,.12), transparent 32%);
+      border-color:rgba(168,255,109,.18);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.05), 0 0 42px rgba(100,255,120,.09);
     }
-
-    .section-head{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    .head{
       padding:0 16px 14px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
-    .section-title{
-      display:flex; align-items:center; gap:10px;
-      font-size:20px; line-height:1;
-      font-weight:880;
+    .head h2{
+      margin:0;
+      font-size:22px;
+      line-height:1;
       letter-spacing:-.03em;
+      font-weight:900;
     }
-    .section-mark{
-      display:inline-flex; gap:6px; align-items:center;
-    }
-    .section-mark span{
+    .diamonds{display:inline-flex; gap:6px; margin-left:10px; vertical-align:middle}
+    .diamonds span{
       width:12px; height:12px; transform:rotate(45deg); border-radius:2px;
-      background:linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,255,255,.18));
-      opacity:.9;
+      display:inline-block;
     }
-    .blue .section-mark span{background:linear-gradient(135deg, rgba(125,215,255,.98), rgba(46,147,255,.54))}
-    .green .section-mark span{background:linear-gradient(135deg, rgba(200,255,99,.98), rgba(54,219,114,.56))}
-    .section-link{
-      min-height:42px; padding:0 14px; border-radius:16px; border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.03); color:var(--text);
-      font:inherit; font-size:13px; font-weight:800; cursor:pointer;
+    .shell-blue .diamonds span{background:linear-gradient(135deg, var(--blue), var(--blue2))}
+    .shell-green .diamonds span{background:linear-gradient(135deg, var(--green), var(--green2))}
+    .ghost{
+      min-height:42px; padding:0 14px; border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      font:inherit; font-size:13px; font-weight:800;
     }
-
     .rail{
-      display:flex;
-      gap:14px;
-      overflow-x:auto;
-      padding:0 16px 2px;
+      display:flex; gap:14px; overflow-x:auto;
+      padding:0 16px 4px;
       scroll-snap-type:x mandatory;
-      -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
+      -webkit-overflow-scrolling:touch;
     }
     .rail::-webkit-scrollbar{display:none}
-
-    .t-card{
+    .card{
       position:relative;
-      flex:0 0 calc(100% - 54px);
-      min-height:255px;
+      flex:0 0 calc(100% - 64px);
+      min-height:250px;
       border-radius:24px;
       overflow:hidden;
-      scroll-snap-align:start;
       border:1px solid rgba(255,255,255,.12);
-      background:
-        linear-gradient(180deg, rgba(6,14,18,.14) 0%, rgba(6,13,15,.44) 24%, rgba(5,10,10,.88) 100%),
-        url('assets/background.jpg') center/cover no-repeat;
-      box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.08);
+      box-shadow: 0 18px 40px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);
+      scroll-snap-align:start;
       cursor:pointer;
-      isolation:isolate;
-      transform:translateZ(0);
+      background:
+        linear-gradient(180deg, rgba(3,7,10,.10), rgba(4,8,9,.84)),
+        url('assets/background.jpg') center/cover no-repeat;
     }
-    .t-card::before{
+    .card::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        linear-gradient(180deg, rgba(4,9,16,.10), rgba(4,8,12,.35) 24%, rgba(3,6,6,.88) 100%),
+        linear-gradient(90deg, rgba(5,10,18,.84) 0%, rgba(5,10,18,.60) 42%, rgba(5,8,8,.18) 100%);
+      pointer-events:none;
+    }
+    .card::after{
       content:"";
       position:absolute; inset:0; pointer-events:none;
       background:
-        linear-gradient(180deg, rgba(2,7,10,.08) 0%, rgba(4,9,8,.18) 26%, rgba(2,7,6,.78) 100%),
-        linear-gradient(90deg, rgba(6,16,23,.82) 0%, rgba(6,15,19,.62) 38%, rgba(6,14,16,.12) 100%);
-      z-index:0;
+        radial-gradient(circle at 18% 12%, rgba(255,255,255,.11), transparent 18%),
+        radial-gradient(circle at 80% 84%, rgba(255,255,255,.08), transparent 18%);
     }
-    .t-card::after{
-      content:"";
-      position:absolute; inset:0; pointer-events:none;
-      background:
-        radial-gradient(circle at 18% 18%, rgba(255,255,255,.12), transparent 18%),
-        radial-gradient(circle at 82% 82%, rgba(255,255,255,.08), transparent 18%);
-      opacity:.8;
-      z-index:0;
+    .blue-card{
+      border-color:rgba(112,207,255,.28);
+      box-shadow: 0 18px 40px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06), 0 0 28px rgba(76,160,255,.12);
     }
-    .t-card.blue{
-      border-color:rgba(125,215,255,.28);
-      box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.08), 0 0 34px rgba(86,165,255,.14);
+    .green-card{
+      border-color:rgba(168,255,109,.28);
+      box-shadow: 0 18px 40px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06), 0 0 28px rgba(92,255,122,.10);
     }
-    .t-card.blue::before{
-      background:
-        linear-gradient(180deg, rgba(7,24,44,.10) 0%, rgba(6,18,31,.36) 24%, rgba(4,10,13,.88) 100%),
-        linear-gradient(90deg, rgba(4,14,24,.84) 0%, rgba(4,14,22,.70) 40%, rgba(5,13,17,.18) 100%);
-    }
-    .t-card.green{
-      border-color:rgba(141,255,134,.26);
-      box-shadow:var(--shadow-md), inset 0 1px 0 rgba(255,255,255,.08), 0 0 34px rgba(121,255,120,.13);
-    }
-    .t-card.green::before{
-      background:
-        linear-gradient(180deg, rgba(16,33,18,.14) 0%, rgba(13,24,16,.34) 24%, rgba(4,10,8,.90) 100%),
-        linear-gradient(90deg, rgba(8,18,12,.84) 0%, rgba(8,18,12,.68) 40%, rgba(7,14,10,.18) 100%);
-    }
-
-    .t-card-inner{
-      position:relative; z-index:1;
-      height:100%;
+    .card-inner{
+      position:relative; z-index:1; height:100%;
       display:flex; flex-direction:column;
-      padding:16px 16px 14px;
+      padding:16px;
     }
     .card-top{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
     }
+    .logo{
+      width:76px; height:76px; border-radius:50%;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(4,11,14,.45);
+      display:grid; place-items:center;
+      box-shadow:0 10px 26px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10);
+      text-align:center; padding:10px;
+      font-weight:900; text-transform:uppercase; line-height:1.02;
+    }
+    .logo .s1{font-size:9px; letter-spacing:.18em; opacity:.82}
+    .logo .s2{font-size:16px; margin-top:3px}
+    .logo .s3{font-size:10px; letter-spacing:.16em; opacity:.70; margin-top:3px}
     .badge{
+      min-height:34px; padding:0 12px; border-radius:999px;
       display:inline-flex; align-items:center; gap:8px;
-      min-height:34px; padding:0 12px;
-      border-radius:999px;
       font-size:12px; font-weight:900;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(255,255,255,.05);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
-      backdrop-filter:blur(8px);
-    }
-    .badge .dot{
-      width:9px; height:9px; border-radius:50%;
-      background:radial-gradient(circle at 40% 40%, #f8ffdf 0 24%, #c7ff64 48%, #8ce14f 100%);
-      box-shadow:0 0 16px rgba(200,255,101,.45);
     }
     .badge.live{
-      background:rgba(176,255,112,.12);
-      border-color:rgba(200,255,99,.34);
-      color:#efffd7;
+      background:rgba(180,255,108,.12);
+      border-color:rgba(180,255,108,.32);
+      color:#f1ffd9;
     }
     .badge.open{
-      background:rgba(125,215,255,.10);
-      border-color:rgba(125,215,255,.28);
-      color:#dff6ff;
+      background:rgba(112,207,255,.10);
+      border-color:rgba(112,207,255,.28);
+      color:#dcf5ff;
     }
-    .badge.joined{
-      background:rgba(141,255,134,.10);
-      border-color:rgba(141,255,134,.28);
-      color:#e8ffea;
+    .dot{
+      width:9px; height:9px; border-radius:50%;
+      background:radial-gradient(circle at 40% 40%, #f7ffdc 0 25%, #ccff68 45%, #8ce14f 100%);
+      box-shadow:0 0 14px rgba(198,255,99,.40);
     }
-    .logo-badge{
-      width:78px; height:78px;
-      border-radius:50%;
-      display:grid; place-items:center;
-      text-align:center;
-      padding:10px;
-      background:rgba(4,12,14,.46);
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow:0 8px 20px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.10);
-      backdrop-filter:blur(10px);
-      font-weight:900;
-      line-height:1.02;
-      letter-spacing:.02em;
-      text-transform:uppercase;
-      flex:0 0 auto;
-    }
-    .logo-badge.blue{
-      box-shadow:0 10px 26px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.12), 0 0 30px rgba(86,165,255,.16);
-      color:#d8f2ff;
-    }
-    .logo-badge.green{
-      box-shadow:0 10px 26px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.12), 0 0 30px rgba(121,255,120,.14);
-      color:#efffe6;
-    }
-    .logo-small{font-size:10px; opacity:.86; letter-spacing:.16em}
-    .logo-main{font-size:18px; margin-top:3px}
-    .logo-year{font-size:10px; opacity:.72; margin-top:3px; letter-spacing:.16em}
-
-    .title-wrap{
+    .title{
       margin-top:auto;
-      padding-top:20px;
-      display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end;
+      font-size:22px;
+      line-height:.98;
+      letter-spacing:-.04em;
+      font-weight:900;
+      max-width:11ch;
+      text-shadow:0 4px 22px rgba(0,0,0,.24);
     }
-    .t-title{
-      font-size:22px; line-height:.98; font-weight:900; letter-spacing:-.04em;
-      max-width:10ch;
-      text-shadow:0 4px 20px rgba(0,0,0,.22);
-    }
-    .arrow{
-      width:42px; height:42px; border-radius:14px;
-      display:grid; place-items:center;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.12);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
-      font-size:22px; font-weight:900;
-    }
-    .meta-row{
+    .meta{
+      margin-top:16px;
       display:flex; flex-wrap:wrap; gap:14px 12px;
-      margin-top:14px;
-      color:#ecfff4;
       font-size:13px; font-weight:700;
     }
-    .meta-item{
+    .meta span{
       display:inline-flex; align-items:center; gap:7px;
-      opacity:.94;
     }
-    .meta-item svg{
-      width:16px; height:16px; flex:0 0 auto; opacity:.92;
+    .meta i{
+      width:15px; height:15px; display:inline-block;
+      border:2px solid currentColor; border-radius:4px; opacity:.85;
     }
-
     .dots{
-      display:flex; align-items:center; justify-content:center; gap:10px;
-      padding:14px 0 2px;
+      display:flex; justify-content:center; gap:10px; padding:14px 0 2px;
     }
     .dots span{
-      width:9px; height:9px; border-radius:50%;
-      background:rgba(255,255,255,.18);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+      width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.18);
     }
-    .blue .dots span.active{background:var(--blue); box-shadow:0 0 14px rgba(125,215,255,.4)}
-    .green .dots span.active{background:var(--green); box-shadow:0 0 14px rgba(141,255,134,.36)}
+    .shell-blue .dots span.active{background:var(--blue); box-shadow:0 0 12px rgba(112,207,255,.42)}
+    .shell-green .dots span.active{background:var(--green); box-shadow:0 0 12px rgba(168,255,109,.38)}
+    .section-gap{display:flex; flex-direction:column; gap:18px}
 
-    .section-label{
-      margin-top:8px;
-      padding:0 16px;
-      color:var(--muted-2);
-      font-size:12px;
-      text-align:center;
+    .list-section{display:flex; flex-direction:column; gap:12px}
+    .match-card{
+      padding:16px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(9,20,19,.84), rgba(7,14,14,.94));
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.05);
     }
+    .row{display:flex; align-items:center; justify-content:space-between; gap:12px}
+    .tournament-kicker{font-size:13px; color:var(--muted2); margin-bottom:2px}
+    .match-title{font-size:24px; font-weight:900; letter-spacing:-.03em}
+    .pill{
+      padding:9px 12px; border-radius:999px; font-size:12px; font-weight:800;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+    }
+    .teams{
+      display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:start;
+      margin-top:14px;
+    }
+    .team:last-child{text-align:right}
+    .team .name{font-size:18px; font-weight:860}
+    .team .players{margin-top:6px; font-size:12px; color:var(--muted)}
+    .vs{padding-top:4px; font-size:14px; letter-spacing:.18em; color:var(--muted2); font-weight:900}
+    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+    .chip{
+      padding:9px 12px; border-radius:14px; font-size:12px; font-weight:760;
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+    }
+    .actions{display:grid; grid-template-columns:1fr auto; gap:10px; margin-top:14px}
+    .btn{
+      min-height:52px; border-radius:16px; border:0; cursor:pointer;
+      padding:0 16px; font:inherit; font-weight:860;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg, rgba(112,207,255,.95), rgba(168,255,109,.92));
+      color:#04110c;
+      box-shadow:0 10px 28px rgba(76,160,255,.18), 0 10px 28px rgba(92,255,122,.10), inset 0 1px 0 rgba(255,255,255,.28);
+    }
+    .btn-secondary{
+      background:rgba(255,255,255,.04); color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .matches-head,.base-head{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;
+    }
+    .base-head h1,.matches-head h1{
+      margin:0; font-size:30px; line-height:.95; letter-spacing:-.04em; font-weight:900;
+    }
+    .matches-sub{font-size:13px; color:var(--muted); margin-top:6px}
+    .empty{
+      padding:18px; border-radius:18px;
+      border:1px dashed rgba(255,255,255,.12);
+      background:rgba(255,255,255,.02);
+      color:var(--muted);
+    }
+    .t-list-card{
+      padding:16px; border-radius:22px;
+      background:linear-gradient(180deg, rgba(9,20,19,.84), rgba(7,14,14,.94));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow: 0 14px 34px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .sub{margin-top:6px; font-size:13px; color:var(--muted)}
+    .meta-mini{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+    .profile{
+      padding:18px; border-radius:28px;
+      background:linear-gradient(180deg, rgba(9,20,19,.84), rgba(7,14,14,.94));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+    }
+    .profile-top{display:flex; gap:14px; align-items:center}
+    .avatar{
+      width:72px; height:72px; border-radius:22px;
+      display:grid; place-items:center;
+      background:linear-gradient(135deg, rgba(112,207,255,.95), rgba(168,255,109,.92));
+      color:#04110c; font-size:28px; font-weight:900;
+    }
+    .profile h1{margin:0; font-size:28px; line-height:.98}
+    .kv{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
+    .kv div{
+      padding:12px; border-radius:16px;
+      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08);
+    }
+    .kv small{display:block; color:var(--muted2); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:800}
+    .kv strong{display:block; margin-top:8px; font-size:22px}
 
-    .bottom-nav{
-      position:fixed; left:50%; transform:translateX(-50%);
-      bottom:calc(10px + env(safe-area-inset-bottom)); z-index:30;
-      width:min(calc(100% - 20px), calc(var(--page-max) - 8px));
+    .bottom{
+      position:fixed; z-index:30; left:50%; transform:translateX(-50%);
+      bottom:calc(10px + env(safe-area-inset-bottom));
+      width:min(calc(100% - 20px), calc(var(--page) - 8px));
       display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
       padding:10px;
       border-radius:28px;
@@ -327,554 +323,392 @@
       backdrop-filter:blur(18px) saturate(130%);
       -webkit-backdrop-filter:blur(18px) saturate(130%);
     }
-    .nav-item{
+    .nav{
       min-height:62px;
       border:0; border-radius:18px;
-      background:transparent;
-      color:var(--muted);
+      background:transparent; color:var(--muted);
       display:grid; justify-items:center; align-content:center; gap:6px;
+      font:inherit; font-size:11px; font-weight:800; letter-spacing:.04em;
       cursor:pointer;
-      font:inherit; font-size:11px; font-weight:800;
-      letter-spacing:.04em;
     }
-    .nav-item svg{width:20px; height:20px}
-    .nav-item.active{
+    .nav.active{
       color:#04110c;
-      background:linear-gradient(135deg, rgba(125,215,255,.95), rgba(141,255,134,.92));
-      box-shadow:0 0 24px rgba(86,165,255,.18), inset 0 1px 0 rgba(255,255,255,.28);
+      background:linear-gradient(135deg, rgba(112,207,255,.95), rgba(168,255,109,.92));
     }
-
-    
-    .live-tournament-card{
-      margin-bottom:14px;
-      padding:18px;
-      border-radius:24px;
-      background:
-        linear-gradient(180deg, rgba(8,23,45,.82), rgba(6,16,22,.92)),
-        radial-gradient(circle at 12% 16%, rgba(125,215,255,.18), transparent 30%);
-      border:1px solid rgba(125,215,255,.20);
-      box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.06), 0 0 32px rgba(86,165,255,.10);
-    }
-    .live-tournament-card .title{
-      font-size:26px;
-    }
-
-    .section{
-      margin-top:18px;
-    }
-    .section-head-base{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      margin-bottom:12px;
-    }
-    .section-title-base{
-      font-size:22px; font-weight:880; letter-spacing:-.03em;
-    }
-    .pill{
-      display:inline-flex; align-items:center; gap:6px;
-      min-height:30px; padding:0 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      font-size:12px; font-weight:820;
-    }
-    .card{
-      position:relative;
-      overflow:hidden;
-      padding:16px;
-      border-radius:22px;
-      background:linear-gradient(180deg, rgba(10,23,20,.84), rgba(7,16,14,.92));
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 14px 34px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.04);
-    }
-    .card + .card{margin-top:12px}
-    .row{display:flex; align-items:center; justify-content:space-between; gap:12px}
-    .title{font-size:24px; line-height:1.02; font-weight:880; letter-spacing:-.03em}
-    .sub{margin-top:6px; font-size:13px; color:var(--muted)}
-    .small{font-size:12px; color:var(--muted-2)}
-    .btn{
-      min-height:52px; border-radius:16px; border:0; cursor:pointer;
-      padding:0 16px; font:inherit; font-weight:860; color:inherit;
-    }
-    .btn-primary{
-      background:linear-gradient(135deg, rgba(125,215,255,.96), rgba(141,255,134,.92));
-      color:#04110c;
-      box-shadow:0 10px 30px rgba(86,165,255,.22), 0 10px 30px rgba(121,255,120,.12), inset 0 1px 0 rgba(255,255,255,.28);
-    }
-    .btn-secondary{
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      color:var(--text);
-    }
-    .match-card .teams{
-      display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:start;
-      margin-top:12px;
-    }
-    .team:last-child{text-align:right}
-    .team-name{font-size:18px; font-weight:860}
-    .team-players{margin-top:6px; font-size:12px; color:var(--muted)}
-    .vs{padding-top:4px; font-size:14px; letter-spacing:.18em; color:var(--muted-2); font-weight:900}
-    .match-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
-    .meta-chip{
-      padding:9px 12px; border-radius:14px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      font-size:12px; font-weight:760;
-    }
-    .match-actions{display:grid; grid-template-columns:1fr auto; gap:10px; margin-top:14px}
-    .list-view .card{margin-bottom:12px}
-    .profile-card{
-      padding:18px; border-radius:28px;
-      background:linear-gradient(180deg, rgba(10,23,20,.86), rgba(7,16,14,.94));
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:var(--shadow-lg);
-    }
-    .profile-top{display:flex; gap:14px; align-items:center}
-    .avatar{
-      width:72px; height:72px; border-radius:22px;
-      display:grid; place-items:center;
-      background:linear-gradient(135deg, rgba(125,215,255,.95), rgba(141,255,134,.92));
-      color:#04110c; font-size:28px; font-weight:900;
-      box-shadow:0 0 28px rgba(86,165,255,.18), 0 0 28px rgba(121,255,120,.12);
-    }
-    .profile-name{font-size:28px; line-height:.98; font-weight:900}
-    .profile-role{margin-top:6px; font-size:13px; color:var(--muted)}
-    .kv{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px}
-    .kv-item{
-      padding:12px; border-radius:16px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .kv-label{font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.14em; font-weight:800}
-    .kv-value{margin-top:8px; font-size:22px; font-weight:880}
-    .empty{
-      padding:18px; border-radius:18px;
-      border:1px dashed rgba(255,255,255,.12);
-      background:rgba(255,255,255,.02);
-      color:var(--muted);
-    }
+    .nav svg{width:20px; height:20px}
 
     .modal-backdrop{
-      position:fixed; inset:0; z-index:40; display:none; padding:18px;
-      background:rgba(2,6,6,.64);
-      backdrop-filter:blur(14px);
+      position:fixed; inset:0; z-index:40; display:none; align-items:end;
+      padding:18px; background:rgba(2,6,6,.64); backdrop-filter:blur(14px);
     }
-    .modal-backdrop.show{display:grid; align-items:end}
+    .modal-backdrop.show{display:grid}
     .modal{
-      max-width:var(--page-max); width:100%; margin:0 auto;
+      width:100%; max-width:var(--page); margin:0 auto;
       padding:18px; border-radius:26px;
       background:linear-gradient(180deg, rgba(10,23,20,.94), rgba(7,16,14,.98));
       border:1px solid rgba(255,255,255,.10);
-      box-shadow:var(--shadow-lg);
+      box-shadow: var(--shadow);
     }
     .modal h3{margin:0 0 8px; font-size:24px}
     .modal p{margin:0; color:var(--muted); font-size:14px; line-height:1.5}
-    .score-grid{display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center; margin-top:16px}
-    .score-box{
-      padding:14px; border-radius:18px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .score-box label{display:block; font-size:12px; color:var(--muted); margin-bottom:8px}
+    .score-grid{display:grid; grid-template-columns:1fr auto 1fr; gap:12px; margin-top:16px; align-items:center}
+    .score-box{padding:14px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08)}
+    .score-box label{display:block; margin-bottom:8px; font-size:12px; color:var(--muted)}
     .score-box input{
-      width:100%; min-height:54px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(2,8,7,.6);
+      width:100%; min-height:54px; border-radius:14px; outline:none;
+      border:1px solid rgba(255,255,255,.10); background:rgba(2,8,7,.6);
       color:var(--text); font-size:24px; text-align:center; font-weight:900;
-      outline:none;
     }
     .modal-actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px}
 
     @media (max-width:380px){
-      .t-card{flex-basis:calc(100% - 46px)}
-      .t-title{font-size:20px}
-      .match-actions,.modal-actions{grid-template-columns:1fr}
+      .card{flex-basis:calc(100% - 52px)}
+      .actions,.modal-actions{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <main id="page-home" class="page active">
-      <section class="home-page">
-        <div class="rail-section blue glass">
-          <div class="section-head">
-            <div class="section-title">My Tournaments <span class="section-mark"><span></span><span></span></span></div>
-            <button class="section-link" data-go="tournaments">View</button>
+    <main id="home" class="page active">
+      <div class="section-gap">
+        <section class="section-shell shell-blue glass">
+          <div class="head">
+            <h2>My Tournaments <span class="diamonds"><span></span><span></span></span></h2>
+            <button class="ghost" data-page="tournaments">View</button>
           </div>
-          <div id="homeMyRail" class="rail"></div>
-          <div id="homeMyDots" class="dots"></div>
-          <div class="section-label">Up to 3 personal tournaments on the first screen</div>
-        </div>
+          <div class="rail" id="myRail"></div>
+          <div class="dots" id="myDots"></div>
+        </section>
 
-        <div class="rail-section green glass">
-          <div class="section-head">
-            <div class="section-title">Available Tournaments <span class="section-mark"><span></span><span></span></span></div>
-            <button class="section-link" data-go="tournaments">View</button>
+        <section class="section-shell shell-green glass">
+          <div class="head">
+            <h2>Available Tournaments <span class="diamonds"><span></span><span></span></span></h2>
+            <button class="ghost" data-page="tournaments">View</button>
           </div>
-          <div id="homeAvailableRail" class="rail"></div>
-          <div id="homeAvailableDots" class="dots"></div>
+          <div class="rail" id="availRail"></div>
+          <div class="dots" id="availDots"></div>
+        </section>
+      </div>
+    </main>
+
+    <main id="matches" class="page">
+      <section>
+        <div class="matches-head">
+          <div>
+            <h1>Live Tournament</h1>
+            <div class="matches-sub">Only one active tournament is shown here.</div>
+          </div>
+          <div class="pill" id="liveTournamentBadge">Live</div>
         </div>
+        <div id="liveTournamentBlock"></div>
+        <div style="height:12px"></div>
+        <div class="base-head"><h1>Matches</h1><div class="pill">Only this tournament</div></div>
+        <div id="matchesList"></div>
       </section>
     </main>
 
-    <main id="page-matches" class="page">
-      <section class="section">
-        <div class="section-head-base">
-          <div class="section-title-base">My Matches</div>
-          <div class="pill">Live tournament only</div>
-        </div>
-        <div id="liveTournamentCard"></div>
-        <div id="matchesList" class="list-view"></div>
+    <main id="tournaments" class="page">
+      <section>
+        <div class="base-head"><h1>Tournaments</h1><div class="pill">Join / Withdraw</div></div>
+        <div id="tournamentsList"></div>
       </section>
     </main>
 
-    <main id="page-tournaments" class="page">
-      <section class="section">
-        <div class="section-head-base">
-          <div class="section-title-base">Tournaments</div>
-          <div class="pill">Join / Withdraw</div>
+    <main id="profile" class="page">
+      <section class="profile glass">
+        <div class="profile-top">
+          <div class="avatar">NP</div>
+          <div>
+            <h1>Nikolaj P.</h1>
+            <div class="sub">Club player · Tournament OS</div>
+          </div>
         </div>
-        <div id="tournamentsList" class="list-view"></div>
-      </section>
-    </main>
-
-    <main id="page-profile" class="page">
-      <section class="section">
-        <div class="profile-card glass">
-          <div class="profile-top">
-            <div class="avatar">NP</div>
-            <div>
-              <div class="profile-name" id="profileName">Nikolaj P.</div>
-              <div class="profile-role">Club player · Tournament OS</div>
-              <div style="margin-top:10px" class="pill">Active player</div>
-            </div>
-          </div>
-          <div class="kv">
-            <div class="kv-item"><div class="kv-label">Joined</div><div class="kv-value" id="profileJoined">0</div></div>
-            <div class="kv-item"><div class="kv-label">Matches</div><div class="kv-value" id="profileMatches">0</div></div>
-            <div class="kv-item"><div class="kv-label">Live</div><div class="kv-value" id="profileLive">0</div></div>
-          </div>
+        <div class="kv">
+          <div><small>Joined</small><strong id="pJoined">0</strong></div>
+          <div><small>Matches</small><strong id="pMatches">0</strong></div>
+          <div><small>Live</small><strong id="pLive">0</strong></div>
         </div>
       </section>
     </main>
   </div>
 
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-page="home" aria-label="Home">
+  <nav class="bottom">
+    <button class="nav active" data-page="home" aria-label="Home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/></svg>
       <span>Home</span>
     </button>
-    <button class="nav-item" data-page="matches" aria-label="Matches">
+    <button class="nav" data-page="matches" aria-label="Matches">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
       <span>Matches</span>
     </button>
-    <button class="nav-item" data-page="tournaments" aria-label="Tournaments">
+    <button class="nav" data-page="tournaments" aria-label="Tournaments">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h10"/><path d="M8 4v3a4 4 0 0 0 8 0V4"/><path d="M8 20h8"/><path d="M12 11v9"/></svg>
       <span>Tournaments</span>
     </button>
-    <button class="nav-item" data-page="profile" aria-label="Profile">
+    <button class="nav" data-page="profile" aria-label="Profile">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
       <span>Profile</span>
     </button>
   </nav>
 
-  <div id="scoreModal" class="modal-backdrop">
+  <div id="modalBackdrop" class="modal-backdrop">
     <div class="modal glass">
-      <h3>Submit result</h3>
-      <p id="modalText">Enter the final score for your match.</p>
+      <h3>Enter result</h3>
+      <p id="modalText">Submit score for the selected live match.</p>
       <div class="score-grid">
-        <div class="score-box"><label>Team 1</label><input id="scoreA" type="number" min="0" max="99" value="0"></div>
+        <div class="score-box"><label>Team 1</label><input id="score1" type="number" min="0" max="99" value="0"></div>
         <div class="vs">V-S</div>
-        <div class="score-box"><label>Team 2</label><input id="scoreB" type="number" min="0" max="99" value="0"></div>
+        <div class="score-box"><label>Team 2</label><input id="score2" type="number" min="0" max="99" value="0"></div>
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="cancelModal">Cancel</button>
-        <button class="btn btn-primary" id="saveScore">Save result</button>
+        <button class="btn btn-primary" id="saveModal">Save result</button>
       </div>
     </div>
   </div>
 
-<script>
-(() => {
-  const STORAGE_KEY = 'padel.v19.1.premium.cards';
-  const currentPlayerId = 'p1';
-  const currentPlayerName = 'Nikolaj P.';
-  const seed = {
-    player:{id:'p1', name:'Nikolaj P.'},
-    tournaments:[
-      {id:'t1', name:'Riga Evening Open', date:'17 August 2023', city:'Riga', start:'10:00', duration:'20 min', courts:2, teams:2, registered:4, status:'live', myStatus:'joined'},
-      {id:'t2', name:'Riga Morning Open', date:'19 August 2023', city:'Riga', start:'09:30', duration:'20 min', courts:2, teams:4, registered:8, status:'open', myStatus:'open'},
-      {id:'t3', name:'Kaunas Padel Challenge', date:'21 August 2023', city:'Kaunas', start:'12:00', duration:'30 min', courts:3, teams:4, registered:8, status:'open', myStatus:'open'},
-      {id:'t4', name:'Tartu Summer Cup', date:'26 August 2023', city:'Tartu', start:'10:00', duration:'20 min', courts:2, teams:4, registered:8, status:'open', myStatus:'open'}
-    ],
-    matches:[
-      {id:'m1', tournamentId:'t1', court:'Court 1', time:'10:00', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:1, score2:1, status:'live', eligible:['p1','p2','p3','p4'], resultAuthor:null},
-      {id:'m2', tournamentId:'t1', court:'Court 2', time:'10:20', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:null, score2:null, status:'scheduled', eligible:['p1','p2','p3','p4'], resultAuthor:null}
-    ]
-  };
+  <script>
+    (() => {
+      const KEY = 'padel.v19.3.fixed.flow';
+      const PLAYER_ID = 'p1';
+      const PLAYER_NAME = 'Nikolaj P.';
+      const seed = {
+        player:{id:'p1', name:'Nikolaj P.'},
+        tournaments:[
+          {id:'t1', name:'Riga Evening Open', date:'17 August 2023', city:'Riga', start:'10:00', duration:'20 min', status:'live', myStatus:'joined'},
+          {id:'t2', name:'Jurmala Open', date:'21 August 2023', city:'Jurmala', start:'18:30', duration:'25 min', status:'scheduled', myStatus:'joined'},
+          {id:'t3', name:'Riga Morning Open', date:'19 August 2023', city:'Riga', start:'09:30', duration:'20 min', status:'open', myStatus:'open'},
+          {id:'t4', name:'Kaunas Padel Challenge', date:'21 August 2023', city:'Kaunas', start:'12:00', duration:'30 min', status:'open', myStatus:'open'},
+          {id:'t5', name:'Tartu Summer Cup', date:'26 August 2023', city:'Tartu', start:'10:00', duration:'20 min', status:'open', myStatus:'open'}
+        ],
+        matches:[
+          {id:'m1', tournamentId:'t1', time:'10:00', court:'Court 1', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:1, score2:1, resultAuthor:null, status:'live'},
+          {id:'m2', tournamentId:'t1', time:'10:20', court:'Court 2', team1:'Team 1', team2:'Team 2', team1Players:['Nikolaj P.','Armands K.'], team2Players:['Mikus R.','Edgars S.'], score1:null, score2:null, resultAuthor:null, status:'scheduled'}
+        ]
+      };
 
-  function load(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw) return JSON.parse(raw);
-    }catch(e){}
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
-    return JSON.parse(JSON.stringify(seed));
-  }
-  let state = load();
-  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      function load(){
+        try{
+          const raw = localStorage.getItem(KEY);
+          if(raw) return JSON.parse(raw);
+        }catch(e){}
+        localStorage.setItem(KEY, JSON.stringify(seed));
+        return JSON.parse(JSON.stringify(seed));
+      }
+      let state = load();
+      function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
-  const pages = ['home','matches','tournaments','profile'];
-  const pageEls = Object.fromEntries(pages.map(p=>[p, document.getElementById('page-'+p)]));
-  const navEls = [...document.querySelectorAll('.nav-item')];
+      const pages = ['home','matches','tournaments','profile'];
+      function go(page){
+        pages.forEach(id => document.getElementById(id).classList.toggle('active', id === page));
+        document.querySelectorAll('.nav').forEach(btn => btn.classList.toggle('active', btn.dataset.page === page));
+        location.hash = page;
+      }
+      document.querySelectorAll('[data-page]').forEach(btn => btn.addEventListener('click', () => go(btn.dataset.page)));
+      go((location.hash || '#home').replace('#',''));
 
-  function goto(page){
-    pages.forEach(p => pageEls[p].classList.toggle('active', p === page));
-    navEls.forEach(el => el.classList.toggle('active', el.dataset.page === page));
-    history.replaceState(null,'','#' + page);
-  }
-  navEls.forEach(el => el.addEventListener('click', ()=>goto(el.dataset.page)));
-  document.querySelectorAll('[data-go]').forEach(el => el.addEventListener('click', ()=>goto(el.dataset.go)));
-  goto((location.hash || '#home').replace('#',''));
-
-  function liveTournament(){
-    return state.tournaments.find(t => t.status === 'live' && t.myStatus === 'joined') || null;
-  }
-
-  function myMatches(){
-    const live = liveTournament();
-    return state.matches.filter(m =>
-      (m.team1Players.includes(currentPlayerName) || m.team2Players.includes(currentPlayerName)) &&
-      (!live || m.tournamentId === live.id)
-    );
-  }
-
-  function statusMeta(t){
-    if(t.status === 'live') return {label:'Live', cls:'live'};
-    if(t.myStatus === 'joined') return {label:'Joined', cls:'joined'};
-    return {label:'Open', cls:'open'};
-  }
-
-  function logoWords(name){
-    const words = name.split(' ').filter(Boolean);
-    return {
-      top:(words[0] || '').slice(0, 6),
-      main:(words[1] || words[0] || '').slice(0, 8),
-      year:'2023'
-    };
-  }
-
-  function iconCalendar(){
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M3 10h18"/></svg>';
-  }
-  function iconPin(){
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-6-5.1-6-11a6 6 0 1 1 12 0c0 5.9-6 11-6 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>';
-  }
-  function iconClock(){
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
-  }
-  function iconTimer(){
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 13l3-3"/><path d="M9 2h6"/></svg>';
-  }
-
-  function premiumCard(t, tone){
-    const logo = logoWords(t.name);
-    const status = statusMeta(t);
-    return `
-      <article class="t-card ${tone}" data-open-tournament="${t.id}">
-        <div class="t-card-inner">
-          <div class="card-top">
-            <div class="logo-badge ${tone}">
-              <div>
-                <div class="logo-small">${logo.top}</div>
-                <div class="logo-main">${logo.main}</div>
-                <div class="logo-year">${logo.year}</div>
+      function logoWords(name){
+        const w = name.split(' ');
+        return {a:(w[0]||'').slice(0,6), b:(w[1]||w[0]||'').slice(0,8), y:'2023'};
+      }
+      function toneClass(t){ return t.myStatus === 'joined' ? 'blue-card' : 'green-card'; }
+      function badgeMarkup(t){
+        if(t.status === 'live') return `<div class="badge live"><span class="dot"></span>Live</div>`;
+        if(t.myStatus === 'joined') return `<div class="badge open">Joined</div>`;
+        return `<div class="badge open">Registration open</div>`;
+      }
+      function cardMarkup(t, type){
+        const logo = logoWords(t.name);
+        const tone = type === 'my' ? 'blue-card' : 'green-card';
+        return `
+          <article class="card ${tone}" data-open="${t.id}" data-type="${type}">
+            <div class="card-inner">
+              <div class="card-top">
+                <div class="logo">
+                  <div>
+                    <div class="s1">${logo.a}</div>
+                    <div class="s2">${logo.b}</div>
+                    <div class="s3">${logo.y}</div>
+                  </div>
+                </div>
+                ${badgeMarkup(t)}
+              </div>
+              <div class="title">${t.name}</div>
+              <div class="meta">
+                <span><i></i>${t.date}</span>
+                <span><i style="border-radius:50%"></i>${t.city}</span>
+                <span><i style="border-radius:50%"></i>${t.start}</span>
+                <span><i style="border-radius:50%"></i>${t.duration}</span>
               </div>
             </div>
-            <div class="badge ${status.cls}">${status.cls === 'live' ? '<span class="dot"></span>' : ''}${status.label}</div>
-          </div>
-          <div class="title-wrap">
-            <div class="t-title">${t.name}</div>
-            <div class="arrow">›</div>
-          </div>
-          <div class="meta-row">
-            <div class="meta-item">${iconCalendar()}<span>${t.date}</span></div>
-            <div class="meta-item">${iconPin()}<span>${t.city}</span></div>
-            <div class="meta-item">${iconClock()}<span>${t.start}</span></div>
-            <div class="meta-item">${iconTimer()}<span>${t.duration}</span></div>
-          </div>
-        </div>
-      </article>`;
-  }
-
-  function dotsMarkup(count, active=0){
-    return Array.from({length:count}, (_,i)=>`<span class="${i===active?'active':''}"></span>`).join('');
-  }
-
-  function matchCard(m){
-    const result = m.score1 === null ? `<span class="pill">No result</span>` : `<span class="pill">${m.score1} - ${m.score2}</span>`;
-    return `
-      <article class="card match-card glass">
-        <div class="row">
-          <div>
-            <div style="font-size:18px;font-weight:860">${m.time} · ${m.court}</div>
-            <div class="small">${m.status === 'scheduled' ? 'Scheduled match' : 'Live match'}</div>
-          </div>
-          ${result}
-        </div>
-        <div class="teams">
-          <div class="team"><div class="team-name">${m.team1}</div><div class="team-players">${m.team1Players.join(', ')}</div></div>
-          <div class="vs">V-S</div>
-          <div class="team"><div class="team-name">${m.team2}</div><div class="team-players">${m.team2Players.join(', ')}</div></div>
-        </div>
-        <div class="match-meta">
-          <div class="meta-chip">${m.status === 'scheduled' ? 'Scheduled' : 'Live'} match</div>
-          <div class="meta-chip">Result author: ${m.resultAuthor || '—'}</div>
-        </div>
-        <div class="match-actions">
-          <button class="btn btn-primary score-btn" data-id="${m.id}">Enter result</button>
-          <button class="btn btn-secondary" data-go="tournaments">Tournament</button>
-        </div>
-      </article>`;
-  }
-
-  function statusPill(t){
-    const s = statusMeta(t);
-    return `<span class="pill">${s.label}</span>`;
-  }
-
-  function tournamentListCard(t){
-    const canJoin = t.myStatus === 'open';
-    const canWithdraw = t.myStatus === 'joined' || t.myStatus === 'waitlist';
-    const action = canJoin ? `<button class="btn btn-primary join-btn" data-id="${t.id}" style="width:100%">Join tournament</button>` : canWithdraw ? `<button class="btn btn-secondary withdraw-btn" data-id="${t.id}" style="width:100%">Withdraw</button>` : '';
-    return `
-      <article class="card glass">
-        <div class="row">
-          <div>
-            <div class="title">${t.name}</div>
-            <div class="sub">${t.date} · ${t.city} · ${t.start}</div>
-          </div>
-          ${statusPill(t)}
-        </div>
-        <div class="match-meta" style="margin-top:14px">
-          <div class="meta-chip">${t.registered} registered</div>
-          <div class="meta-chip">${t.courts} courts</div>
-          <div class="meta-chip">${t.teams} teams</div>
-        </div>
-        ${action ? `<div style="margin-top:14px">${action}</div>` : ''}
-      </article>`;
-  }
-
-  function bindActions(){
-    document.querySelectorAll('.join-btn').forEach(btn => btn.addEventListener('click', () => {
-      const t = state.tournaments.find(x => x.id === btn.dataset.id);
-      if(!t) return;
-      t.myStatus = t.registered < t.teams * 2 ? 'joined' : 'waitlist';
-      if(t.myStatus === 'joined') t.registered += 1;
-      save(); render();
-    }));
-    document.querySelectorAll('.withdraw-btn').forEach(btn => btn.addEventListener('click', () => {
-      const t = state.tournaments.find(x => x.id === btn.dataset.id);
-      if(!t) return;
-      if(t.myStatus === 'joined' && t.registered > 0) t.registered -= 1;
-      t.myStatus = 'open';
-      save(); render();
-    }));
-    document.querySelectorAll('.score-btn').forEach(btn => btn.addEventListener('click', () => openScoreModal(btn.dataset.id)));
-    document.querySelectorAll('[data-open-tournament]').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.dataset.openTournament;
-        const t = state.tournaments.find(x => x.id === id);
-        if(t && t.status === 'live' && t.myStatus === 'joined'){
-          goto('matches');
-        }else{
-          goto('tournaments');
-        }
-      });
-    });
-    document.querySelectorAll('[data-go]').forEach(el => {
-      if(!el.dataset.bound){
-        el.dataset.bound = '1';
-        el.addEventListener('click', ()=>goto(el.dataset.go));
+          </article>`;
       }
-    });
-  }
 
-  function renderHome(){
-    const mine = state.tournaments.filter(t => t.status === 'live' && t.myStatus === 'joined').slice(0,1);
-    const available = state.tournaments.filter(t => t.myStatus === 'open');
+      function renderHome(){
+        const my = state.tournaments.filter(t => t.myStatus === 'joined');
+        const avail = state.tournaments.filter(t => t.myStatus === 'open');
+        document.getElementById('myRail').innerHTML = my.map(t => cardMarkup(t, 'my')).join('');
+        document.getElementById('availRail').innerHTML = avail.map(t => cardMarkup(t, 'available')).join('');
+        document.getElementById('myDots').innerHTML = my.map((_,i) => `<span class="${i===0?'active':''}"></span>`).join('');
+        document.getElementById('availDots').innerHTML = avail.map((_,i) => `<span class="${i===0?'active':''}"></span>`).join('');
 
-    document.getElementById('homeMyRail').innerHTML = mine.length
-      ? mine.map(t => premiumCard(t, 'blue')).join('')
-      : `<div class="empty" style="margin:0 16px">No live tournament for this player.</div>`;
+        document.querySelectorAll('[data-open]').forEach(el => {
+          el.addEventListener('click', () => {
+            const t = state.tournaments.find(x => x.id === el.dataset.open);
+            if(!t) return;
+            if(t.status === 'live' && t.myStatus === 'joined'){
+              go('matches');
+            } else {
+              go('tournaments');
+            }
+          });
+        });
+      }
 
-    document.getElementById('homeAvailableRail').innerHTML = available.length
-      ? available.map(t => premiumCard(t, 'green')).join('')
-      : `<div class="empty" style="margin:0 16px">No open tournaments right now.</div>`;
+      function liveTournament(){
+        return state.tournaments.find(t => t.status === 'live' && t.myStatus === 'joined') || null;
+      }
 
-    document.getElementById('homeMyDots').innerHTML = mine.length > 1 ? dotsMarkup(mine.length, 0) : '';
-    document.getElementById('homeAvailableDots').innerHTML = available.length ? dotsMarkup(Math.min(available.length, 4), 0) : '';
-  }
+      function matchMarkup(m){
+        const score = m.score1 == null ? '—' : `${m.score1} - ${m.score2}`;
+        return `
+          <article class="match-card glass">
+            <div class="row">
+              <div>
+                <div class="tournament-kicker">${m.time} · ${m.court}</div>
+                <div class="match-title">${score}</div>
+              </div>
+              <div class="pill">${m.status === 'live' ? 'Live match' : 'Scheduled'}</div>
+            </div>
+            <div class="teams">
+              <div class="team">
+                <div class="name">${m.team1}</div>
+                <div class="players">${m.team1Players.join(', ')}</div>
+              </div>
+              <div class="vs">V-S</div>
+              <div class="team">
+                <div class="name">${m.team2}</div>
+                <div class="players">${m.team2Players.join(', ')}</div>
+              </div>
+            </div>
+            <div class="chips">
+              <div class="chip">Result author: ${m.resultAuthor || '—'}</div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary result-btn" data-id="${m.id}">Enter result</button>
+              <button class="btn btn-secondary" data-page="tournaments">Tournament</button>
+            </div>
+          </article>`;
+      }
 
-  function renderMatches(){
-    const live = liveTournament();
-    const mm = myMatches();
-    document.getElementById('liveTournamentCard').innerHTML = live ? `
-      <article class="live-tournament-card glass">
-        <div class="row">
-          <div>
-            <div class="small">Active tournament</div>
-            <div class="title">${live.name}</div>
-            <div class="sub">${live.date} · ${live.city} · ${live.start}</div>
-          </div>
-          <span class="pill">Live</span>
-        </div>
-      </article>` : '';
-    document.getElementById('matchesList').innerHTML = mm.length ? mm.map(matchCard).join('') : `<div class="empty">No matches for this live tournament.</div>`;
-  }
+      function renderMatches(){
+        const live = liveTournament();
+        const block = document.getElementById('liveTournamentBlock');
+        const list = document.getElementById('matchesList');
+        if(!live){
+          block.innerHTML = `<div class="empty">No active tournament.</div>`;
+          list.innerHTML = '';
+          return;
+        }
+        block.innerHTML = `
+          <article class="t-list-card glass">
+            <div class="row">
+              <div>
+                <div class="match-title">${live.name}</div>
+                <div class="sub">${live.date} · ${live.city} · ${live.start}</div>
+              </div>
+              <div class="badge live"><span class="dot"></span>Live</div>
+            </div>
+          </article>`;
+        const matches = state.matches.filter(m => m.tournamentId === live.id);
+        list.innerHTML = matches.map(matchMarkup).join('');
+        document.querySelectorAll('.result-btn').forEach(btn => btn.addEventListener('click', () => openModal(btn.dataset.id)));
+        document.querySelectorAll('#matches [data-page]').forEach(btn => btn.addEventListener('click', () => go(btn.dataset.page)));
+      }
 
-  function renderTournaments(){(){
-    document.getElementById('tournamentsList').innerHTML = state.tournaments.map(tournamentListCard).join('');
-  }
+      function tournamentRow(t){
+        const action = t.myStatus === 'open'
+          ? `<button class="btn btn-primary join-btn" data-id="${t.id}" style="width:100%">Join tournament</button>`
+          : t.status !== 'live'
+            ? `<button class="btn btn-secondary withdraw-btn" data-id="${t.id}" style="width:100%">Withdraw</button>`
+            : '';
+        const badge = t.status === 'live'
+          ? `<div class="badge live"><span class="dot"></span>Live</div>`
+          : t.myStatus === 'joined'
+            ? `<div class="badge open">Joined</div>`
+            : `<div class="badge open">Open</div>`;
+        return `
+          <article class="t-list-card glass">
+            <div class="row">
+              <div>
+                <div class="match-title">${t.name}</div>
+                <div class="sub">${t.date} · ${t.city} · ${t.start}</div>
+              </div>
+              ${badge}
+            </div>
+            ${action ? `<div style="margin-top:14px">${action}</div>` : ''}
+          </article>`;
+      }
 
-  function renderProfile(){
-    document.getElementById('profileName').textContent = currentPlayerName;
-    document.getElementById('profileJoined').textContent = state.tournaments.filter(t => t.myStatus === 'joined').length;
-    document.getElementById('profileMatches').textContent = myMatches().length;
-    document.getElementById('profileLive').textContent = state.tournaments.filter(t => t.status === 'live').length;
-  }
+      function renderTournaments(){
+        document.getElementById('tournamentsList').innerHTML = state.tournaments.map(tournamentRow).join('');
+        document.querySelectorAll('.join-btn').forEach(btn => btn.addEventListener('click', () => {
+          const t = state.tournaments.find(x => x.id === btn.dataset.id);
+          if(!t) return;
+          t.myStatus = 'joined';
+          save(); renderAll();
+        }));
+        document.querySelectorAll('.withdraw-btn').forEach(btn => btn.addEventListener('click', () => {
+          const t = state.tournaments.find(x => x.id === btn.dataset.id);
+          if(!t) return;
+          t.myStatus = 'open';
+          save(); renderAll();
+        }));
+      }
 
-  let activeMatchId = null;
-  const modal = document.getElementById('scoreModal');
-  function openScoreModal(id){
-    const m = state.matches.find(x => x.id === id); if(!m) return;
-    activeMatchId = id;
-    document.getElementById('modalText').textContent = `${m.team1} vs ${m.team2} · ${m.time} · ${m.court}`;
-    document.getElementById('scoreA').value = m.score1 ?? 0;
-    document.getElementById('scoreB').value = m.score2 ?? 0;
-    modal.classList.add('show');
-  }
-  function closeScoreModal(){ modal.classList.remove('show'); activeMatchId = null; }
-  document.getElementById('cancelModal').addEventListener('click', closeScoreModal);
-  modal.addEventListener('click', (e) => { if(e.target === modal) closeScoreModal(); });
-  document.getElementById('saveScore').addEventListener('click', () => {
-    if(!activeMatchId) return;
-    const m = state.matches.find(x => x.id === activeMatchId); if(!m) return;
-    m.score1 = Number(document.getElementById('scoreA').value || 0);
-    m.score2 = Number(document.getElementById('scoreB').value || 0);
-    m.resultAuthor = currentPlayerName;
-    m.status = 'live';
-    save(); closeScoreModal(); render();
-  });
+      function renderProfile(){
+        const joined = state.tournaments.filter(t => t.myStatus === 'joined').length;
+        const live = state.tournaments.filter(t => t.status === 'live' && t.myStatus === 'joined').length;
+        document.getElementById('pJoined').textContent = joined;
+        document.getElementById('pMatches').textContent = state.matches.length;
+        document.getElementById('pLive').textContent = live;
+      }
 
-  function render(){
-    renderHome();
-    renderMatches();
-    renderTournaments();
-    renderProfile();
-    bindActions();
-  }
-  render();
-})();
-</script>
+      let activeMatchId = null;
+      const modal = document.getElementById('modalBackdrop');
+      function openModal(id){
+        activeMatchId = id;
+        const m = state.matches.find(x => x.id === id);
+        if(!m) return;
+        document.getElementById('modalText').textContent = `${m.team1} vs ${m.team2} · ${m.time} · ${m.court}`;
+        document.getElementById('score1').value = m.score1 ?? 0;
+        document.getElementById('score2').value = m.score2 ?? 0;
+        modal.classList.add('show');
+      }
+      function closeModal(){ activeMatchId = null; modal.classList.remove('show'); }
+      document.getElementById('cancelModal').addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+      document.getElementById('saveModal').addEventListener('click', () => {
+        if(!activeMatchId) return;
+        const m = state.matches.find(x => x.id === activeMatchId);
+        if(!m) return;
+        m.score1 = Number(document.getElementById('score1').value || 0);
+        m.score2 = Number(document.getElementById('score2').value || 0);
+        m.resultAuthor = PLAYER_NAME;
+        m.status = 'live';
+        save();
+        closeModal();
+        renderAll();
+      });
+
+      function renderAll(){
+        renderHome();
+        renderMatches();
+        renderTournaments();
+        renderProfile();
+      }
+      renderAll();
+    })();
+  </script>
 </body>
 </html>
