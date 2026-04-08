@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#05100f" />
-  <title>Padel OS v19.3</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Padel OS v19.4.1</title>
   <style>
     :root{
       --bg:#06100f;
@@ -323,6 +326,23 @@
       backdrop-filter:blur(18px) saturate(130%);
       -webkit-backdrop-filter:blur(18px) saturate(130%);
     }
+    .build-version{
+      position:fixed;
+      z-index:20;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:calc(92px + env(safe-area-inset-bottom));
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.04em;
+      color:var(--muted);
+      background:rgba(6,14,14,.72);
+      border:1px solid rgba(255,255,255,.09);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
     .nav{
       min-height:62px;
       border:0; border-radius:18px;
@@ -432,6 +452,8 @@
     </main>
   </div>
 
+  <div id="buildVersion" class="build-version">Build —</div>
+
   <nav class="bottom">
     <button class="nav active" data-page="home" aria-label="Home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10.5V20h14v-9.5"/></svg>
@@ -469,14 +491,15 @@
 
   <script>
     (() => {
-      const KEY = 'padel.v19.3.fixed.flow';
+      const KEY = 'padel.v19.4.status-flow';
+      const BUILD_VERSION = 'v19.4.1';
       const PLAYER_ID = 'p1';
       const PLAYER_NAME = 'Nikolaj P.';
       const seed = {
         player:{id:'p1', name:'Nikolaj P.'},
         tournaments:[
           {id:'t1', name:'Riga Evening Open', date:'17 August 2023', city:'Riga', start:'10:00', duration:'20 min', status:'live', myStatus:'joined'},
-          {id:'t2', name:'Jurmala Open', date:'21 August 2023', city:'Jurmala', start:'18:30', duration:'25 min', status:'scheduled', myStatus:'joined'},
+          {id:'t2', name:'Jurmala Open', date:'21 August 2023', city:'Jurmala', start:'18:30', duration:'25 min', status:'close', myStatus:'joined'},
           {id:'t3', name:'Riga Morning Open', date:'19 August 2023', city:'Riga', start:'09:30', duration:'20 min', status:'open', myStatus:'open'},
           {id:'t4', name:'Kaunas Padel Challenge', date:'21 August 2023', city:'Kaunas', start:'12:00', duration:'30 min', status:'open', myStatus:'open'},
           {id:'t5', name:'Tartu Summer Cup', date:'26 August 2023', city:'Tartu', start:'10:00', duration:'20 min', status:'open', myStatus:'open'}
@@ -490,7 +513,13 @@
       function load(){
         try{
           const raw = localStorage.getItem(KEY);
-          if(raw) return JSON.parse(raw);
+          if(raw){
+            const parsed = JSON.parse(raw);
+            parsed.tournaments = (parsed.tournaments || []).map(t => (
+              t.status === 'scheduled' ? {...t, status:'close'} : t
+            ));
+            return parsed;
+          }
         }catch(e){}
         localStorage.setItem(KEY, JSON.stringify(seed));
         return JSON.parse(JSON.stringify(seed));
@@ -506,6 +535,8 @@
       }
       document.querySelectorAll('[data-page]').forEach(btn => btn.addEventListener('click', () => go(btn.dataset.page)));
       go((location.hash || '#home').replace('#',''));
+      document.getElementById('buildVersion').textContent = `Build ${BUILD_VERSION}`;
+      document.title = `Padel OS ${BUILD_VERSION}`;
 
       function logoWords(name){
         const w = name.split(' ');
@@ -514,8 +545,8 @@
       function toneClass(t){ return t.myStatus === 'joined' ? 'blue-card' : 'green-card'; }
       function badgeMarkup(t){
         if(t.status === 'live') return `<div class="badge live"><span class="dot"></span>Live</div>`;
-        if(t.myStatus === 'joined') return `<div class="badge open">Joined</div>`;
-        return `<div class="badge open">Registration open</div>`;
+        if(t.status === 'close') return `<div class="badge open">Close</div>`;
+        return `<div class="badge open">Open</div>`;
       }
       function cardMarkup(t, type){
         const logo = logoWords(t.name);
@@ -544,6 +575,8 @@
           </article>`;
       }
 
+      let selectedTournamentId = null;
+
       function renderHome(){
         const my = state.tournaments.filter(t => t.myStatus === 'joined');
         const avail = state.tournaments.filter(t => t.myStatus === 'open');
@@ -557,6 +590,7 @@
             const t = state.tournaments.find(x => x.id === el.dataset.open);
             if(!t) return;
             if(t.status === 'live' && t.myStatus === 'joined'){
+              selectedTournamentId = t.id;
               go('matches');
             } else {
               go('tournaments');
@@ -565,7 +599,11 @@
         });
       }
 
-      function liveTournament(){
+      function currentTournament(){
+        const bySelection = selectedTournamentId
+          ? state.tournaments.find(t => t.id === selectedTournamentId && t.myStatus === 'joined')
+          : null;
+        if(bySelection) return bySelection;
         return state.tournaments.find(t => t.status === 'live' && t.myStatus === 'joined') || null;
       }
 
@@ -602,7 +640,7 @@
       }
 
       function renderMatches(){
-        const live = liveTournament();
+        const live = currentTournament();
         const block = document.getElementById('liveTournamentBlock');
         const list = document.getElementById('matchesList');
         if(!live){
@@ -634,8 +672,8 @@
             : '';
         const badge = t.status === 'live'
           ? `<div class="badge live"><span class="dot"></span>Live</div>`
-          : t.myStatus === 'joined'
-            ? `<div class="badge open">Joined</div>`
+          : t.status === 'close'
+            ? `<div class="badge open">Close</div>`
             : `<div class="badge open">Open</div>`;
         return `
           <article class="t-list-card glass">
