@@ -58,21 +58,6 @@
     .glass{backdrop-filter: blur(14px) saturate(120%);-webkit-backdrop-filter: blur(14px) saturate(120%)}
 
     .section-gap,.list-section{display:flex;flex-direction:column;gap:16px}
-    .hero-panel{
-      margin-bottom:16px;
-      border-radius:20px;
-      border:1px solid rgba(57,255,20,.35);
-      background:linear-gradient(140deg, rgba(20,28,36,.95), rgba(14,18,24,.98));
-      padding:18px 16px;
-      box-shadow:var(--neon-glow);
-    }
-    .hero-kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
-    .hero-title{margin:8px 0 0;font-size:32px;line-height:.92;letter-spacing:-.04em;font-weight:900}
-    .hero-sub{margin:8px 0 0;font-size:13px;color:var(--muted);max-width:34ch}
-    .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
-    .hero-stats div{padding:10px 8px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.08)}
-    .hero-stats small{display:block;font-size:10px;letter-spacing:.1em;color:var(--muted2);text-transform:uppercase;font-weight:700}
-    .hero-stats strong{display:block;margin-top:6px;font-size:18px}
     .fab{
       position:fixed;
       right:max(18px, calc((100vw - var(--page)) / 2 + 18px));
@@ -214,9 +199,9 @@
     .set-row label{margin-bottom:6px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 
 
-    .bottom{grid-template-columns:repeat(5,1fr)}
-    .nav span{display:none}
-    .fab{left:50%;right:auto;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom));width:64px;height:64px;border-radius:16px}
+    .bottom{grid-template-columns:repeat(4,1fr)}
+    .nav span{display:block}
+    .fab{right:max(18px, calc((100vw - var(--page)) / 2 + 18px));left:auto;transform:none;bottom:calc(96px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:16px}
     .pill-live{background:rgba(255,75,75,.24);border-color:rgba(255,75,75,.7)}
     .live-score{box-shadow:0 0 0 1px rgba(57,255,20,.55),0 0 24px rgba(57,255,20,.38)}
     .set-row{border-radius:16px}
@@ -243,16 +228,7 @@
   <div class="app">
     <main id="home" class="page active">
       <div class="section-gap">
-      <section class="hero-panel glass">
-        <div class="hero-kicker">Padel Club / Night court</div>
-        <h1 class="hero-title">Fast. Neon. Competitive.</h1>
-        <p class="hero-sub">Читаемый контраст, акцент на активных матчах и быстрый доступ к ключевым действиям.</p>
-        <div class="hero-stats">
-          <div><small>Live now</small><strong>01</strong></div>
-          <div><small>Courts</small><strong>08</strong></div>
-          <div><small>Players</small><strong>124</strong></div>
-        </div>
-      </section>
+
         <section class="section-shell shell-blue glass">
           <div class="head">
             <h2>My Tournaments <span class="diamonds"><span></span><span></span></span></h2>
@@ -407,9 +383,6 @@
     <button class="nav" data-page="tournaments" aria-label="Tournaments">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h10"/><path d="M8 4v3a4 4 0 0 0 8 0V4"/><path d="M8 20h8"/><path d="M12 11v9"/></svg>
       <span>Tournaments</span>
-    </button>
-    <button class="nav" data-page="players" aria-label="Players">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16"/><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/></svg>
     </button>
     <button class="nav" data-page="profile" aria-label="Profile">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
