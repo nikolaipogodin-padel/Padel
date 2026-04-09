@@ -1,1 +1,13 @@
 Upload index.html, 404.html, .nojekyll, assets/, docs/ into the GitHub Pages repo root.
+
+Mandatory release protocol (no local-only "done"):
+1) Make code changes and bump version in release files.
+   - Check index.html: <title>, BUILD_VERSION, storage KEY.
+2) Mirror release files to docs/.
+   - Check docs/index.html has the same version/BUILD_VERSION/KEY.
+3) Commit changes.
+4) Push to GitHub main branch.
+5) Verify GitHub Pages source settings (branch/path).
+6) Verify latest Pages build status is "built" and built from the latest main commit.
+7) Open public Pages URL and confirm the new version is visible.
+8) Only after steps 1-7 mark task as ready.
