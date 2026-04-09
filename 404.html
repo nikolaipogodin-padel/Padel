@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Padel OS v20.0.2</title>
+  <title>Padel OS v20.0.3</title>
   <style>
     :root{
       --bg:#0F1215;
@@ -368,7 +368,7 @@
     </main>
   </div>
 
-  <div id="buildVersion" class="build-version">Build v20.0.2</div>
+  <div id="buildVersion" class="build-version">Build v20.0.3</div>
   <div id="diagBadge" class="diag-badge">boot…</div>
 
   <nav class="bottom">
@@ -410,15 +410,15 @@
 
   <script>
     (() => {
-      const KEY = 'padel.v20.2.status-flow';
-      const BUILD_VERSION = 'v20.0.2';
+      const KEY = 'padel.v20.3.status-flow';
+      const BUILD_VERSION = 'v20.0.3';
       const PLAYER_ID = 'p1';
 
       const diagEl = document.getElementById('diagBadge');
       const setDiag = (text) => { if(diagEl) diagEl.textContent = text; };
 
       (async () => {
-        const legacyKeys = Object.keys(localStorage).filter(k => /^padel\.v19\./.test(k) || /^padel\.v20\.(?:1|2)?\.status-flow$/.test(k));
+        const legacyKeys = Object.keys(localStorage).filter(k => /^padel\.v19\./.test(k) || /^padel\.v20\.(?:1|2|3)?\.status-flow$/.test(k));
         legacyKeys.forEach(k => localStorage.removeItem(k));
 
         if ('serviceWorker' in navigator) {
