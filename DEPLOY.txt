@@ -11,3 +11,11 @@ Mandatory release protocol (no local-only "done"):
 6) Verify latest Pages build status is "built" and built from the latest main commit.
 7) Open public Pages URL and confirm the new version is visible.
 8) Only after steps 1-7 mark task as ready.
+
+
+Operational baseline (фикс из инцидента с зависшей версией):
+9) Если push отклоняется ошибкой про workflow scope, не пушить историю с изменениями `.github/workflows/*` этим токеном.
+10) Для релизов UI держать `index.html`, `docs/index.html`, `404.html`, `docs/404.html` синхронными.
+11) После push обязательно запускать проверку live-версии: `scripts/check-live-version.sh` (c retries/cache_bust).
+12) Если Pages source = main/root, проверять API Pages: latest build status=built и commit совпадает с pushed commit.
+13) Фиксировать в отчете: commit SHA, Pages build id/status, live URL и Build-строку.
