@@ -1,0 +1,42 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+*.apk
+*.ipa
+*.app
+*.appbundle
+.web_symlinks/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.env
+.env.local
+
+# Web
+web/canvaskit/
+web/canvaskit_wasm.js
+web/canvaskit.js
+
+# iOS/macOS
+ios/.symlinks/
+ios/.generated/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+macos/.symlinks/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Android  
+android/.gradle/
+android/gradle/
+android/captures/
+android/gradlew
+android/gradlew.bat
